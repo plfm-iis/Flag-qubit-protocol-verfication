@@ -1,0 +1,87 @@
+name: Verify live Overleaf content (read only)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/verify-overleaf-live.yml']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: overleaf-bridge
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Read the Overleaf default branch independently of the sync baseline
+        shell: bash
+        env:
+          OVERLEAF_GIT_TOKEN: ${{ secrets.OVERLEAF_GIT_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$OVERLEAF_GIT_TOKEN"
+          work="$(mktemp -d)"
+          trap 'rm -rf "$work"' EXIT
+          cat > "$work/askpass" <<'SH'
+          #!/bin/sh
+          case "$1" in
+            *Username*) printf '%s\n' git ;;
+            *Password*) printf '%s\n' "$OVERLEAF_GIT_TOKEN" ;;
+            *) exit 1 ;;
+          esac
+          SH
+          chmod 700 "$work/askpass"
+          export GIT_ASKPASS="$work/askpass" GIT_TERMINAL_PROMPT=0
+          export CHECK_WORK="$work"
+          python3 - <<'PY'
+          import json
+          import os
+          import subprocess
+          from pathlib import Path
+
+          remote = 'https://git@git.overleaf.com/6adb7d2d9036071907960b2e'
+          repo = Path(os.environ['CHECK_WORK']) / 'project'
+
+          def git(*args, cwd=None, check=True):
+              p = subprocess.run(['git', *args], cwd=cwd, capture_output=True, text=True)
+              if check and p.returncode:
+                  raise RuntimeError(p.stderr.strip())
+              return p
+
+          before = git('ls-remote', '--symref', remote, 'HEAD', 'refs/heads/main', 'refs/heads/master').stdout
+          print('REMOTE REFS BEFORE CLONE\n' + before)
+          git('clone', '--quiet', remote, str(repo))
+          note = ('\\yfc{Stabilizer membership is\n'
+                  '$\\mathrm{Norm}\\land\\neg\\mathrm{Stab}_{\\mathrm{non}}$.\n'
+                  'Its negation should therefore be\n'
+                  '$\\neg\\mathrm{Norm}\\lor\\mathrm{Stab}_{\\mathrm{non}}$.\n'
+                  'Please check the implementation too.}')
+          reports = []
+          for ref in ['HEAD', 'refs/remotes/origin/main', 'refs/remotes/origin/master']:
+              result = git('rev-parse', '--verify', ref, cwd=repo, check=False)
+              if result.returncode:
+                  continue
+              content = git('show', ref + ':samplepaper.tex', cwd=repo).stdout
+              snippets = [{'line': i, 'text': line} for i, line in enumerate(content.splitlines(), 1)
+                          if '\\renewcommand{\\yfc}' in line or 'Stabilizer membership is' in line]
+              reports.append({
+                  'ref': ref,
+                  'commit': result.stdout.strip(),
+                  'tree': git('rev-parse', ref + '^{tree}', cwd=repo).stdout.strip(),
+                  'paper_blob': git('rev-parse', ref + ':samplepaper.tex', cwd=repo).stdout.strip(),
+                  'approved_note_count': content.count(note),
+                  'yfc_hide_active': any(line.strip() == '\\renewcommand{\\yfc}[1]{}' for line in content.splitlines()),
+                  'snippets': snippets,
+              })
+          print('CONTENT REPORT\n' + json.dumps(reports, indent=2))
+          after = git('ls-remote', '--symref', remote, 'HEAD', 'refs/heads/main', 'refs/heads/master').stdout
+          print('REMOTE REFS AFTER CLONE\n' + after)
+          print('Remote refs unchanged:', before == after)
+          print('No push, manuscript change, or baseline update was performed.')
+          PY
