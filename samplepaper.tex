@@ -2943,7 +2943,11 @@ and is rejected by the verifier.
 Condition (2) of Def.~\ref{def:control-flow-validity} is checked by direct
 inspection of terminating paths. This condition applies to paths that terminate
 after a repeated full-syndrome suffix. For each such path $\pi$, the verifier
-reads from the branch structure the number $w$ of detected faults on the path.
+infers a detected-fault lower bound $w$ from the preceding measurement
+record using the counting rule of~\cite[Sections~2.2 and~3.1]{CB18}.
+In particular, when comparing consecutive unflagged full-syndrome
+rounds, a syndrome change increments the counter by one only if the
+preceding comparison did not increment it.
 It then checks that the terminating suffix contains $t-w+1$ consecutive full
 syndrome extraction rounds whose recorded syndrome outcomes are required by the
 branch guards to be identical, and whose flag outcomes are required to be zero.
