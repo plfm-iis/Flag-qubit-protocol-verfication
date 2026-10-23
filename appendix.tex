@@ -1,0 +1,122 @@
+% appendix.tex
+\newpage
+\appendix
+\section{Proof of Main Theorem}
+\label{app:proof}
+
+\begin{theorem}
+\label{thm:mains}
+ Consider a flagged syndrome extraction protocol $\Pi$ for a stabilizer code
+with stabilizer group $S$, distance $d$, and
+$t=\lfloor (d-1)/2 \rfloor$. Assume that $\Pi$ is valid in the sense of Def.~\ref{def:protocol-validity}
+Then there exists a suitable lookup-table decoder $D$ such that $(\Pi,D)$ satisfies
+$t$-FTEC if and only if, for all measurement record $m$,
+$\forall E_1,E_2\in \mathcal{E}_{m},
+    E_1E_2 \notin \mathcal{N}(S)\setminus S$.  
+\end{theorem}\label{thm:ftec-verify}
+
+% \begin{theorem}
+% \label{thm:mains}
+% Consider a flagged syndrome extraction protocol for a QECC of distance $d$ and $t = \lfloor\frac{d-1}{2} \rfloor$. Assume that the protocol satisfies Def.~\ref{def:protocol-validity}. 
+% The flagged syndrome extraction protocol, coupled with any suitable LUT decoder from Definition~\ref{def:decoder}, achieves fault-tolerant error correction (FTEC) if and only if for each $m$, $\forall E_1, E_2 \in \mathcal{E}_{m}$, $E_1 \cdot E_2 \notin \mathcal{N(S)} \setminus \mathcal{S}$.
+% \end{theorem}\label{thm:ftec-verify}
+
+\begin{proof}
+\textbf{($\Rightarrow$) 
+Let $E_1$ and $E_2$ be any two possible residual errors in $\mathcal{E}_{m}$ resulting from distinct fault events. Assume the protocol achieves FTEC. We must show $E_1 \cdot E_2 \notin \mathcal{N(S)} \setminus \mathcal{S}$.}\\
+We proceed by contradiction. Suppose $E_1 \cdot E_2 \in \mathcal{N(S)} \setminus \mathcal{S}$.  This implies that there exists a measurement record $m$ for which the LUT decoder outputs a correction $C$ such that $E_1 \cdot E_2 = (E_1 \cdot C) \cdot (E_2 \cdot C)$ constitutes a logical operator. Suppose that both $(E_1 \cdot C)$ and $(E_2 \cdot C)$ have a minimum weight of at most $t$. Then, their product would have a minimum weight of at most $2t$. However, because $(E_1 \cdot C) \cdot (E_2 \cdot C)$ is a logical operator, its minimum weight must be at least $d > 2t$, which yields a contradiction. Therefore, if $(E_1 \cdot C)$ has a minimum weight of at most $t$, then $(E_2 \cdot C)$ must have a minimum weight strictly greater than $t$, and vice versa. It follows that either $(E_1 \cdot C)$ or $(E_2 \cdot C)$ must violate FTEC (2) of Def.~\ref{def:weak-FTEC}.
+
+\textbf{($\Leftarrow$) 
+Assume $\forall E_1 , E_2 \in \mathcal{E}_m,  E_1 \cdot E_2 \notin  \mathcal{N(S)} \setminus \mathcal{S}$. We must show the protocol achieves FTEC.}
+\paragraph{Termination Condition (1).}
+Let $m$ be the corresponding
+    measurement record, and let $C\in\mathcal{E}_m$ be the representative
+    correction chosen by the LUT decoder.
+    Since all residual errors in $\mathcal{E}_m$ have the same ideal syndrome,
+    for every $E\in\mathcal{E}_m$,
+    $\operatorname{syn}(E)=\operatorname{syn}(C)$.
+    Hence, $\operatorname{syn}(E\cdot C)=0,$ which implies $E\cdot C\in \mathcal{N}(\mathcal{S}).$
+    On the other hand, both $E$ and $C$ belong to $\mathcal{E}_m$. By the
+    assumption of the theorem, $E \cdot C \in \mathcal{N}(\mathcal{S}) \setminus \mathcal{S}$. 
+    Therefore, $E \cdot C\in S$.
+    Thus, after applying the representative correction, every possible residual
+    error is equivalent to the identity up to a stabilizer. Hence the logical
+    state is preserved, and FTEC of Definition~\ref{def:weak-FTEC} is satisfied.
+        
+\paragraph{Tetmination Condition (2).}
+Let $w$ be the number of faults detected
+before the final repeated full-syndrome suffix.  By Condition~(2), this suffix
+consists of $t-w+1$ consecutive full syndrome extraction rounds whose measured
+syndrome outcomes are all equal to the same value $\sigma$, and no flag is
+raised during these rounds.
+
+Fix an execution with total fault number $s\le t$.  Since at least $w$ faults
+have already been detected before the suffix, at most $s-w\le t-w$ faults occur
+during the repeated full-syndrome suffix.  Hence, among the $t-w+1$ full
+syndrome extraction rounds in the suffix, at least one round is fault-free.
+Fix such a fault-free round $R$, and let $E^-$ be the data error immediately
+before $R$.
+Because $R$ is fault-free and the full syndrome extraction circuit is correct,
+the measured syndrome outcome of $R$ is exactly the ideal syndrome of $E^-$.
+Since all rounds in the repeated suffix report the same syndrome value
+$\sigma$, we have
+$\operatorname{syn}(E^-)=\sigma$.
+Moreover, by correctness of the fault-free syndrome extraction circuit, $R$
+introduces no additional data error, so the data error immediately after $R$ is
+still $E^-$.
+
+Now consider
+another execution that has the same faults as the original execution up to $R$,
+but has no faults after $R$.  Since $R$ is fault-free and the later full
+syndrome extraction rounds are also fault-free in this execution, the data
+error remains $E^-$ throughout the rest of the suffix.  Moreover, all later
+rounds report the same syndrome value $\sigma$ and raise no flag.  Hence this
+execution follows the same terminating path, has the same measurement record
+$m$, and has final residual data error $E^-$.  Therefore $E^-\in\mathcal E_m$.
+Thus all possible errors $E^-$ arising immediately before a fault-free round
+in the repeated suffix are equivalent up to stabilizers.  For the record $m$,
+choose the decoder output $C$ to be one representative of this equivalence
+class.  Then, for the prefix error $E^-$ in the actual execution,
+$CE^- \in \mathcal S$. This does not yet account for faults occurring after $R$; these faults are
+handled separately below.
+Let $E_{\mathrm{suf}}$ denote the data error induced by faults occurring after
+$R$ in the repeated full-syndrome suffix.  By Pauli propagation through Clifford
+circuits, the final data error before applying the decoder output can be written,
+up to global phase, as
+$E_{\mathrm{fin}} = E^- E_{\mathrm{suf}}$.
+Therefore, after applying the decoder output $C$, $C E_{\mathrm{fin}}
+    =
+    C E^- E_{\mathrm{suf}}
+    \sim
+    E_{\mathrm{suf}}$, because $CE^-\in\mathcal S$.
+
+It remains to bound $E_{\mathrm{suf}}$. The number of faults occurring after
+$R$ is at most $s-w$. Since no flag is raised during the repeated suffix and the
+full syndrome extraction circuit satisfies the required $(t-w)$-flag condition,
+these faults induce a data error satisfying
+$\mathrm{wt}_{\min}(E_{\mathrm{suf}})\le s-w\le s$.
+Hence
+$\mathrm{wt}_{\min}(C E_{\mathrm{fin}})
+    =
+    \mathrm{wt}_{\min}(E_{\mathrm{suf}})
+    \le s$.
+This proves FTEC~(2) of Def.~\ref{def:weak-FTEC}.
+
+For FTEC (1), observe that the error accumulated before $R$ is canceled
+up to stabilizer equivalence by the decoder output, since $CE^-\in\mathcal S$.
+Thus the output data block differs from the ideally decoded input only by the
+suffix error $E_{\mathrm{suf}}$, up to stabilizer equivalence. Since
+$\mathrm{wt}_{\min}(E_{\mathrm{suf}})\le s\le t$, ideal decoding removes this
+remaining error. Therefore, ideal decoding of the output data block gives the
+same logical state as ideal decoding of the input data block. This proves
+FTEC~(1) of Def.~\ref{def:weak-FTEC}.
+
+\paragraph{Termination Condition (3).}
+For any fault event of weight $w \leq t$, every resulting error $E \in \mathcal{E}_m$ has a minimum weight $\mathrm{wt}_{\min}(E) \leq t$, thereby satisfying FTEC (2) of Def~\ref{def:weak-FTEC}. Consequently, applying an ideal decoder to an input state---which contains an initial data error of weight $r \leq t$ and an accumulated output error $E$ with $\mathrm{wt}_{\min}(E) \leq t$---will successfully recover the original state. This holds because, for any quantum error-correcting code (QECC) with distance $d$, every error $e$ with $\mathrm{wt}_{\min}(e) \leq t$ is perfectly correctable via ideal decoding, thus satisfying FTEC (1) of Def~\ref{def:weak-FTEC}.
+
+\end{proof}
+
+Here is the detailed proof of the theorem...
+
+
+
