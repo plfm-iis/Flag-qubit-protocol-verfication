@@ -1,0 +1,46 @@
+name: Check Overleaf connection
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/check-overleaf-connection.yml
+      - .github/overleaf-check-trigger
+
+permissions:
+  contents: read
+
+concurrency:
+  group: overleaf-bridge
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check configured Overleaf Git access
+        shell: bash
+        env:
+          OVERLEAF_GIT_TOKEN: ${{ secrets.OVERLEAF_GIT_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${OVERLEAF_GIT_TOKEN}" ]]; then
+            echo "::error::OVERLEAF_GIT_TOKEN is not available to this repository. Grant this repository access to the existing Actions secret."
+            exit 1
+          fi
+          bridge_askpass="$(mktemp "${RUNNER_TEMP}/overleaf-askpass.XXXXXX")"
+          trap 'rm -f "$bridge_askpass"' EXIT
+          cat > "$bridge_askpass" <<'SH'
+          #!/bin/sh
+          case "$1" in
+            *Username*) printf '%s\n' git ;;
+            *Password*) printf '%s\n' "$OVERLEAF_GIT_TOKEN" ;;
+            *) exit 1 ;;
+          esac
+          SH
+          chmod 700 "$bridge_askpass"
+          export GIT_ASKPASS="$bridge_askpass"
+          export GIT_TERMINAL_PROMPT=0
+          git ls-remote --symref https://git@git.overleaf.com/6adb7e8c4019793a7dcea09f HEAD
