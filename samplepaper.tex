@@ -53,7 +53,7 @@
 \newcommand{\bmark}[1]{\textcolor{blue}{#1}}
 
 
-\renewcommand{\yfc}[1]{}
+%\renewcommand{\yfc}[1]{}
 % \renewcommand{\bw}[1]{}
 \renewcommand{\cy}[1]{}
 
@@ -2642,6 +2642,12 @@ To encode the condition $\mathrm{wt}_{\min}(E_\pi(\mathcal{F})) > w$, we must as
       \mathrm{wt}_{\min}(E_\pi(\mathcal{F}))>w \ =   \bigwedge_{P : \mathrm{wt}(P) \leq w } \neg\Big( \mathrm{Norm}(P \cdot E_\pi(\mathcal{F}), \mathcal{S}) \lor \mathrm{Stab}_{\mathrm{non}}(P \cdot E_\pi(\mathcal{F}), \mathcal{L}) \Big)
     \end{aligned}
 \end{equation}
+
+\yfc{Stabilizer membership is
+$\mathrm{Norm}\land\neg\mathrm{Stab}_{\mathrm{non}}$.
+Its negation should therefore be
+$\neg\mathrm{Norm}\lor\mathrm{Stab}_{\mathrm{non}}$.
+Please check the implementation too.}
 
 \bw{change the minimum weight encoding to the new one.}
 
