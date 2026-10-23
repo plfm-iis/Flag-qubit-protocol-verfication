@@ -45,7 +45,7 @@ jobs:
           import subprocess
           from pathlib import Path
 
-          remote = 'https://git@git.overleaf.com/6adb7d2d9036071907960b2e'
+          remote = 'https://git@git.overleaf.com/6adb7e8c4019793a7dcea09f'
           repo = Path(os.environ['CHECK_WORK']) / 'project'
 
           def git(*args, cwd=None, check=True):
