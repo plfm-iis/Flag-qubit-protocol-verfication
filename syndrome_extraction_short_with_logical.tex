@@ -1,0 +1,120 @@
+% Manuscript fragment.
+% Requires amsmath, amssymb, amsthm, and a \ket macro.
+
+\begin{definition}
+\label{def:syndrome-extraction-deterministic}
+Consider a syndrome extraction circuit $U$ acting on data qubits
+$Q_{\text{data}}$ and ancilla qubits $Q_{\text{anc}}$.
+The data are initialized in a codespace state corrupted by an
+arbitrary-weight Pauli error. Each ancilla is prepared in $\ket{0}$
+or $\ket{+}$ and subsequently measured in the corresponding $Z$
+or $X$ basis. The circuit is \emph{deterministic} if, in the absence
+of circuit faults, each input Pauli error determines all ancilla
+measurement outcomes independently of the encoded state, and the
+output data state remains in the codespace up to a Pauli error.
+\end{definition}
+
+\begin{definition}
+\label{def:syndrome-extraction-correct}
+A syndrome extraction circuit for Pauli checks
+$\{P_i\}_{i=1}^{m}\subseteq\mathcal{S}_{\mathrm{data}}$ is
+\emph{correct} if, for every input Pauli error $E$ and every
+codespace state $\ket{\psi}$, its fault-free application to
+$E\ket{\psi}$ yields the ideal syndrome bit $E\odot P_i$ on the
+ancilla associated with $P_i$, and the output data state is
+\[
+    E'\ket{\psi}, \qquad E'\sim E,
+\]
+up to an overall phase. Here $E'$ may depend on $E$ but not on
+$\ket{\psi}$, and $E'\sim E$ means $E'=\omega ES$ for some
+$S\in\mathcal{S}_{\mathrm{data}}$ and Pauli phase $\omega$.
+Thus the same encoded logical state is preserved.
+The syndrome bit $0$ denotes eigenvalue $+1$.
+\end{definition}
+
+\begin{definition}
+\label{def:syndrome-extraction-valid}
+A syndrome extraction circuit is \emph{valid} if it is both
+deterministic (Def.~\ref{def:syndrome-extraction-deterministic})
+and correct (Def.~\ref{def:syndrome-extraction-correct}).
+\end{definition}
+
+\begin{theorem}
+\label{thm:syndrome-extraction-valid}
+Let $U$ be the Clifford unitary implementing syndrome extraction
+before the final ancilla measurements. Let
+\[
+    \mathcal{S}_{\mathrm{data}}
+    =\langle G_1,\ldots,G_{n-k}\rangle,
+    \qquad
+    \mathcal{S}_{\mathrm{anc}}
+    =\langle A_1,\ldots,A_m\rangle
+\]
+be the data stabilizer group and the stabilizer group of the
+prepared ancillas, respectively, where each $A_i$ is the
+corresponding single-qubit preparation and measurement observable.
+Define
+\[
+    \mathcal{S}_{\mathrm{joint}}
+    =\langle G_1,\ldots,G_{n-k},A_1,\ldots,A_m\rangle.
+\]
+Let $L_1,\ldots,L_{2k}$ be Hermitian representatives of a complete
+set of logical Pauli generators. Identity extensions on the
+complementary register are understood.
+
+Then $U$ is valid if and only if $U$ is correct and
+\[
+\begin{gathered}
+    \mathcal{S}'_{\mathrm{joint}}
+    =U\mathcal{S}_{\mathrm{joint}}U^\dagger
+    =\mathcal{S}_{\mathrm{joint}},
+    \\
+    (UL_iU^\dagger)L_i\in\mathcal{S}_{\mathrm{joint}}
+    \qquad\text{for every }i=1,\ldots,2k.
+\end{gathered}
+\]
+Both stabilizer equality and membership retain the Pauli signs.
+\end{theorem}
+
+\begin{proof}
+\textbf{($\Leftarrow$).}
+Suppose $U$ is correct and the displayed conditions hold.
+Joint-stabilizer preservation places every error-free
+premeasurement state in the initial joint stabilized subspace.
+Since $U$ is Clifford, any input Pauli error propagates to a
+Pauli operator on the data and ancillas, changing only stabilizer
+eigenvalue signs. Hence all ancilla outcomes are certain,
+independently of the encoded state, and the output data lies in
+a Pauli translate of the codespace. Thus $U$ is deterministic
+and therefore valid.
+
+\textbf{($\Rightarrow$).}
+Suppose $U$ is valid, and hence correct. Let $\ket{a}$ be the
+prepared ancilla state. For $E=I$, correctness gives outcome
+$+1$ for every $A_i$ and output data state $\ket{\psi}$ up to
+phase. These certain, rank-one ancilla measurement outcomes imply
+\[
+    U(\ket{\psi}\otimes\ket{a})
+    =e^{i\theta}\ket{\psi}\otimes\ket{a}
+\]
+for every codespace state $\ket{\psi}$, with a common phase by
+linearity. Thus $U$ preserves the entire joint stabilized subspace.
+Since $U$ is Clifford, its signed Pauli stabilizer group is
+preserved, giving
+$\mathcal{S}'_{\mathrm{joint}}=\mathcal{S}_{\mathrm{joint}}$.
+
+Moreover, each $L_i$ preserves this subspace and satisfies
+$L_i^2=I$. Consequently,
+\[
+    (UL_iU^\dagger)L_i(\ket{\psi}\otimes\ket{a})
+    =\ket{\psi}\otimes\ket{a}
+\]
+for every codespace state $\ket{\psi}$. The Pauli operator
+$(UL_iU^\dagger)L_i$ therefore acts as the identity on the entire
+joint stabilized subspace, so it belongs to
+$\mathcal{S}_{\mathrm{joint}}$.
+\end{proof}
+
+% Under the strengthened correctness definition, correctness already
+% implies determinism. The theorem records structural consequences of
+% correctness; the displayed conditions alone are not a correctness test.
