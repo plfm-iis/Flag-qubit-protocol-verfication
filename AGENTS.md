@@ -4,8 +4,8 @@
 
 - GitHub: `plfm-iis/Flag-qubit-protocol-verfication`.
 - Default working branch: `main`; verify the current remote head before work.
-- Overleaf project: `6adb7e8c4019793a7dcea09f`.
-- Overleaf Git remote: `https://git@git.overleaf.com/6adb7e8c4019793a7dcea09f`.
+- Overleaf project: `6adb7d2d9036071907960b2e`.
+- Overleaf Git remote: `https://git@git.overleaf.com/6adb7d2d9036071907960b2e`.
 - Use only this project pairing. Do not write to a different project or repository.
 
 ## Read the latest version first

@@ -6,8 +6,8 @@
 | --- | --- |
 | GitHub repository | `plfm-iis/Flag-qubit-protocol-verfication` |
 | GitHub branch | `main` |
-| Overleaf project | `https://www.overleaf.com/project/6adb7e8c4019793a7dcea09f` |
-| Overleaf Git remote | `https://git@git.overleaf.com/6adb7e8c4019793a7dcea09f` |
+| Overleaf project | `https://www.overleaf.com/project/6adb7d2d9036071907960b2e` |
+| Overleaf Git remote | `https://git@git.overleaf.com/6adb7d2d9036071907960b2e` |
 | Initial GitHub import | `ec17228b7f9c31903211eb1decdb28c15d2efbcc` |
 | Actions credential | `OVERLEAF_GIT_TOKEN` |
 
@@ -34,10 +34,10 @@ compiling; a filename alone is not proof of the Overleaf root setting.
 
 The collaboration metadata and workflows are installed. The organization
 secret is now available after the user made the repository public, but the
-first refresh failed with Overleaf authentication rejected for the specified
-project ID. No verified Overleaf baseline has been created yet. Confirm access
-or the exact intended project ID before substantive manuscript work; a project
-with a similar title does not establish that it is the authorized destination.
+first refresh failed because the previously supplied Overleaf project ID was
+incorrect. The user corrected the ID to `6adb7d2d9036071907960b2e` on
+2026-10-23. A verified Overleaf baseline must still be established before
+substantive manuscript work.
 
 ## Refresh before reading
 

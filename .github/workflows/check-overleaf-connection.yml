@@ -43,4 +43,4 @@ jobs:
           chmod 700 "$bridge_askpass"
           export GIT_ASKPASS="$bridge_askpass"
           export GIT_TERMINAL_PROMPT=0
-          git ls-remote --symref https://git@git.overleaf.com/6adb7e8c4019793a7dcea09f HEAD
+          git ls-remote --symref https://git@git.overleaf.com/6adb7d2d9036071907960b2e HEAD
