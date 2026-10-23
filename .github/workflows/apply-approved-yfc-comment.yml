@@ -1,0 +1,83 @@
+name: Apply approved YFC comment
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/apply-approved-yfc-comment.yml']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: overleaf-bridge
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    if: github.repository == 'plfm-iis/Flag-qubit-protocol-verfication' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Apply only the change approved on 2026-10-23T17:25:36Z
+        env:
+          OVERLEAF_GIT_TOKEN: ${{ secrets.OVERLEAF_GIT_TOKEN }}
+          BRIDGE_FORCE_DRY_RUN: 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import difflib
+          import json
+          import os
+          from pathlib import Path
+          import subprocess
+
+          def git(*args):
+              return subprocess.check_output(['git', *args]).decode().strip()
+
+          start = git('rev-parse', 'HEAD')
+          assert start == os.environ['GITHUB_SHA'], 'Unexpected checkout'
+          assert git('ls-remote', 'origin', 'refs/heads/main').split()[0] == start, 'GitHub changed'
+          assert not git('status', '--porcelain'), 'Dirty checkout'
+          state = json.loads(Path('.github/overleaf-state.json').read_text())
+          assert state['project_id'] == '6adb7d2d9036071907960b2e', 'Wrong Overleaf project'
+          assert state['overleaf_revision'] == '3fc86718328d127150b5a12df2f608e84f2f7f47', 'Baseline changed since approval'
+          assert not Path('.github/overleaf-sync-request.json').exists(), 'Unexpected existing sync request'
+          assert git('rev-parse', 'HEAD:.github/scripts/overleaf_bridge.py') == 'f65e44c5b9bf291261c810a01adce0b9a781cd5f', 'Bridge changed'
+          assert git('hash-object', 'samplepaper.tex') == '1a91b8609a481a740ed7093a3a6a799f4d0923b9', 'Manuscript changed since approval'
+          subprocess.run(['python3', '.github/scripts/overleaf_bridge.py', 'sync'], check=True)
+
+          path = Path('samplepaper.tex')
+          original = path.read_bytes()
+          old = original.decode('utf-8')
+          disabled = r'\renewcommand{\yfc}[1]{}'
+          anchor = r'\bw{change the minimum weight encoding to the new one.}'
+          note = '\n'.join([
+              r'\yfc{Stabilizer membership is',
+              r'$\mathrm{Norm}\land\neg\mathrm{Stab}_{\mathrm{non}}$.',
+              r'Its negation should therefore be',
+              r'$\neg\mathrm{Norm}\lor\mathrm{Stab}_{\mathrm{non}}$.',
+              r'Please check the implementation too.}',
+          ])
+          assert old.count(disabled) == 1 and old.count(anchor) == 1, 'Unexpected source anchors'
+          assert note not in old, 'Note already exists'
+          new = old.replace(disabled, '%' + disabled, 1).replace(anchor, note + '\n\n' + anchor, 1)
+          assert new.replace('%' + disabled, disabled, 1).replace(note + '\n\n', '', 1) == old, 'Unexpected edits'
+          path.write_bytes(new.encode('utf-8'))
+          assert git('diff', '--name-only') == 'samplepaper.tex', 'Unexpected changed files'
+          assert git('diff', '--numstat').split() == ['7', '1', 'samplepaper.tex'], 'Unexpected edit size'
+          subprocess.run(['git', 'diff', '--check'], check=True)
+          print(''.join(difflib.unified_diff(old.splitlines(True), new.splitlines(True), fromfile='a/samplepaper.tex', tofile='b/samplepaper.tex')))
+          print('New manuscript blob:', git('hash-object', 'samplepaper.tex'))
+          assert git('ls-remote', 'origin', 'refs/heads/main').split()[0] == start, 'GitHub changed before commit'
+          subprocess.run(['git', 'add', 'samplepaper.tex'], check=True)
+          subprocess.run(['git', '-c', 'user.name=paper-sync-bot', '-c', 'user.email=paper-sync-bot@users.noreply.github.com', 'commit', '-m', 'Add approved minimum-weight YFC note and enable YFC comments'], check=True)
+          assert git('diff', '--name-only', start, 'HEAD') == 'samplepaper.tex', 'Unexpected committed files'
+          assert git('ls-remote', 'origin', 'refs/heads/main').split()[0] == start, 'GitHub changed before push'
+          subprocess.run(['git', 'push', 'origin', 'HEAD:refs/heads/main'], check=True)
+          print('Approved manuscript commit:', git('rev-parse', 'HEAD'))
+          PY
