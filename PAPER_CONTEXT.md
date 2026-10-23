@@ -6,8 +6,8 @@
 | --- | --- |
 | GitHub repository | `plfm-iis/Flag-qubit-protocol-verfication` |
 | GitHub branch | `main` |
-| Overleaf project | `https://www.overleaf.com/project/6adb7d2d9036071907960b2e` |
-| Overleaf Git remote | `https://git@git.overleaf.com/6adb7d2d9036071907960b2e` |
+| Overleaf project | `https://www.overleaf.com/project/6adb7e8c4019793a7dcea09f` |
+| Overleaf Git remote | `https://git@git.overleaf.com/6adb7e8c4019793a7dcea09f` |
 | Initial GitHub import | `ec17228b7f9c31903211eb1decdb28c15d2efbcc` |
 | Actions credential | `OVERLEAF_GIT_TOKEN` |
 
@@ -32,12 +32,16 @@ compiling; a filename alone is not proof of the Overleaf root setting.
 
 ## Setup status
 
-The collaboration metadata and workflows are installed. The organization
-secret is now available after the user made the repository public, but the
-first refresh failed because the previously supplied Overleaf project ID was
-incorrect. The user corrected the ID to `6adb7d2d9036071907960b2e` on
-2026-10-23. A verified Overleaf baseline must still be established before
-substantive manuscript work.
+The active target was explicitly confirmed by the user at
+2026-10-23T17:56:34Z: `6adb7e8c4019793a7dcea09f`.
+The previous destination `6adb7d2d9036071907960b2e` is a separate copy
+and must no longer be used for future synchronization.
+Access to the active target was successfully verified. Migration checks
+its exact revision and all paper files before changing the baseline.
+The only approved manuscript changes are the minimum-weight YFC note
+and enabling YFC comments; the formula itself is unchanged.
+Consult `.github/overleaf-state.json` and the successful workflow logs
+for the verified source revision and synchronization status.
 
 ## Refresh before reading
 
