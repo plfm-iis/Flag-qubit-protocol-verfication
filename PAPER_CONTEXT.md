@@ -30,6 +30,15 @@ bibliographies, and LNCS support files. No substantive manuscript review was
 performed during bridge setup. Confirm the configured root document before
 compiling; a filename alone is not proof of the Overleaf root setting.
 
+## Setup status
+
+The collaboration metadata and workflows are installed. The organization
+secret is now available after the user made the repository public, but the
+first refresh failed with Overleaf authentication rejected for the specified
+project ID. No verified Overleaf baseline has been created yet. Confirm access
+or the exact intended project ID before substantive manuscript work; a project
+with a similar title does not establish that it is the authorized destination.
+
 ## Refresh before reading
 
 Run `.github/workflows/refresh-from-overleaf.yml` manually, or commit a unique
@@ -46,7 +55,9 @@ GitHub manuscript edits that have not been synchronized.
 
 Follow `AGENTS.md`: refresh, propose an exact unified diff, obtain approval,
 refresh and compare again, apply only the approved diff, and validate it.
-Substantive edits use a branch and pull request.
+After explicit approval and the final version check, commit the approved
+manuscript changes directly to `main` and synchronize them. Branches and pull
+requests are optional when the user specifically asks for them.
 
 After the approved manuscript commit is on `main`, write
 `.github/overleaf-sync-request.json` using this schema:

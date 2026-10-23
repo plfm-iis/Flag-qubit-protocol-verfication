@@ -35,8 +35,11 @@
 - Before applying an approved diff, refresh again and compare both revisions.
   If either source changed, reread it, regenerate the diff, and obtain approval
   again. Never silently merge concurrent manuscript changes.
-- Use a branch and pull request for substantive manuscript edits. Do not push
-  manuscript changes merely to show a proposal.
+- After explicit approval and the final version check, commit the approved
+  manuscript changes directly to `main`, then run the sync workflow. A branch
+  or pull request is optional when the user specifically requests it; it is
+  not a routine requirement. Do not push manuscript changes merely to show a
+  proposal.
 - Apply only the approved diff and run appropriate checks or compilation.
 - After the approved commit reaches `main`, create an explicit sync request
   containing the exact approved GitHub commit and expected Overleaf revision.
