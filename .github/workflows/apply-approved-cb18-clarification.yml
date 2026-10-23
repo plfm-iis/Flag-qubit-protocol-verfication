@@ -1,0 +1,139 @@
+name: Apply approved CB18 clarification and sync
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/apply-approved-cb18-clarification.yml']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: overleaf-bridge
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    if: github.repository == 'plfm-iis/Flag-qubit-protocol-verfication' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Apply only the exact diff approved at 2026-10-23T18:39:37Z
+        shell: bash
+        env:
+          OVERLEAF_GIT_TOKEN: ${{ secrets.OVERLEAF_GIT_TOKEN }}
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          set -euo pipefail
+          python3 -B - <<'PY'
+          import difflib
+          import json
+          import os
+          from pathlib import Path
+          import re
+          import sys
+          import tempfile
+
+          sys.dont_write_bytecode = True
+          sys.path.insert(0, str(Path('.github/scripts').resolve()))
+          import overleaf_bridge as b
+
+          repo = Path.cwd()
+          require = b.require
+          project = '6adb7e8c4019793a7dcea09f'
+          expected_revision = '95e41003c019d64678ef3a6feef181eed4817eb8'
+          expected_parent = '9434c46ddbc40c627c6cf29bcea6357ebe8a0e55'
+          proposal_commit = 'fcd9caac17e42618ba72e2521a24aae0842a97f7'
+          start = b.output(repo, 'rev-parse', 'HEAD')
+          require(os.environ.get('GITHUB_REPOSITORY') == b.REPOSITORY, 'Wrong repository')
+          require(os.environ.get('GITHUB_REF') == 'refs/heads/main', 'Wrong branch')
+          require(start == os.environ['GITHUB_SHA'], 'Unexpected checkout')
+          require(b.output(repo, 'rev-parse', 'HEAD^') == expected_parent, 'GitHub changed; review again')
+          require(b.output(repo, 'rev-parse', 'HEAD:.github/scripts/overleaf_bridge.py') == '10ef0c74902865fe502bbf671f720f105887b691', 'Bridge changed')
+          require(b.PROJECT == project, 'Wrong configured Overleaf target')
+          require(b.remote_head(repo) == start, 'GitHub main changed')
+          b.clean(repo)
+          state = b.read_json(repo, 'HEAD', b.STATE)
+          require(state['project_id'] == project, 'Wrong baseline target')
+          require(state['overleaf_revision'] == expected_revision, 'Overleaf baseline changed')
+          baseline = b.manifest(repo)
+          require(baseline == state['paper_manifest'] == b.manifest(repo, proposal_commit), 'Manuscript changed since proposal')
+          require(baseline['samplepaper.tex']['oid'] == 'bd17c32435b2d8ae66bf84b60441f446b94573fd', 'Unexpected manuscript blob')
+          require(bool(os.environ.get('OVERLEAF_GIT_TOKEN')), 'Missing Actions credential')
+
+          with tempfile.TemporaryDirectory(prefix='approved-cb18-') as directory:
+              root = Path(directory)
+              askpass = root / 'askpass'
+              askpass.write_text('#!/bin/sh\ncase "$1" in\n  *Username*) printf "%s\\n" git ;;\n  *Password*) printf "%s\\n" "$OVERLEAF_GIT_TOKEN" ;;\n  *) exit 1 ;;\nesac\n')
+              askpass.chmod(0o700)
+              os.environ['GIT_ASKPASS'] = str(askpass)
+              os.environ['GIT_TERMINAL_PROMPT'] = '0'
+              target = root / 'before'
+              b.git(repo, 'clone', '--quiet', b.REMOTE, str(target))
+              require(b.output(target, 'symbolic-ref', 'HEAD') == 'refs/heads/main', 'Unexpected Overleaf default branch')
+              require(b.output(target, 'rev-parse', 'HEAD') == expected_revision, 'Overleaf changed since approval; obtain a new diff approval')
+              require(b.manifest(target) == baseline, 'Live Overleaf differs from approved baseline')
+              require(b.remote_head(target) == expected_revision, 'Overleaf changed during inspection')
+
+              path = repo / 'samplepaper.tex'
+              old = path.read_bytes()
+              before = b'reads from the branch structure the number $w$ of detected faults on the path.\n'
+              after = (
+                  b'infers a detected-fault lower bound $w$ from the preceding measurement\n'
+                  b'record using the counting rule of~\\cite[Sections~2.2 and~3.1]{CB18}.\n'
+                  b'In particular, when comparing consecutive unflagged full-syndrome\n'
+                  b'rounds, a syndrome change increments the counter by one only if the\n'
+                  b'preceding comparison did not increment it.\n'
+              )
+              anchor = b'after a repeated full-syndrome suffix. For each such path $\\pi$, the verifier\n'
+              require(old.count(before) == 1 and old.count(anchor + before) == 1, 'Approved target sentence changed')
+              require(after not in old, 'Change already applied')
+              require(after.count(b'{') == after.count(b'}') and after.count(b'$') == 2, 'Unbalanced inserted LaTeX')
+              bib = (repo / 'refs.bib').read_text() + '\n' + (repo / 'qecc.bib').read_text()
+              require(re.search(r'@\w+\s*\{\s*CB18\s*,', bib, re.IGNORECASE) is not None, 'CB18 bibliography entry missing')
+              new = old.replace(before, after, 1)
+              require(new.replace(after, before, 1) == old, 'Unexpected edits')
+              path.write_bytes(new)
+              require(b.output(repo, 'diff', '--name-only') == 'samplepaper.tex', 'Unexpected changed files')
+              require(b.output(repo, 'diff', '--numstat').split() == ['5', '1', 'samplepaper.tex'], 'Unexpected edit size')
+              b.git(repo, 'diff', '--check')
+              print(''.join(difflib.unified_diff(old.decode().splitlines(True), new.decode().splitlines(True), fromfile='a/samplepaper.tex', tofile='b/samplepaper.tex')), flush=True)
+              require(b.remote_head(repo) == start and b.remote_head(target) == expected_revision, 'Remote changed before commit')
+              require(b.commit(repo, 'Clarify CB18 detected-fault counting rule as approved', {'samplepaper.tex'}), 'No approved manuscript edit')
+              approved = b.output(repo, 'rev-parse', 'HEAD')
+              require(b.output(repo, 'diff', '--name-only', start, approved) == 'samplepaper.tex', 'Unexpected committed scope')
+              approved_files = b.manifest(repo)
+              require(b.remote_head(repo) == start and b.remote_head(target) == expected_revision, 'Remote changed before manuscript push')
+              b.git(repo, 'push', 'origin', 'HEAD:refs/heads/main')
+              print('APPROVED MANUSCRIPT COMMIT:', approved, flush=True)
+
+              request = {'schema': 1, 'expected_overleaf_revision': expected_revision, 'approved_github_commit': approved, 'dry_run': False}
+              (repo / b.REQUEST).write_text(json.dumps(request, indent=2) + '\n')
+              require(b.remote_head(repo) == approved and b.remote_head(target) == expected_revision, 'Remote changed before sync request')
+              require(b.commit(repo, 'Request sync of approved CB18 clarification', {b.REQUEST}), 'No sync request commit')
+              require(b.manifest(repo) == approved_files, 'Request altered manuscript')
+              require(b.remote_head(repo) == approved, 'GitHub changed before request push')
+              b.git(repo, 'push', 'origin', 'HEAD:refs/heads/main')
+              b.Bridge(repo).run('sync', force_dry_run=False)
+
+              verified = root / 'after'
+              b.git(repo, 'clone', '--quiet', b.REMOTE, str(verified))
+              revision = b.output(verified, 'rev-parse', 'HEAD')
+              final_state = json.loads((repo / b.STATE).read_text())
+              require(final_state['project_id'] == project, 'Wrong final target')
+              require(final_state['overleaf_revision'] == revision, 'Final revision mismatch')
+              require(b.manifest(verified) == approved_files == final_state['paper_manifest'], 'Final snapshot mismatch')
+              require((verified / 'samplepaper.tex').read_bytes() == new, 'Published manuscript differs from approved content')
+              require(b.output(verified, 'diff', '--name-only', expected_revision, revision) == 'samplepaper.tex', 'Unexpected Overleaf edits')
+              b.git(verified, 'diff', '--check', expected_revision, revision)
+              require(b.remote_head(verified) == revision, 'Overleaf changed during final verification')
+              require(b.remote_head(repo) == b.output(repo, 'rev-parse', 'HEAD'), 'GitHub changed during final verification')
+              print('VERIFIED PROJECT:', project, flush=True)
+              print('VERIFIED OVERLEAF REVISION:', revision, flush=True)
+              print('VERIFIED GITHUB HEAD:', b.output(repo, 'rev-parse', 'HEAD'), flush=True)
+              print('Only the approved one-sentence-to-five-line CB18 clarification was published. LaTeX syntax and citation-key checks passed; full PDF compilation was not performed.', flush=True)
+          PY
