@@ -1,0 +1,63 @@
+{
+  "overleaf_revision": "3fc86718328d127150b5a12df2f608e84f2f7f47",
+  "paper_manifest": {
+    "appendix.tex": {
+      "mode": "100644",
+      "oid": "d96d65d1227db787df8bda04a7139c66b02950f8"
+    },
+    "fig1.eps": {
+      "mode": "100644",
+      "oid": "715b4800602843682b071ed524c98b4dcc920eca"
+    },
+    "history.txt": {
+      "mode": "100644",
+      "oid": "74824b60b84166f300bd06d5d8617c35fafbe7e1"
+    },
+    "llncs.cls": {
+      "mode": "100644",
+      "oid": "ea17bb35f5bc244b93f71e93e5ec7a532e36c911"
+    },
+    "llncsdoc.pdf": {
+      "mode": "100644",
+      "oid": "58f260083abcdbefb8d45ee7a499cb11d7d60acc"
+    },
+    "old.tex": {
+      "mode": "100644",
+      "oid": "b06ccb183b84a7b90c310137d7d5a0a3a7317561"
+    },
+    "old2.tex": {
+      "mode": "100644",
+      "oid": "b14224d29746bcef1f926116da59feb70567d8f0"
+    },
+    "qecc.bib": {
+      "mode": "100644",
+      "oid": "f7268e4d0ab86f83a0ced593913ca30800006239"
+    },
+    "readme.txt": {
+      "mode": "100644",
+      "oid": "18d633e64126e61856ce4992a376fcf088bb9320"
+    },
+    "refs.bib": {
+      "mode": "100644",
+      "oid": "4ecdd114830231a602e38b0304d2c82dc7f5fb95"
+    },
+    "samplepaper.tex": {
+      "mode": "100644",
+      "oid": "1a91b8609a481a740ed7093a3a6a799f4d0923b9"
+    },
+    "splncs04.bst": {
+      "mode": "100644",
+      "oid": "7d63c492d92fd1aa5db77c3f18b469e1c359ff93"
+    },
+    "syndrome_extraction_short_logical_preservation.tex": {
+      "mode": "100644",
+      "oid": "d76b69928a9d46f96353e882e619702acb2e28be"
+    },
+    "syndrome_extraction_short_with_logical.tex": {
+      "mode": "100644",
+      "oid": "d89ae508e7ae711ca0a1d92cd70b5ef653ccc707"
+    }
+  },
+  "project_id": "6adb7d2d9036071907960b2e",
+  "schema": 1
+}
