@@ -1,0 +1,29 @@
+name: Refresh paper from Overleaf
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/overleaf-refresh-trigger']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: overleaf-bridge
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Refresh from the verified Overleaf project
+        env:
+          OVERLEAF_GIT_TOKEN: ${{ secrets.OVERLEAF_GIT_TOKEN }}
+        run: python3 .github/scripts/overleaf_bridge.py refresh
