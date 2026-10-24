@@ -1297,6 +1297,8 @@ Let $\mathcal{Q}$ be an $[[n,k,d]]$ stabilizer code with $t=\lfloor (d-1)/2\rflo
 
 In our setting, an input error on the data qubits is treated as a preparation fault on those data qubits, as described in Section~\ref{sec:circuit-level-noise-model}. The parameter
 $t=\lfloor (d-1)/2\rfloor$ denotes the maximum number of faults that the protocol is designed to tolerate and is referred to as the \emph{fault bound}. Ideal decoding refers to fault-free error correction based on the ideal syndrome.
+\yfc{Please check whether this paragraph and the preceding fault-location
+reduction proposition still reflect an earlier treatment of input errors.}
 
 Condition~(1) of Definition~\ref{def:weak-FTEC} guarantees that the output state preserves the same logical information as the input state. Since faults within the circuit can propagate errors to multiple qubits, Condition~(2) additionally provides a rigorous upper bound on the weight of the residual error in the final output state.
 
@@ -2615,6 +2617,10 @@ whose $ \mathrm{wt}_{\mathrm{min}}$ is at most $w$.
 For each terminating path $\pi$ intended to satisfy Condition (3), and for each
 $w=0,\ldots,t$, the verifier searches for a fault assignment that violates this
 requirement:
+\yfc{Please check the quantification of the input error and the combined
+input-error and circuit-fault budget in the following formula.}
+\yfc{The dependence of the residual error, path condition, and measurement
+record on the input error is unclear in the current notation. Please check.}
 \begin{equation}
 \begin{aligned}
 \Psi^{\mathrm{CF3}}_{\pi,w}
