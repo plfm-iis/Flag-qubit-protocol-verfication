@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "expected_overleaf_revision": "95e41003c019d64678ef3a6feef181eed4817eb8",
-  "approved_github_commit": "71a657d5f74048b18e1c7694dfb2302bc8075283",
+  "expected_overleaf_revision": "e7c2e76587a96fbe4b6b021e3647a4791a6ab1c4",
+  "approved_github_commit": "4d8899a5cd450836ad0eace9bbf67776c346d204",
   "dry_run": false
 }
