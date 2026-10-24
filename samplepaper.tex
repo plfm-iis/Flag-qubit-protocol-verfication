@@ -1643,6 +1643,8 @@ FTEC.
     \item \textbf{Condition (1):} All residual errors in $\mathcal{E}_m$ share the same ideal  syndrome, so for any decoder choice $C \in \mathcal{E}_m$, $E \cdot C$ commutes with the stabilizers. By our assumption, $E \cdot C \in S$, meaning the logical state is preserved.
     \item \textbf{Condition (2):} The protocol terminates after $t-w+1$ repeated full-syndrome rounds without flags. With at most $t-w$ faults remaining, at least one round $R$ must be fault-free. The data error $E^-$ before $R$ produces the syndrome precisely and will belong to the equivalence class represented by the decoder choice $C$. The final error is $C \cdot E^- \cdot E_{\mathrm{suf}} \sim E_{\mathrm{suf}}$. Because no flags were raised and at most $s-w$ faults occurred after $R$, the  $\mathrm{wt}_{\mathrm{min}}$ of final error is bounded by $  s \le t$, satisfying FTEC.
     \item \textbf{Condition (3):} If the protocol stops due to reaching a maximum number of rounds (with input error weight $r $ and total faults $r+w \le t$), the resulting error $E \in \mathcal{E}_m$ naturally satisfies $\mathrm{wt}_{min}(E) \le t$. An ideal decoder will successfully recover the state since the total error weight remains within the code's correctable limit, satisfying FTEC.
+    \yfc{Old version: Condition (3) is not a maximum-round stopping rule.
+    Use the residual-weight bound $s$ (circuit faults), not $t$, for $r+s\le t$.}
 \end{itemize}
 
 \end{proof}
