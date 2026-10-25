@@ -105,6 +105,8 @@
 % \end{abstract}
 
 \begin{abstract}
+\yfc{Please check whether the characterization in the abstract and conclusion
+states the protocol-validity assumptions explicitly.}
 % Fault-tolerant syndrome extraction protocols based on flag qubits provide a
 % resource-efficient approach to quantum error correction, but their correctness
 % is difficult to verify. Such protocols combine syndrome-extraction circuits with classical control and recovery. Therefore, verification must check not only the
@@ -1510,6 +1512,8 @@ Fig.~\ref{fig:five-qubit-flagged-protocol} illustrates a control flow  of  flagg
 
     \caption{A flagged error correction protocol for the $[[5,1,3]]$ code where $t = 1$, adapted from~\cite{Chao18}. A label $(P)_f$ denotes the flagged syndrome extraction circuit for stabilizer $P$, while $(P)_b$ denotes the corresponding basic syndrome extraction circuit. Each path from the $\mathrm{Start}$ to the $\mathrm{Decoder}$ satisfies Condition (1) in Def~\ref{def:control-flow-validity}. This is because, along each such path, at least one of the outcomes ($m_i$ or $f_i$) is $1$, indicating the presence of at least one fault or input error, and the four syndrome extractions are sufficient to ensure all resulting errors are syndrome-consistent. The path from $\mathrm{Start}$ to $\mathrm{End }$ will satisfies  Condition (3) in Def~\ref{def:control-flow-validity}   since non of the flag raised.}
 \bw{changed condition(1) to condition (3)}
+\yfc{Please check whether the absence of flags is sufficient to establish
+Condition (3) on this path, including the case $r=1,s=0$.}
 
     \label{fig:five-qubit-flagged-protocol}
 \end{figure}
@@ -1594,6 +1598,9 @@ For a valid flagged error correction protocol, a critical question remains: even
 
 \begin{theorem}
 \label{thm:mains}
+\yfc{Please check the consistency of the assumptions in this theorem,
+the appendix theorem, and Algorithm~\ref{alg:ftec-verification}, especially
+the role of Condition (1).}
 Consider a flagged error-correction protocol $\Pi$ for a stabilizer
 code with stabilizer group $\cS$, distance $d$, and
 $t=\lfloor (d-1)/2 \rfloor$. Assume that $\Pi$ is valid in the sense of
@@ -2645,6 +2652,8 @@ weight greater than $w$, even after multiplying by stabilizers.
 $ \mathrm{wt}_{\min}(E) = \min_{S\in\mathcal{S}}\mathrm{wt}(E\cdot S). $ 
 To encode the condition $\mathrm{wt}_{\min}(E_\pi(\mathcal{F})) > w$, we must assert that there exists no Pauli string $P$ of weight $\mathrm{wt}(P) \leq w$ such that $E_\pi(\mathcal{F})\cdot P \in \mathcal{S}$. A Pauli string belongs to the stabilizer group if it commutes with all stabilizer generators and logical operators. This can be formulated using the normalizer-membership (Eq.~\ref{eq:Normalize-membership}) and stabilizer-nonmembership (Eq.~\ref{eq:stabiizer-nonmembership}) constraints:}
 
+\yfc{Please check the scope of the conjunction and disjunction
+in the following minimum-weight encoding.}
 \begin{equation} \label{eq:minimum-weight}
     \begin{aligned}
       \mathrm{wt}_{\min}(E_\pi(\mathcal{F}))>w \ =   \bigwedge_{P : \mathrm{wt}(P) \leq w } \neg  \mathrm{Norm}(P \cdot E_\pi(\mathcal{F}), \mathcal{S}) \lor \mathrm{Stab}_{\mathrm{non}}(P \cdot E_\pi(\mathcal{F}), \mathcal{L}) 
@@ -3071,6 +3080,10 @@ Our work represents one step in this direction. By exploiting the structure of f
 
 
 \section{Results}
+\yfc{Please check how the FTEC queries reported for validity-failing
+configurations relate to the final verdict of Algorithm~\ref{alg:ftec-verification}.
+Please also check that the reported counterexamples use realizable executions
+within the stated fault budget.}
 Our experiments were conducted on a server running Ubuntu 22.04.3 LTS with an
 AMD EPYC 7742 64-core processor (1.5\,GHz), 2\,TiB of RAM, and a 1\,TB SSD. We implemented our verification framework using Z3py to encode the constraints, which were subsequently transformed into DIMACS format for the CryptoMiniSat solver. CryptoMiniSat was chosen for its highly optimized performance on formulas containing massive XOR clauses. All tasks were executed without a time limit. 
 
@@ -3396,6 +3409,9 @@ Finally, our FTEC verification revealed protocols that failed to be valid or sat
 We now present two examples of bugs identified through our verification process. Example 1 demonstrates an invalid protocol, as one of its syndrome extraction circuits fails to satisfy the determinism requirement of Definition~\ref{def:syndrome-extraction-deterministic}. Example 2 illustrates a scenario where the protocol itself is valid, but it ultimately violates FTEC (Definition~\ref{def:weak-FTEC}); specifically, there exist two possible residual errors corresponding to the same measurement outcome $m$ whose product forms a non-trivial logical operator.
 
 
+\yfc{Example 2 is described as protocol-valid, but the low-depth
+$[[7,1,3]]$ configuration in the table has a control-flow bug.
+Please check whether these refer to the same protocol version.}
 \textbf{Example 1.} Figure~\ref{fig:[[5,1,3]]_[2,2]^T} illustrates the flagged syndrome extraction circuit for the $[[5,1,3]]$ code utilizing the $[2,2]^T$ optimization from [LL25]. Let $U$ denote the overall unitary evolution of this circuit, 
 $\mathcal{S}_{\mathrm{joint}} = \langle g_0, \dots, g_9 \rangle$ be the initial stabilizer
 group of the joint data-ancilla system, and $\mathcal{S}'_{\mathrm{joint}} = \langle g'_0, \dots, g'_9 \rangle$ be the stabilizer
@@ -3753,6 +3769,8 @@ same logical state as ideal decoding of the input data block. This proves
 FTEC~(1) of Def.~\ref{def:weak-FTEC}.
 
 \paragraph{Termination Condition (3).}
+\yfc{Please check whether this argument establishes the required
+residual-weight bound $s$ for $r+s\le t$, rather than only a bound of $t$.}
 For any fault event of weight $w \leq t$, every resulting error $E \in \mathcal{E}_m$ has a  weight $\mathrm{wt}_{\min}(E) \leq t$, thereby satisfying FTEC (2) of Def~\ref{def:weak-FTEC}. Consequently, applying an ideal decoder to an input state---which contains an initial data error of weight $r \leq t$ and an accumulated output error $E$ with $\mathrm{wt}_{\min}(E) \leq t$---will successfully recover the original state. This holds because, for any quantum error-correcting code with distance $d$, every error $e$ with $\mathrm{wt}_{\min}(e) \leq t$ is perfectly correctable via ideal decoding, thus satisfying FTEC (1) of Def~\ref{def:weak-FTEC}.
 
 \end{proof}
