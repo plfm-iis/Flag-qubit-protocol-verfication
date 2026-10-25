@@ -2034,7 +2034,7 @@ We organize the presentation by the analysis method used by the verifier. We fir
 \label{subsec:sat-based-checks}
 
 
-
+\bw{maybe for Fault we include the idle fault at the begin. which can also represent the input error on data qubit}
 We first define the symbolic objects used by the SAT-based checks.
 The verifier analyzes each terminating path of the protocol separately.
 Let $\pi$ be a terminating path, and let $\mathcal{L}_\pi$ denote the set of
@@ -2647,7 +2647,7 @@ To encode the condition $\mathrm{wt}_{\min}(E_\pi(\mathcal{F})) > w$, we must as
 
 \begin{equation} \label{eq:minimum-weight}
     \begin{aligned}
-      \mathrm{wt}_{\min}(E_\pi(\mathcal{F}))>w \ =   \bigwedge_{P : \mathrm{wt}(P) \leq w } \neg\Big( \mathrm{Norm}(P \cdot E_\pi(\mathcal{F}), \mathcal{S}) \lor \mathrm{Stab}_{\mathrm{non}}(P \cdot E_\pi(\mathcal{F}), \mathcal{L}) \Big)
+      \mathrm{wt}_{\min}(E_\pi(\mathcal{F}))>w \ =   \bigwedge_{P : \mathrm{wt}(P) \leq w } \neg  \mathrm{Norm}(P \cdot E_\pi(\mathcal{F}), \mathcal{S}) \lor \mathrm{Stab}_{\mathrm{non}}(P \cdot E_\pi(\mathcal{F}), \mathcal{L}) 
     \end{aligned}
 \end{equation}
 
@@ -2656,6 +2656,8 @@ $\mathrm{Norm}\land\neg\mathrm{Stab}_{\mathrm{non}}$.
 Its negation should therefore be
 $\neg\mathrm{Norm}\lor\mathrm{Stab}_{\mathrm{non}}$.
 Please check the implementation too.}
+
+\bw{fixed }
 
 \bw{change the minimum weight encoding to the new one.}
 
