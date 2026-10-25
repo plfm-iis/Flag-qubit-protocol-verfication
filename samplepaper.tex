@@ -165,6 +165,8 @@ We evaluate the framework on representative flagged protocols from the literatur
 %\keywords{Fault tolerant quantum computing, Verification, SAT}
 
 \maketitle
+\yfc{Please check the publication metadata before the arXiv upload:
+the DOI is a placeholder, and the template still specifies OOPSLA2 publication details.}
 
 %\bw{change ST solver}
 \section{Introduction}
@@ -2805,6 +2807,8 @@ residual data error to have $\mathrm{wt}_{\mathrm{min}}$ larger than $r$.
 
 As in the Condition (3) check, the constraint
 $\mathrm{wt}_{\min}(E_C(\mathcal{F}))>r$ is encoded using Eq.~\eqref{eq:weight-greater-than} with $w$ replaced by $r$.
+\yfc{Please check this equation reference:
+the label eq:weight-greater-than is currently commented out.}
 In the binary Pauli representation, this is implemented by XORing the binary
 vector of $E_C(\mathcal{F})$ with the selected stabilizer representative and applying a
 cardinality constraint to the resulting support.
@@ -3055,9 +3059,14 @@ that $\Pi$ satisfies FTEC.
 \end{proof}
 
 \section{Related Work}
+\yfc{Please check the description of Veri-QEC:
+its framework uses program logic and SMT-based verification conditions.}
 
 Recent works have made significant progress in verifying quantum error correction circuits using SAT solvers. For example, Chen et al.~\cite{chen2025verifying} employ symbolic execution to check if injected faults in quantum gadgets violate fault-tolerance conditions. Similarly, Huang et al.~\cite{10.1145/3729293} introduce Veri-QEC, a formal verification framework that translates Pauli errors into classical assertions solved by SAT solvers. 
 
+\yfc{Please check whether the following comparison accounts for
+Chen et al.'s logical assertions for decoder behavior, without requiring
+an explicitly constructed lookup table.}
 However, applying these general methods to flagged syndrome extraction circuits creates a major bottleneck if an explicit decoder is not provided. In these frameworks, two distinct faults might produce the exact same syndrome. Without a predefined decoder to resolve this ambiguity, their tools cannot determine whether the post-recovery state will actually cause a logical error. 
 Furthermore,  a residual error of weight greater than $t$ cannot by itself be used to determine correctability, since it
 may be equivalent, up to a stabilizer, to a lower-weight error. 
@@ -3385,6 +3394,10 @@ Total CPU Time (s) & 1451.0 & 803.1 & 1183.0 & 39177.5 & 37422.7 & 60069.4 & 213
 
 \end{table}
 \bw{this is the new table T}
+\yfc{Please check that the table explanations match the current columns:
+CPU versus wall time, absolute counts versus ratios, and paths versus circuits.
+The aggregation of solver times and peak memory across parallel processes
+also needs to be clear.}
 
 
 \begin{itemize}
