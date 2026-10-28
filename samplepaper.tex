@@ -1516,7 +1516,7 @@ Fig.~\ref{fig:five-qubit-flagged-protocol} illustrates a control flow  of  flagg
 \bw{changed condition(1) to condition (3)}
 \yfc{Please check whether the absence of flags is sufficient to establish
 Condition (3) on this path, including the case $r=1,s=0$.}
-
+\bw{yes when r =1 it will never come to this path at least one syndrome will be 1 }
     \label{fig:five-qubit-flagged-protocol}
 \end{figure}
 
@@ -2047,8 +2047,7 @@ We organize the presentation by the analysis method used by the verifier. We fir
 We first define the symbolic objects used by the SAT-based checks.
 The verifier analyzes each terminating path of the protocol separately.
 Let $\pi$ be a terminating path, and let $\mathcal{L}_\pi$ denote the set of
-fault locations along $\pi$. A \emph{fault assignment} $\mathcal{F}$ specifies
-a Pauli fault at each location in $\mathcal{L}_\pi$.
+fault locations along $\pi$.A \emph{fault assignment} is defined as a tuple $\mathcal{F} = (\mathcal{F}_{\text{in}}, \mathcal{F}_{\text{circ}})$, where $\mathcal{F}_{\text{in}}$ denotes the input data error and $\mathcal{F}_{\text{circ}}$ assigns a Pauli fault to each location in $\mathcal{L}_\pi$.
 
 For a fault location $\ell\in\mathcal{L}_\pi$ acting on qubits $q_1$ and
 $q_2$, the Pauli fault is represented by Boolean variables
@@ -2638,9 +2637,9 @@ record on the input error is unclear in the current notation. Please check.}
 &
 \Phi_\pi(\mathcal{F})
 \\
-& \land\ \mathrm{wt}_(E_{in}) =r
+& \land\ \mathrm{wt}_(\mathcal{F}_{in}) =r
 \\
-&\land\ \mathrm{wt}(\mathcal{F})=w
+&\land\ \mathrm{wt}(\mathcal{F}_{circ})=w
 \\
 &\land\ \mathrm{wt}_{\min}(E_\pi(\mathcal{F}))> w  .
 \end{aligned}
