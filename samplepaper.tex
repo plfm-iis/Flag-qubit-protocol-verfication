@@ -2,8 +2,8 @@
 %% This is file `sample-acmsmall.tex',
 %% generated with the docstrip utility.
 %%
-\documentclass[acmsmall,screen,review,anonymous]{acmart}
-%\documentclass[acmsmall,screen,review,anonymous,nonacm]{acmart}
+%\documentclass[acmsmall,screen,review,anonymous]{acmart}
+\documentclass[acmsmall,screen,review,anonymous,nonacm]{acmart}
 %%
 %% \BibTeX command to typeset BibTeX logo in the docs
 \AtBeginDocument{%
@@ -45,7 +45,9 @@
 \usepackage{wrapfig}
 \usepackage{graphicx}
 
-\newcommand{\showcomment}[1]{#1}
+%\newcommand{\showcomment}[1]{#1}
+\newcommand{\showcomment}[1]{}
+
 \newcommand{\yfc}[1]{\showcomment{\textcolor{blue}{\textbf{YFC:} #1}}}
 \newcommand{\bw}[1]{\showcomment{\textcolor{green}{\textbf{BW:} #1}}}
 \newcommand{\cy}[1]{\showcomment{\textcolor{blue}{\textbf{CY:} #1}}}
@@ -761,7 +763,7 @@ Condition~(1) of Definition~\ref{def:weak-FTEC} guarantees that the output state
 % After establishing ideal correctness, we analyze faulty circuits by checking whether all fault patterns within a given fault bound produce distinguishable measurement outcomes and residual errors that allow the decoder to to identify a recovery operation that corrects the resulting data error.
 % }
 
-\newpage
+%\newpage
 
 
 
@@ -1386,7 +1388,7 @@ FTEC.
 
 
 
-\clearpage
+%\clearpage
 
 
 
