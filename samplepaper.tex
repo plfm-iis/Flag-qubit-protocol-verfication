@@ -170,6 +170,10 @@ the DOI is a placeholder, and the template still specifies OOPSLA2 publication d
 
 %\bw{change ST solver}
 \section{Introduction}
+\yfc{To reduce the main text to 20 pages, merge the first two background
+paragraphs into one. In the characterization paragraph, keep the formal
+criterion and one sentence explaining incompatible recoveries; remove
+the repeated explanations beginning ``Equivalently'' and ``When this condition holds''.}
 
 Quantum error correction is essential for realizing reliable quantum
 computation on noisy physical devices~\cite{Shor96}. Quantum error-correcting
@@ -479,6 +483,9 @@ on the corresponding qubit.}
 
 
 We consider Clifford circuits with ancillas initialized in
+\yfc{Delete this paragraph and the following measurement-outcome paragraph:
+both repeat the explanation immediately before the CX/CZ figure.
+Keep the earlier explanation and the figure.}
 $\ket{0}$ or $\ket{+}$ and measured in the $X$ or $Z$
 basis. Since Clifford gates map Pauli errors to Pauli
 errors, their propagation can be tracked symbolically
@@ -817,6 +824,9 @@ A flagged syndrome extraction circuit is required to satisfy the validity condit
 
 
 
+ \yfc{Replace this paragraph with one sentence saying that flags detect
+fault-induced errors whose minimum weight exceeds the number of faults.
+The following definition already gives the precise condition.}
 Flag qubits provide additional measurement information that allows the decoder to identify and distinguish high-weight errors induced by a small number of faults. When a given number of faults causes a data error of equal or lesser weight, the error remains correctable as long as the total weight does not exceed the bound t. However, if faults propagate to cause a data error with a weight strictly greater than the number of faults (e.g., a single fault causing a multi-qubit error), it can lead to a logical failure. Therefore, we require the flag measurement to trigger whenever the resulting data error has a weight exceeding the number of faults that occurred in the syndrome extraction circuit.
 \begin{definition}[$\cS$-Flag condition] \label{def:flag}
 A syndrome extraction circuit satisfies the $\cS$-flag condition if, whenever  an event involving $w \le s$ faults induce a data error $E_{\mathrm{data}}$ such that $\mathrm{wt}_{\min} (E_{\mathrm{data}}) > w$, at least one flag measurement outcome is $1$.
@@ -1050,6 +1060,10 @@ satisfies FTEC if and only if, for every measurement record $m$,
 
 
 \begin{proof}[Proof sketch]
+\yfc{After resolving the correctness comments, shorten the forward direction
+to the single inequality d>2t and its contradiction. Keep one sentence
+per termination condition in the reverse direction, including the actual
+residual-weight bound; leave the detailed derivations in the appendix.}
 The full proof of this theorem is in Appendix~\ref{app:proof} of the supplementary material. \\
 
 
@@ -1746,6 +1760,11 @@ used in Figure~\ref{fig:syndrome extraction-circuits-2}.
 % \bigl(R_j(F_1)\leftrightarrow R_j(F_2)\bigr).
 % \]
 
+\yfc{Shorten this worked example to one fault insertion, one CX update,
+and the final syndrome/flag formulas. Remove the intermediate S2 display
+and its explanation, and replace the later branch-guard example with
+one sentence defining the path condition as the conjunction of substituted guards.
+Keep the general definitions of the residual error and measurement record.}
 We next explain how recorded syndrome and flag outcomes are obtained via symbolic propagation. Figure~\ref{fig:fault-propagation-circuit} shows an example using the flagged $XZZXI$ extraction circuit (assuming initial Pauli error $(False,False)$ on every qubit). The symbolic state is propagated gate-by-gate using the update rules in Figure~\ref{fig:two-qubit-pauli-rules}.
 
 \begin{figure}[t]
@@ -2460,6 +2479,10 @@ Algorithm~\ref{alg:ftec-verification} satisfies the following:
 \end{theorem}
 
 \begin{proof}
+\yfc{Compress this proof to three sentences: failed validity checks yield
+NotValid; a SAT witness yields NotFTEC by the characterization theorem;
+validity plus UNSAT for every path yields FTEC. The current proof repeats
+the algorithm and the previously defined counterexample semantics.}
 If the algorithm returns \textsc{NotValid}, then one of the checks used to
 establish Def.~\ref{def:protocol-validity} has failed: either a syndrome
 extraction circuit fails Def.~\ref{def:syndrome-extraction-valid}, a
@@ -2830,6 +2853,10 @@ also needs to be clear.}
 
 
 \begin{itemize}
+\yfc{Replace this four-item glossary with a compact table note defining
+counting units, CPU/wall time, aggregation, and memory. Avoid restating
+column names. If further space is needed, retain verdicts, total time,
+and peak memory here and move SAT-call/variable/clause statistics to supplementary material.}
     \item \textbf{Protocol Verification:} This block reports the specific defect counts. \emph{Syndrome extraction bugs} denotes the ratio of failed circuits to the total QASM circuits evaluated via Stim that fail to satisfy Def~\ref{def:syndrome-extraction-valid}. \emph{Control-flow bugs} counts the number of paths that violate control-flow constraints relative to the total number of paths. \emph{Flag bugs} indicates the number of circuits that failed the flag condition (Def~\ref{def:flag}).
     \item \textbf{Stim:} These rows report the wall-clock runtime and peak memory required to run the complete Stim simulation for each setup.
     \item \textbf{SAT Solver:} 
@@ -2860,6 +2887,11 @@ group of the joint data-ancilla system, and $\mathcal{S}'_{\mathrm{joint}} = \la
 group after $U$ is applied.
 
 The complete evolution of these generators is detailed in Table~\ref{tab:stabilizer-evolution-exmple}. As shown in the table, the transformed generator $g'_4 = +X_{D_1} Z_{D_2} Z_{D_3} X_{D_4}X_{A_{x,1}} Z_{A_{x,2}} Z_{A_{x,3}} Z_{A_{x,4}}$ anticommutes with the initial generator $g_7= +X_{A_{x,4}}$. Because all elements within a stabilizer group must mutually commute, $g'_4$ cannot belong to $\mathcal{S}_{\mathrm{joint}}$, establishing that $\mathcal{S}_{\mathrm{joint}} \neq \mathcal{S}'_{\mathrm{joint}}$. Consequently, the measurement outcome of the ancilla qubit $A_{x,4}$ becomes non-deterministic. This directly violates Definition~\ref{def:syndrome-extraction-deterministic}, demonstrating that this protocol is not a valid syndrome extraction circuit.\\
+\yfc{For Example 1, replace the full ten-generator table with the two
+operators needed for the witness: g'_4 and g_7, whose anticommutation
+establishes the violation. Put the complete generator table in supplementary
+material. Keep the circuit and this explicit witness in the main text,
+and update the sentence referring to the complete evolution table.}
 
 % Ensure you have these in your preamble:
 % \usepackage{caption}
