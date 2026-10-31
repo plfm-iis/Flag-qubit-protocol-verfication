@@ -248,9 +248,6 @@ Our main characterization shows that, for a valid flagged fault-tolerant error
 correction protocol, FTEC is achieved if and only if no two residual errors
 associated with the same measurement record differ by a
 \emph{nontrivial logical operator}~\cite{KL97,Got97}.
-Equivalently, any two fault events within the fault bound that follow the same
-terminating path and produce the same measurement record must leave residual
-data errors that can be handled by a common recovery.
 When this condition holds, a single recovery can be assigned to each measurement record to correctly handle
 all compatible residual errors. When it fails, the same measurement record is
 compatible with two logically inequivalent residual errors, and no recovery
@@ -264,13 +261,10 @@ measurement record but leave residual errors whose product is a nontrivial
 logical operator. A satisfying assignment provides an explicit counterexample
 to FTEC, while the absence of such an assignment establishes that a suitable
 lookup-table decoder exists. 
-The framework symbolically propagates Pauli faults
-through syndrome extraction circuits, computes syndrome and flag outcomes
-along adaptive execution paths, and derives the corresponding residual data
-errors. The resulting constraints
-capture both the circuit-level fault propagation and the adaptive control flow,
-allowing the verifier to search systematically over all fault events within
-the fault bound.
+We symbolically execute each protocol path, tracking Pauli errors
+and measurement outcomes as Boolean formulas over fault variables.
+The resulting path conditions and residual errors define the SAT
+queries used to check protocol validity and decoder existence.
 
 
 
@@ -801,7 +795,11 @@ A flagged syndrome extraction circuit is required to satisfy the validity condit
 
 
 
-Flag qubits provide additional measurement information that allows the decoder to identify and distinguish high-weight errors induced by a small number of faults. When a given number of faults causes a data error of equal or lesser weight, the error remains correctable as long as the total weight does not exceed the bound t. However, if faults propagate to cause a data error with a weight strictly greater than the number of faults (e.g., a single fault causing a multi-qubit error), it can lead to a logical failure. Therefore, we require the flag measurement to trigger whenever the resulting data error has a weight exceeding the number of faults that occurred in the syndrome extraction circuit.
+A single circuit fault can propagate to several data qubits,
+producing an error whose weight exceeds the number of faults.
+Flag qubits signal such error amplification, providing additional
+information for recovery. The following condition formalizes when
+this signal is required.
 \begin{definition}[$\cS$-Flag condition] \label{def:flag}
 A syndrome extraction circuit satisfies the $\cS$-flag condition if, whenever  an event involving $w \le s$ faults induce a data error $E_{\mathrm{data}}$ such that $\mathrm{wt}_{\min} (E_{\mathrm{data}}) > w$, at least one flag measurement outcome is $1$.
 \end{definition}
