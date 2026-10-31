@@ -1011,11 +1011,13 @@ in Section~\ref{sec:FTEC-verification}.
 Consider a flagged error-correction protocol $\Pi$ for a stabilizer
 code with stabilizer group $\cS$, distance $d$, and
 $t=\lfloor (d-1)/2 \rfloor$. Assume that $\Pi$ is valid in the sense of
-Def.~\ref{def:protocol-validity}, and that Condition~(1) of
-Def.~\ref{def:control-flow-validity} holds, so that all residual
-errors corresponding to the same measurement record have the same
-ideal syndrome. For each measurement record $m$, let
-$\mathcal{E}_m$ denote the set of residual errors consistent with $m$.
+Def.~\ref{def:protocol-validity}. On each terminating path satisfying
+Condition (1) of Def.~\ref{def:control-flow-validity}, additionally
+assume that any two executions within the input and circuit fault
+budget $r+s\le t$ with the same measurement record have residual
+errors with the same ideal syndrome.
+For each record $m$, let $\mathcal E_m$ be the residual error set
+from Def.~\ref{def:measurement-record-and-residual-error}.
 Then there exists a lookup-table decoder $D$ such that $(\Pi,D)$
 satisfies FTEC if and only if, for every measurement record $m$,
 \begin{align}
