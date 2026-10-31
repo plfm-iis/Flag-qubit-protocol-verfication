@@ -1,0 +1,35 @@
+name: Sync explicitly approved paper changes to Overleaf
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Validate only; write nothing
+        type: boolean
+        default: true
+  push:
+    branches: [main]
+    paths: ['.github/overleaf-sync-request.json']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: overleaf-bridge
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Validate the request and synchronize its approved snapshot
+        env:
+          OVERLEAF_GIT_TOKEN: ${{ secrets.OVERLEAF_GIT_TOKEN }}
+          BRIDGE_FORCE_DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+        run: python3 .github/scripts/overleaf_bridge.py sync

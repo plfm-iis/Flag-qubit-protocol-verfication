@@ -1,0 +1,92 @@
+name: Apply approved YFC comment
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/apply-approved-yfc-comment.yml']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: overleaf-bridge
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    if: github.repository == 'plfm-iis/Flag-qubit-protocol-verfication' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Apply only the Condition (3) note approved on 2026-10-24T04:42:01Z
+        env:
+          OVERLEAF_GIT_TOKEN: ${{ secrets.OVERLEAF_GIT_TOKEN }}
+          BRIDGE_FORCE_DRY_RUN: 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import difflib
+          import json
+          import os
+          from pathlib import Path
+          import subprocess
+
+          def git(*args):
+              return subprocess.check_output(['git', *args]).decode().strip()
+
+          def require(condition, message):
+              if not condition:
+                  raise RuntimeError(message)
+
+          start = git('rev-parse', 'HEAD')
+          require(start == os.environ['GITHUB_SHA'], 'Unexpected checkout')
+          require(git('ls-remote', 'origin', 'refs/heads/main').split()[0] == start, 'GitHub changed')
+          require(not git('status', '--porcelain'), 'Dirty checkout')
+          require(git('rev-parse', 'HEAD:.github/scripts/overleaf_bridge.py') == '10ef0c74902865fe502bbf671f720f105887b691', 'Bridge changed')
+          subprocess.run(['python3', '.github/scripts/overleaf_bridge.py', 'refresh'], check=True)
+          require(git('rev-parse', 'HEAD') == start, 'Refresh imported changes; new approval required')
+          require(git('ls-remote', 'origin', 'refs/heads/main').split()[0] == start, 'GitHub changed during refresh')
+          state = json.loads(Path('.github/overleaf-state.json').read_text())
+          require(state['project_id'] == '6adb7e8c4019793a7dcea09f', 'Wrong Overleaf project')
+          require(state['overleaf_revision'] == 'e7c2e76587a96fbe4b6b021e3647a4791a6ab1c4', 'Overleaf changed since approval')
+          require(git('hash-object', 'samplepaper.tex') == 'b351d259b50c29f674c7677b0dcbc682b7521b02', 'Manuscript changed since approval')
+          require(not git('status', '--porcelain'), 'Refresh left changes')
+
+          path = Path('samplepaper.tex')
+          original = path.read_bytes()
+          marker = rb'    \item \textbf{Condition (3):} If the protocol stops due to reaching a maximum number of rounds'
+          note = ('\n'.join([
+              r'    \yfc{Old version: Condition (3) is not a maximum-round stopping rule.',
+              r'    Use the residual-weight bound $s$ (circuit faults), not $t$, for $r+s\le t$.}',
+          ]) + '\n').encode('ascii')
+          lines = original.splitlines(keepends=True)
+          positions = [i for i, line in enumerate(lines) if line.startswith(marker)]
+          require(len(positions) == 1, 'Expected exactly one approved insertion point')
+          i = positions[0]
+          require(lines[i + 1] == b'\\end{itemize}\n', 'Unexpected following line')
+          require(note not in original, 'Note already exists')
+          updated = b''.join(lines[:i + 1]) + note + b''.join(lines[i + 1:])
+          require(updated.count(note) == 1 and updated.replace(note, b'', 1) == original, 'Unexpected edits')
+          path.write_bytes(updated)
+          require(git('diff', '--name-only') == 'samplepaper.tex', 'Unexpected changed files')
+          require(git('diff', '--numstat').split() == ['2', '0', 'samplepaper.tex'], 'Unexpected edit size')
+          subprocess.run(['git', 'diff', '--check'], check=True)
+          print(''.join(difflib.unified_diff(original.decode().splitlines(True), updated.decode().splitlines(True), fromfile='a/samplepaper.tex', tofile='b/samplepaper.tex')))
+          require(git('ls-remote', 'origin', 'refs/heads/main').split()[0] == start, 'GitHub changed before commit')
+          subprocess.run(['git', 'add', '--', 'samplepaper.tex'], check=True)
+          require(git('diff', '--cached', '--name-only') == 'samplepaper.tex', 'Unexpected staged files')
+          subprocess.run(['git', '-c', 'user.name=paper-sync-bot', '-c', 'user.email=paper-sync-bot@users.noreply.github.com', 'commit', '-m', 'Add approved Condition (3) proof-sketch YFC note'], check=True)
+          approved = git('rev-parse', 'HEAD')
+          require(git('diff', '--numstat', start, approved).split() == ['2', '0', 'samplepaper.tex'], 'Unexpected committed diff')
+          require(git('ls-remote', 'origin', 'refs/heads/main').split()[0] == start, 'GitHub changed before push')
+          subprocess.run(['git', 'push', 'origin', 'HEAD:refs/heads/main'], check=True)
+          require(git('ls-remote', 'origin', 'refs/heads/main').split()[0] == approved, 'GitHub changed after push')
+          print('Approved manuscript commit:', approved)
+          print('Updated manuscript blob:', git('hash-object', 'samplepaper.tex'))
+          print('No outbound sync was requested by this job.')
+          PY

@@ -1,0 +1,173 @@
+name: Switch approved Overleaf target and sync YFC diff
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/switch-approved-overleaf-target.yml']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: overleaf-bridge
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    if: github.repository == 'plfm-iis/Flag-qubit-protocol-verfication' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Apply the exact diff to the target approved at 2026-10-23T17:56:34Z
+        env:
+          OVERLEAF_GIT_TOKEN: ${{ secrets.OVERLEAF_GIT_TOKEN }}
+          PYTHONDONTWRITEBYTECODE: '1'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -B - <<'PYCODE'
+          """Migrate the bridge only after checking the exact user-approved paper diff."""
+          import difflib
+          import json
+          import os
+          from pathlib import Path
+          import subprocess
+          import sys
+          import tempfile
+
+          sys.dont_write_bytecode = True
+          sys.path.insert(0, str(Path('.github/scripts').resolve()))
+          import overleaf_bridge as b
+
+          OLD = '6adb7d2d9036071907960b2e'
+          NEW = '6adb7e8c4019793a7dcea09f'
+          EXPECTED_NEW = '74f22b332b38c119d1fadb7f9ebf65b785f0f732'
+          EXPECTED_PARENT = '555298ef7ce65f110f863569c39b94d5f1388b1d'
+          APPROVED = 'c54b8351767e605343d2e616bd72fe869dbbb4fe'
+          REMOTE = 'https://git@git.overleaf.com/' + NEW
+          repo = Path.cwd()
+          start = b.output(repo, 'rev-parse', 'HEAD')
+          require = b.require
+          require(os.environ.get('GITHUB_REPOSITORY') == b.REPOSITORY, 'Wrong repository')
+          require(os.environ.get('GITHUB_REF') == 'refs/heads/main', 'Wrong branch')
+          require(start == os.environ['GITHUB_SHA'], 'Checkout mismatch')
+          require(b.output(repo, 'rev-parse', 'HEAD^') == EXPECTED_PARENT, 'GitHub baseline changed')
+          require(b.remote_head(repo) == start, 'GitHub changed')
+          b.clean(repo)
+          require(b.output(repo, 'rev-parse', 'HEAD:.github/scripts/overleaf_bridge.py') ==
+                  'f65e44c5b9bf291261c810a01adce0b9a781cd5f', 'Bridge changed')
+          require(bool(os.environ.get('OVERLEAF_GIT_TOKEN')), 'Missing Actions credential')
+          state = b.read_json(repo, 'HEAD', b.STATE)
+          require(state['project_id'] == OLD, 'Migration already applied or mapping changed')
+          require(state['overleaf_revision'] == '2289d1917b7b640bf170b3b934ca9e3ad222f8ed', 'Old baseline changed')
+          approved_files = b.manifest(repo, APPROVED)
+          original_files = b.manifest(repo, APPROVED + '^')
+          require(b.manifest(repo) == approved_files == state['paper_manifest'], 'Unapproved GitHub paper changes')
+          require(set(approved_files) == set(original_files), 'Unexpected added/deleted paper files')
+          require([p for p in approved_files if approved_files[p] != original_files[p]] == ['samplepaper.tex'], 'Unexpected approved scope')
+          require(original_files['samplepaper.tex']['oid'] == '1a91b8609a481a740ed7093a3a6a799f4d0923b9', 'Wrong original manuscript')
+          require(approved_files['samplepaper.tex']['oid'] == 'bd17c32435b2d8ae66bf84b60441f446b94573fd', 'Wrong approved manuscript')
+
+          with tempfile.TemporaryDirectory(prefix='approved-target-') as temporary:
+              root = Path(temporary)
+              askpass = root / 'askpass'
+              askpass.write_text('#!/bin/sh\ncase "$1" in\n  *Username*) printf "%s\\n" git ;;\n  *Password*) printf "%s\\n" "$OVERLEAF_GIT_TOKEN" ;;\n  *) exit 1 ;;\nesac\n')
+              askpass.chmod(0o700)
+              os.environ['GIT_ASKPASS'] = str(askpass)
+              os.environ['GIT_TERMINAL_PROMPT'] = '0'
+              os.environ['PYTHONDONTWRITEBYTECODE'] = '1'
+              target = root / 'target'
+              b.git(repo, 'clone', '--quiet', REMOTE, str(target))
+              require(b.output(target, 'symbolic-ref', 'HEAD') == 'refs/heads/main', 'Unexpected target default branch')
+              revision = b.output(target, 'rev-parse', 'HEAD')
+              require(revision == EXPECTED_NEW, 'Target changed since read-only inspection; review a new diff')
+              require(b.remote_head(target) == revision, 'Target changed during clone')
+              require(b.manifest(target) == original_files, 'Target differs from the approved original snapshot')
+              require(b.output(target, 'rev-parse', 'HEAD^{tree}') == '38b3002a0926b5a3d89abf2ec5a9beaa6efa077a', 'Target tree changed')
+
+              old_bytes = (target / 'samplepaper.tex').read_bytes()
+              old_text = old_bytes.decode('utf-8')
+              disabled = r'\renewcommand{\yfc}[1]{}'
+              anchor = r'\bw{change the minimum weight encoding to the new one.}'
+              note = '\n'.join([
+                  r'\yfc{Stabilizer membership is',
+                  r'$\mathrm{Norm}\land\neg\mathrm{Stab}_{\mathrm{non}}$.',
+                  r'Its negation should therefore be',
+                  r'$\neg\mathrm{Norm}\lor\mathrm{Stab}_{\mathrm{non}}$.',
+                  r'Please check the implementation too.}',
+              ])
+              require(old_text.count(disabled) == 1 and old_text.count(anchor) == 1, 'Source anchors changed')
+              require(note not in old_text, 'Note already present')
+              new_text = old_text.replace(disabled, '%' + disabled, 1).replace(anchor, note + '\n\n' + anchor, 1)
+              require(new_text.encode('utf-8') == b.git(repo, 'show', APPROVED + ':samplepaper.tex').stdout, 'Patch differs from approval')
+              require(new_text.replace('%' + disabled, disabled, 1).replace(note + '\n\n', '', 1) == old_text, 'Unexpected source changes')
+              require(note.count('{') == note.count('}') and note.count('$') == 4, 'Unbalanced comment syntax')
+              print('TARGET VERIFIED:', NEW, revision, 'All 14 paper files match the approved starting snapshot.', flush=True)
+              print(''.join(difflib.unified_diff(old_text.splitlines(True), new_text.splitlines(True), fromfile='a/samplepaper.tex', tofile='b/samplepaper.tex')), flush=True)
+
+              # Change only bridge metadata; approved manuscript bytes are already in main.
+              for name in ['AGENTS.md', 'PAPER_CONTEXT.md', '.github/scripts/overleaf_bridge.py']:
+                  path = repo / name
+                  content = path.read_text()
+                  require(OLD in content, 'Expected mapping missing in ' + name)
+                  content = content.replace(OLD, NEW)
+                  if name == 'PAPER_CONTEXT.md':
+                      left, rest = content.split('## Setup status\n\n', 1)
+                      _, right = rest.split('## Refresh before reading\n\n', 1)
+                      content = (left + '## Setup status\n\n'
+                                 'The active target was explicitly confirmed by the user at\n'
+                                 '2026-10-23T17:56:34Z: `' + NEW + '`.\n'
+                                 'The previous destination `' + OLD + '` is a separate copy\n'
+                                 'and must no longer be used for future synchronization.\n'
+                                 'Access to the active target was successfully verified. Migration checks\n'
+                                 'its exact revision and all paper files before changing the baseline.\n'
+                                 'The only approved manuscript changes are the minimum-weight YFC note\n'
+                                 'and enabling YFC comments; the formula itself is unchanged.\n'
+                                 'Consult `.github/overleaf-state.json` and the successful workflow logs\n'
+                                 'for the verified source revision and synchronization status.\n\n'
+                                 '## Refresh before reading\n\n' + right)
+                  path.write_text(content)
+              new_state = {'schema': 1, 'project_id': NEW, 'overleaf_revision': revision, 'paper_manifest': original_files}
+              (repo / b.STATE).write_text(json.dumps(new_state, indent=2, sort_keys=True) + '\n')
+              request = {'schema': 1, 'expected_overleaf_revision': revision, 'approved_github_commit': APPROVED, 'dry_run': False}
+              (repo / b.REQUEST).write_text(json.dumps(request, indent=2) + '\n')
+              subprocess.run(['python3', '-B', '.github/scripts/test_overleaf_bridge.py'], check=True)
+              require(b.remote_head(repo) == start and b.remote_head(target) == revision, 'Remote changed before migration')
+              allowed = {'AGENTS.md', 'PAPER_CONTEXT.md', '.github/scripts/overleaf_bridge.py', b.STATE, b.REQUEST}
+              require(b.commit(repo, 'Switch to user-confirmed Overleaf target with verified baseline and approved diff', allowed), 'No migration commit')
+              require(b.manifest(repo) == approved_files, 'Migration modified manuscript files')
+              migration = b.output(repo, 'rev-parse', 'HEAD')
+              require(b.remote_head(repo) == start and b.remote_head(target) == revision, 'Remote changed before push')
+              b.git(repo, 'push', 'origin', 'HEAD:refs/heads/main')
+              print('MAPPING COMMIT:', migration, flush=True)
+
+              # Use the existing revision-checked bridge, with all concurrency checks intact.
+              env = dict(os.environ, GITHUB_SHA=migration, BRIDGE_FORCE_DRY_RUN='false')
+              subprocess.run(['python3', '-B', '.github/scripts/overleaf_bridge.py', 'sync'], env=env, check=True)
+
+              # Independently clone the requested Overleaf target again after synchronization.
+              verified = root / 'verified'
+              b.git(repo, 'clone', '--quiet', REMOTE, str(verified))
+              confirmed = b.output(verified, 'rev-parse', 'HEAD')
+              final_state = json.loads((repo / b.STATE).read_text())
+              require(final_state['project_id'] == NEW, 'Wrong final target')
+              require(final_state['overleaf_revision'] == confirmed, 'Final revision mismatch')
+              require(b.manifest(verified) == approved_files == final_state['paper_manifest'], 'Final content mismatch')
+              content = (verified / 'samplepaper.tex').read_text()
+              require(content == new_text, 'Final manuscript differs from approved diff')
+              require(content.count(note) == 1, 'Approved note missing or duplicated')
+              require(not any(line.strip() == disabled for line in content.splitlines()), 'YFC is still disabled')
+              require(b.output(verified, 'diff', '--name-only', revision, confirmed) == 'samplepaper.tex', 'Unexpected target changes')
+              b.git(verified, 'diff', '--check', revision, confirmed)
+              require(b.remote_head(verified) == confirmed, 'Overleaf changed during final verification')
+              require(b.remote_head(repo) == b.output(repo, 'rev-parse', 'HEAD'), 'GitHub changed during final verification')
+              print('VERIFIED TARGET:', NEW, flush=True)
+              print('VERIFIED OVERLEAF REVISION:', confirmed, flush=True)
+              print('VERIFIED GITHUB HEAD:', b.output(repo, 'rev-parse', 'HEAD'), flush=True)
+              print('Only samplepaper.tex changed: approved YFC note added once; YFC display enabled; formula unchanged.', flush=True)
+              print('No write was made to the previous Overleaf copy. Full LaTeX compilation was not performed.', flush=True)
+          PYCODE
