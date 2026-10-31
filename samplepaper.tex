@@ -1758,11 +1758,7 @@ used in Figure~\ref{fig:syndrome extraction-circuits-2}.
 % \bigl(R_j(F_1)\leftrightarrow R_j(F_2)\bigr).
 % \]
 
-\yfc{Shorten this worked example to one fault insertion, one CX update,
-and the final syndrome/flag formulas. Remove the intermediate S2 display
-and its explanation, and replace the later branch-guard example with
-one sentence defining the path condition as the conjunction of substituted guards.
-Keep the general definitions of the residual error and measurement record.}
+
 We next explain how recorded syndrome and flag outcomes are obtained via symbolic propagation. Figure~\ref{fig:fault-propagation-circuit} shows an example using the flagged $XZZXI$ extraction circuit (assuming initial Pauli error $(False,False)$ on every qubit). The symbolic state is propagated gate-by-gate using the update rules in Figure~\ref{fig:two-qubit-pauli-rules}.
 
 \begin{figure}[t]
@@ -2509,14 +2505,9 @@ that $\Pi$ satisfies FTEC.
 \end{proof}
 
 \section{Related Work}
-\yfc{Please check the description of Veri-QEC:
-its framework uses program logic and SMT-based verification conditions.}
 
 Recent works have made significant progress in verifying quantum error correction circuits using SAT solvers. For example, Chen et al.~\cite{chen2025verifying} employ symbolic execution to check if injected faults in quantum gadgets violate fault-tolerance conditions. Similarly, Huang et al.~\cite{10.1145/3729293} introduce Veri-QEC, a formal verification framework that translates Pauli errors into classical assertions solved by SAT solvers. 
 
-\yfc{Please check whether the following comparison accounts for
-Chen et al.'s logical assertions for decoder behavior, without requiring
-an explicitly constructed lookup table.}
 However, applying these general methods to flagged syndrome extraction circuits creates a major bottleneck if an explicit decoder is not provided. In these frameworks, two distinct faults might produce the exact same syndrome. Without a predefined decoder to resolve this ambiguity, their tools cannot determine whether the post-recovery state will actually cause a logical error. 
 Furthermore,  a residual error of weight greater than $t$ cannot by itself be used to determine correctability, since it
 may be equivalent, up to a stabilizer, to a lower-weight error. 
@@ -2849,12 +2840,12 @@ CPU versus wall time, absolute counts versus ratios, and paths versus circuits.
 The aggregation of solver times and peak memory across parallel processes
 also needs to be clear.}
 
-
-\begin{itemize}
 \yfc{Replace this four-item glossary with a compact table note defining
 counting units, CPU/wall time, aggregation, and memory. Avoid restating
 column names. If further space is needed, retain verdicts, total time,
 and peak memory here and move SAT-call/variable/clause statistics to supplementary material.}
+\begin{itemize}
+
     \item \textbf{Protocol Verification:} This block reports the specific defect counts. \emph{Syndrome extraction bugs} denotes the ratio of failed circuits to the total QASM circuits evaluated via Stim that fail to satisfy Def~\ref{def:syndrome-extraction-valid}. \emph{Control-flow bugs} counts the number of paths that violate control-flow constraints relative to the total number of paths. \emph{Flag bugs} indicates the number of circuits that failed the flag condition (Def~\ref{def:flag}).
     \item \textbf{Stim:} These rows report the wall-clock runtime and peak memory required to run the complete Stim simulation for each setup.
     \item \textbf{SAT Solver:} 
@@ -2886,7 +2877,7 @@ group after $U$ is applied.
 
 The complete evolution of these generators is detailed in Table~\ref{tab:stabilizer-evolution-exmple}. As shown in the table, the transformed generator $g'_4 = +X_{D_1} Z_{D_2} Z_{D_3} X_{D_4}X_{A_{x,1}} Z_{A_{x,2}} Z_{A_{x,3}} Z_{A_{x,4}}$ anticommutes with the initial generator $g_7= +X_{A_{x,4}}$. Because all elements within a stabilizer group must mutually commute, $g'_4$ cannot belong to $\mathcal{S}_{\mathrm{joint}}$, establishing that $\mathcal{S}_{\mathrm{joint}} \neq \mathcal{S}'_{\mathrm{joint}}$. Consequently, the measurement outcome of the ancilla qubit $A_{x,4}$ becomes non-deterministic. This directly violates Definition~\ref{def:syndrome-extraction-deterministic}, demonstrating that this protocol is not a valid syndrome extraction circuit.\\
 \yfc{For Example 1, replace the full ten-generator table with the two
-operators needed for the witness: g'_4 and g_7, whose anticommutation
+operators needed for the witness: $g'_4$ and $g_7$, whose anticommutation
 establishes the violation. Put the complete generator table in supplementary
 material. Keep the circuit and this explicit witness in the main text,
 and update the sentence referring to the complete evolution table.}
