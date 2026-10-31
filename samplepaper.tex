@@ -983,7 +983,17 @@ A flagged error correction protocol is valid if all the following condition sati
 % Each internal node represents a syndrome extraction circuit, and each outgoing edge is labeled by a branch condition on the syndrome and flag outcomes. A terminating path determines the corresponding measurement record. In this example,
 % The paths ending at Decoder 1--4 satisfy termination condition (2). The branch condition $m_i=1 \vee f_i=1$ indicates that at least one fault has been detected, so $w=1$. Since $t-w+1=1$, condition (2) requires only one full syndrome extraction circuit in the terminating suffix; this is the blue node immediately before the decoder. The path ending at the End node satisfies
 % termination condition (3).
-For a valid flagged error correction protocol, a critical question remains: even if the measurement record provides sufficient information for a lookup-table decoder, are there cases where applying the chosen correction still violates FTEC (Definition~\ref{def:weak-FTEC}). The following theorem provides the core characterization of this property: a valid flagged error correction protocol achieves FTEC if and only if, for any given measurement record $m$, no two possible residual errors associated with $m$ multiply to form a non-trivial logical operator. This precise characterization serves as the foundation for our verification algorithm presented in Section~\ref{sec:FTEC-verification}.
+Protocol validity establishes the prerequisites for verification;
+weak FTEC must still be checked.
+For each terminating path, we first establish which termination
+condition it satisfies and then apply the corresponding FTEC checks.
+Condition (1) requires the measurement record to determine the
+ideal syndrome. Condition (2) requires repeated identical syndromes
+without flags. Condition (3) requires the residual error weight
+to be bounded by the number of circuit faults.
+The following theorem characterizes decoder existence under these
+case-specific assumptions and supports the verification algorithm
+in Section~\ref{sec:FTEC-verification}.
 
 % \begin{theorem}
 % \label{thm:mains}
