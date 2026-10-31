@@ -2,7 +2,7 @@
 %% This is file `sample-acmsmall.tex',
 %% generated with the docstrip utility.
 %%
-\documentclass[acmsmall,screen,review]{acmart}
+\documentclass[acmsmall,screen,review,anonymous]{acmart}
 %\documentclass[acmsmall,screen,review,anonymous,nonacm]{acmart}
 %%
 %% \BibTeX command to typeset BibTeX logo in the docs
@@ -105,8 +105,6 @@
 % \end{abstract}
 
 \begin{abstract}
-\yfc{Please check whether the characterization in the abstract and conclusion
-states the protocol-validity assumptions explicitly.}
 % Fault-tolerant syndrome extraction protocols based on flag qubits provide a
 % resource-efficient approach to quantum error correction, but their correctness
 % is difficult to verify. Such protocols combine syndrome-extraction circuits with classical control and recovery. Therefore, verification must check not only the
@@ -168,10 +166,6 @@ We evaluate the framework on representative flagged protocols from the literatur
 
 %\bw{change ST solver}
 \section{Introduction}
-\yfc{To reduce the main text to 20 pages, merge the first two background
-paragraphs into one. In the characterization paragraph, keep the formal
-criterion and one sentence explaining incompatible recoveries; remove
-the repeated explanations beginning ``Equivalently'' and ``When this condition holds''.}
 
 Quantum error correction is essential for realizing reliable quantum
 computation on noisy physical devices~\cite{Shor96}. Quantum error-correcting
@@ -481,9 +475,6 @@ on the corresponding qubit.}
 
 
 We consider Clifford circuits with ancillas initialized in
-\yfc{Delete this paragraph and the following measurement-outcome paragraph:
-both repeat the explanation immediately before the CX/CZ figure.
-Keep the earlier explanation and the figure.}
 $\ket{0}$ or $\ket{+}$ and measured in the $X$ or $Z$
 basis. Since Clifford gates map Pauli errors to Pauli
 errors, their propagation can be tracked symbolically
@@ -733,8 +724,6 @@ Let $\mathcal{Q}$ be an $[[n,k,d]]$ stabilizer code with $t=\lfloor (d-1)/2\rflo
 
 In our setting, an input error on the data qubits is treated as a preparation fault on those data qubits, as described in Section~\ref{sec:circuit-level-noise-model}. The parameter
 $t=\lfloor (d-1)/2\rfloor$ denotes the maximum number of faults that the protocol is designed to tolerate and is referred to as the \emph{fault bound}. Ideal decoding refers to fault-free error correction based on the ideal syndrome.
-\yfc{Please check whether this paragraph and the preceding fault-location
-reduction proposition still reflect an earlier treatment of input errors.}
 
 Condition~(1) of Definition~\ref{def:weak-FTEC} guarantees that the output state preserves the same logical information as the input state. Since faults within the circuit can propagate errors to multiple qubits, Condition~(2) additionally provides a rigorous upper bound on the weight of the residual error in the final output state.
 
@@ -822,9 +811,6 @@ A flagged syndrome extraction circuit is required to satisfy the validity condit
 
 
 
- \yfc{Replace this paragraph with one sentence saying that flags detect
-fault-induced errors whose minimum weight exceeds the number of faults.
-The following definition already gives the precise condition.}
 Flag qubits provide additional measurement information that allows the decoder to identify and distinguish high-weight errors induced by a small number of faults. When a given number of faults causes a data error of equal or lesser weight, the error remains correctable as long as the total weight does not exceed the bound t. However, if faults propagate to cause a data error with a weight strictly greater than the number of faults (e.g., a single fault causing a multi-qubit error), it can lead to a logical failure. Therefore, we require the flag measurement to trigger whenever the resulting data error has a weight exceeding the number of faults that occurred in the syndrome extraction circuit.
 \begin{definition}[$\cS$-Flag condition] \label{def:flag}
 A syndrome extraction circuit satisfies the $\cS$-flag condition if, whenever  an event involving $w \le s$ faults induce a data error $E_{\mathrm{data}}$ such that $\mathrm{wt}_{\min} (E_{\mathrm{data}}) > w$, at least one flag measurement outcome is $1$.
@@ -949,8 +935,6 @@ Fig.~\ref{fig:five-qubit-flagged-protocol} illustrates a control flow  of  flagg
 
     \caption{A flagged error correction protocol for the $[[5,1,3]]$ code where $t = 1$, adapted from~\cite{Chao18}. A label $(P)_f$ denotes the flagged syndrome extraction circuit for stabilizer $P$, while $(P)_b$ denotes the corresponding basic syndrome extraction circuit. Each path from the $\mathrm{Start}$ to the $\mathrm{Decoder}$ satisfies Condition (1) in Def~\ref{def:control-flow-validity}. This is because, along each such path, at least one of the outcomes ($m_i$ or $f_i$) is $1$, indicating the presence of at least one fault or input error, and the four syndrome extractions are sufficient to ensure all resulting errors are syndrome-consistent. The path from $\mathrm{Start}$ to $\mathrm{End }$ will satisfies  Condition (3) in Def~\ref{def:control-flow-validity}   since non of the flag raised.}
 \bw{changed condition(1) to condition (3)}
-\yfc{Please check whether the absence of flags is sufficient to establish
-Condition (3) on this path, including the case $r=1,s=0$.}
 \bw{yes when r =1 it will never come to this path at least one syndrome will be 1 }
     \label{fig:five-qubit-flagged-protocol}
 \end{figure}
@@ -1035,9 +1019,6 @@ For a valid flagged error correction protocol, a critical question remains: even
 
 \begin{theorem}
 \label{thm:mains}
-\yfc{Please check the consistency of the assumptions in this theorem,
-the appendix theorem, and Algorithm~\ref{alg:ftec-verification}, especially
-the role of Condition (1).}
 Consider a flagged error-correction protocol $\Pi$ for a stabilizer
 code with stabilizer group $\cS$, distance $d$, and
 $t=\lfloor (d-1)/2 \rfloor$. Assume that $\Pi$ is valid in the sense of
@@ -1058,10 +1039,6 @@ satisfies FTEC if and only if, for every measurement record $m$,
 
 
 \begin{proof}[Proof sketch]
-\yfc{After resolving the correctness comments, shorten the forward direction
-to the single inequality d>2t and its contradiction. Keep one sentence
-per termination condition in the reverse direction, including the actual
-residual-weight bound; leave the detailed derivations in the appendix.}
 The full proof of this theorem is in Appendix~\ref{app:proof} of the supplementary material. \\
 
 
@@ -1093,8 +1070,6 @@ FTEC.
     \item \textbf{Condition (1):} All residual errors in $\mathcal{E}_m$ share the same ideal  syndrome, so for any decoder choice $C \in \mathcal{E}_m$, $E \cdot C$ commutes with the stabilizers. By our assumption, $E \cdot C \in S$, meaning the logical state is preserved.
     \item \textbf{Condition (2):} The protocol terminates after $t-w+1$ repeated full-syndrome rounds without flags. With at most $t-w$ faults remaining, at least one round $R$ must be fault-free. The data error $E^-$ before $R$ produces the syndrome precisely and will belong to the equivalence class represented by the decoder choice $C$. The final error is $C \cdot E^- \cdot E_{\mathrm{suf}} \sim E_{\mathrm{suf}}$. Because no flags were raised and at most $s-w$ faults occurred after $R$, the  $\mathrm{wt}_{\mathrm{min}}$ of final error is bounded by $  s \le t$, satisfying FTEC.
     \item \textbf{Condition (3):} If the protocol stops, the resulting error $E \in \mathcal{E}_m$ naturally satisfies $\mathrm{wt}_{min}(E) \le t$. An ideal decoder will successfully recover the state since the total error weight remains within the code's correctable limit, satisfying FTEC.
-    \yfc{Old version: Condition (3) is not a maximum-round stopping rule.
-    Use the residual-weight bound $s$ (circuit faults), not $t$, for $r+s\le t$.}
 \end{itemize}
 
 \end{proof}
@@ -2068,10 +2043,6 @@ whose $ \mathrm{wt}_{\mathrm{min}}$ is at most $w$.
 For each terminating path $\pi$ intended to satisfy Condition (3), and for each
 $w=0,\ldots,t$, the verifier searches for a fault assignment that violates this
 requirement:
-\yfc{Please check the quantification of the input error and the combined
-input-error and circuit-fault budget in the following formula.}
-\yfc{The dependence of the residual error, path condition, and measurement
-record on the input error is unclear in the current notation. Please check.}
 \begin{equation}
 \begin{aligned}
 \Psi^{\mathrm{CF3}}_{\pi,w}
@@ -2096,8 +2067,6 @@ weight greater than $w$, even after multiplying by stabilizers.
 $ \mathrm{wt}_{\min}(E) = \min_{S\in\mathcal{S}}\mathrm{wt}(E\cdot S). $ 
 To encode the condition $\mathrm{wt}_{\min}(E_\pi(\mathcal{F})) > w$, we must assert that there exists no Pauli string $P$ of weight $\mathrm{wt}(P) \leq w$ such that $E_\pi(\mathcal{F})\cdot P \in \mathcal{S}$. A Pauli string belongs to the stabilizer group if it commutes with all stabilizer generators and logical operators. This can be formulated using the normalizer-membership (Eq.~\ref{eq:Normalize-membership}) and stabilizer-nonmembership (Eq.~\ref{eq:stabiizer-nonmembership}) constraints:}
 
-\yfc{Please check the scope of the conjunction and disjunction
-in the following minimum-weight encoding.}
 \begin{equation} \label{eq:minimum-weight}
     \begin{aligned}
       \mathrm{wt}_{\min}(E_\pi(\mathcal{F}))>w \ =   \bigwedge_{P : \mathrm{wt}(P) \leq w } \neg  \mathrm{Norm}(P \cdot E_\pi(\mathcal{F}), \mathcal{S}) \lor \mathrm{Stab}_{\mathrm{non}}(P \cdot E_\pi(\mathcal{F}), \mathcal{L}) 
@@ -2249,8 +2218,6 @@ residual data error to have $\mathrm{wt}_{\mathrm{min}}$ larger than $r$.
 
 As in the Condition (3) check, the constraint
 $\mathrm{wt}_{\min}(E_C(\mathcal{F}))>r$ is encoded using Eq.~\eqref{eq:weight-greater-than} with $w$ replaced by $r$.
-\yfc{Please check this equation reference:
-the label eq:weight-greater-than is currently commented out.}
 In the binary Pauli representation, this is implemented by XORing the binary
 vector of $E_C(\mathcal{F})$ with the selected stabilizer representative and applying a
 cardinality constraint to the resulting support.
@@ -2473,10 +2440,6 @@ Algorithm~\ref{alg:ftec-verification} satisfies the following:
 \end{theorem}
 
 \begin{proof}
-\yfc{Compress this proof to three sentences: failed validity checks yield
-NotValid; a SAT witness yields NotFTEC by the characterization theorem;
-validity plus UNSAT for every path yields FTEC. The current proof repeats
-the algorithm and the previously defined counterexample semantics.}
 If the algorithm returns \textsc{NotValid}, then one of the checks used to
 establish Def.~\ref{def:protocol-validity} has failed: either a syndrome
 extraction circuit fails Def.~\ref{def:syndrome-extraction-valid}, a
@@ -2530,10 +2493,6 @@ Our work represents one step in this direction. By exploiting the structure of f
 
 
 \section{Results}
-\yfc{Please check how the FTEC queries reported for validity-failing
-configurations relate to the final verdict of Algorithm~\ref{alg:ftec-verification}.
-Please also check that the reported counterexamples use realizable executions
-within the stated fault budget.}
 Our experiments were conducted on a server running Ubuntu 22.04.3 LTS with an
 AMD EPYC 7742 64-core processor (1.5\,GHz), 2\,TiB of RAM, and a 1\,TB SSD. We implemented our verification framework using Z3py to encode the constraints, which were subsequently transformed into DIMACS format for the CryptoMiniSat solver. CryptoMiniSat was chosen for its highly optimized performance on formulas containing massive XOR clauses. All tasks were executed without a time limit. 
 
@@ -2835,15 +2794,7 @@ Total CPU Time (s) & 1451.0 & 803.1 & 1183.0 & 39177.5 & 37422.7 & 60069.4 & 213
 
 \end{table}
 \bw{this is the new table T}
-\yfc{Please check that the table explanations match the current columns:
-CPU versus wall time, absolute counts versus ratios, and paths versus circuits.
-The aggregation of solver times and peak memory across parallel processes
-also needs to be clear.}
 
-\yfc{Replace this four-item glossary with a compact table note defining
-counting units, CPU/wall time, aggregation, and memory. Avoid restating
-column names. If further space is needed, retain verdicts, total time,
-and peak memory here and move SAT-call/variable/clause statistics to supplementary material.}
 \begin{itemize}
 
     \item \textbf{Protocol Verification:} This block reports the specific defect counts. \emph{Syndrome extraction bugs} denotes the ratio of failed circuits to the total QASM circuits evaluated via Stim that fail to satisfy Def~\ref{def:syndrome-extraction-valid}. \emph{Control-flow bugs} counts the number of paths that violate control-flow constraints relative to the total number of paths. \emph{Flag bugs} indicates the number of circuits that failed the flag condition (Def~\ref{def:flag}).
@@ -2867,20 +2818,12 @@ Finally, our FTEC verification revealed protocols that failed to be valid or sat
 We now present two examples of bugs identified through our verification process. Example 1 demonstrates an invalid protocol, as one of its syndrome extraction circuits fails to satisfy the determinism requirement of Definition~\ref{def:syndrome-extraction-deterministic}. Example 2 illustrates a scenario where the protocol itself is valid, but it ultimately violates FTEC (Definition~\ref{def:weak-FTEC}); specifically, there exist two possible residual errors corresponding to the same measurement outcome $m$ whose product forms a non-trivial logical operator.
 
 
-\yfc{Example 2 is described as protocol-valid, but the low-depth
-$[[7,1,3]]$ configuration in the table has a control-flow bug.
-Please check whether these refer to the same protocol version.}
 \textbf{Example 1.} Figure~\ref{fig:[[5,1,3]]_[2,2]^T} illustrates the flagged syndrome extraction circuit for the $[[5,1,3]]$ code utilizing the $[2,2]^T$ optimization from [LL25]. Let $U$ denote the overall unitary evolution of this circuit, 
 $\mathcal{S}_{\mathrm{joint}} = \langle g_0, \dots, g_9 \rangle$ be the initial stabilizer
 group of the joint data-ancilla system, and $\mathcal{S}'_{\mathrm{joint}} = \langle g'_0, \dots, g'_9 \rangle$ be the stabilizer
 group after $U$ is applied.
 
 The complete evolution of these generators is detailed in Table~\ref{tab:stabilizer-evolution-exmple}. As shown in the table, the transformed generator $g'_4 = +X_{D_1} Z_{D_2} Z_{D_3} X_{D_4}X_{A_{x,1}} Z_{A_{x,2}} Z_{A_{x,3}} Z_{A_{x,4}}$ anticommutes with the initial generator $g_7= +X_{A_{x,4}}$. Because all elements within a stabilizer group must mutually commute, $g'_4$ cannot belong to $\mathcal{S}_{\mathrm{joint}}$, establishing that $\mathcal{S}_{\mathrm{joint}} \neq \mathcal{S}'_{\mathrm{joint}}$. Consequently, the measurement outcome of the ancilla qubit $A_{x,4}$ becomes non-deterministic. This directly violates Definition~\ref{def:syndrome-extraction-deterministic}, demonstrating that this protocol is not a valid syndrome extraction circuit.\\
-\yfc{For Example 1, replace the full ten-generator table with the two
-operators needed for the witness: $g'_4$ and $g_7$, whose anticommutation
-establishes the violation. Put the complete generator table in supplementary
-material. Keep the circuit and this explicit witness in the main text,
-and update the sentence referring to the complete evolution table.}
 
 % Ensure you have these in your preamble:
 % \usepackage{caption}
@@ -3232,22 +3175,14 @@ same logical state as ideal decoding of the input data block. This proves
 FTEC~(1) of Def.~\ref{def:weak-FTEC}.
 
 \paragraph{Termination Condition (3).}
-\yfc{Please check whether this argument establishes the required
-residual-weight bound $s$ for $r+s\le t$, rather than only a bound of $t$.}
 For any fault event of weight $w \leq t$, every resulting error $E \in \mathcal{E}_m$ has a  weight $\mathrm{wt}_{\min}(E) \leq t$, thereby satisfying FTEC (2) of Def~\ref{def:weak-FTEC}. Consequently, applying an ideal decoder to an input state---which contains an initial data error of weight $r \leq t$ and an accumulated output error $E$ with $\mathrm{wt}_{\min}(E) \leq t$---will successfully recover the original state. This holds because, for any quantum error-correcting code with distance $d$, every error $e$ with $\mathrm{wt}_{\min}(e) \leq t$ is perfectly correctable via ideal decoding, thus satisfying FTEC (1) of Def~\ref{def:weak-FTEC}.
 
 
 \end{proof}
 
 \section{section 3 appendix}
-\yfc{Please replace this placeholder appendix title with a descriptive title.}
-\yfc{Please recompile the PDF after the restructuring and check for
-undefined references, multiply defined labels, and figure placement.}
 \begin{theorem}
 \label{thm:syndrome-extraction-valid}
-\yfc{This label is also used by the theorem in the main text.
-Please give the appendix restatement a distinct label and check
-that all references point to the intended theorem.}
 Let $U$ be a Clifford syndrome extraction circuit
 before the final ancilla measurements. Let
 \[
