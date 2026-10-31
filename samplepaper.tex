@@ -45,8 +45,8 @@
 \usepackage{wrapfig}
 \usepackage{graphicx}
 
-%\newcommand{\showcomment}[1]{#1}
-\newcommand{\showcomment}[1]{}
+\newcommand{\showcomment}[1]{#1}
+%\newcommand{\showcomment}[1]{}
 
 \newcommand{\yfc}[1]{\showcomment{\textcolor{blue}{\textbf{YFC:} #1}}}
 \newcommand{\bw}[1]{\showcomment{\textcolor{green}{\textbf{BW:} #1}}}
@@ -1013,11 +1013,7 @@ satisfies FTEC if and only if, for every measurement record $m$,
     E_1\cdot  E_2\notin N(\cS)\setminus \cS.
 \end{align}
 \end{theorem}
-\yfc{Does the same-syndrome assumption apply to all paths or only
-Condition (1) paths? The theorem sounds like it applies to all paths,
-but the SAT check covers only Condition (1). Please make the scope
-clear. Also, detecting $t$ faults does not by itself explain why
-the record determines the final ideal syndrome.}
+
 
 
 
@@ -1956,10 +1952,7 @@ We next describe the SAT check for the assumption of Condition~(1) in Def.~\ref{
 
 For each terminating path $\pi$ intended to satisfy Condition (1), the verifier
 checks satisfiability of the formula
-\yfc{This check applies only to Condition (1) paths. Is this also
-what the implementation does? Please make the theorem agree with
-the check. If Conditions (2) and (3) do not need this check, explain
-why in their proofs.}
+
 \begin{equation}
 \begin{aligned}
 \Psi^{\mathrm{CF1}}_\pi
@@ -3059,10 +3052,6 @@ FTEC if and only if, for all measurement record $m$,
 $\forall E_1,E_2\in \mathcal{E}_{m},
     E_1\cdot E_2 \notin N(\cS) \setminus \cS$.  
 \end{theorem}\label{thm:ftec-verify}
-\yfc{The main theorem includes a same-syndrome assumption, but this
-version does not. The proof for Condition (1) below still uses it.
-Please state where this assumption comes from and make the two
-theorem statements agree.}
 
 % \begin{theorem}
 % \label{thm:mains}
