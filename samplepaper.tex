@@ -485,9 +485,7 @@ applies a nontrivial two-qubit Pauli error
 $P_i\otimes P_j$, where $P_i,P_j\in\{I,X,Y,Z\}$ and
 $(P_i,P_j)\neq (I,I)$.
 
-Preparation and measurement faults insert Pauli errors immediately
-after preparation and before measurement, respectively.
-An idle fault inserts a non-identity single-qubit Pauli error on the idle qubit.
+Preparation and measurement faults introduce Pauli errors immediately after state preparation and just before measurement, respectively. Meanwhile, idle faults apply a non-identity single-qubit Pauli error to any inactive qubit, and gate faults insert Pauli errors on the specific qubits acted upon by the gate.
 
 \section{Fault-tolerant error correction and flagged syndrome extraction}\label{sec:flagged-SE}
 This section introduces our formal framework for flagged error correction protocols and FTEC. We start by formalizing basic unflagged syndrome extraction circuits, which we then extend to define the full flagged error correction protocol, including its underlying circuits and classical control flow. After formally defining protocol validity, we establish the necessary and sufficient conditions for a valid protocol to achieve FTEC.
@@ -690,6 +688,99 @@ patterns that can arise during syndrome extraction.
     
 \end{proof}
 \endgroup
+
+
+\subsection{Equivalent circuit-level noise model(revised)}
+
+For verification purposes, we consider only the possible Pauli errors induced by faults in the circuit and do not consider their rates or probabilities.  Therefore, we have the following proposition to reduce the complexity for verification. In this work the although input data error and error induced by faults we introduced in ~\ref{sec:circuit-level-noise-model} can both be described by Pauli errors but we will formulate in as different thing. 
+We assume that every data qubit participates in at least one CNOT or CZ
+gate during syndrome extraction. By this assumption we can reduce the  faults introduced in ~\ref{sec:circuit-level-noise-model} to only two qubit gate faults.
+
+
+
+\begin{proposition}
+\label{prop}
+For the purpose of enumerating possible Pauli error patterns in Clifford syndrome extraction circuits, it is sufficient to introduce fault variables only at two-qubit gate locations. Faults occurring at state preparation, measurement, idle, and single-qubit gate locations can be equivalently represented by Pauli faults at neighboring two-qubit gate locations, without changing their effect on the final data error and measurement outcomes.
+\end{proposition}
+\yfc{Keeping the final error and measurement record unchanged is not
+enough to justify the fault bound. Please explain how the reduction
+counts input errors and circuit faults separately, and whether moving
+circuit faults can increase their number. Also state when a fault can
+be moved to a neighboring two-qubit gate.}
+
+
+\begin{proof}
+
+Since Clifford gates map Pauli operators to Pauli operators under
+conjugation.
+Preparation, idle, measurement, and single-qubit gate faults
+can be propagated through adjacent Clifford operations and represented
+by equivalent Pauli faults at neighboring two-qubit gate locations.
+Figure~\ref{equivalence_of_fault} illustrates the basic equivalence: a Pauli error induced by a single-qubit fault can be equivalently represented by a fault at either the preceding or following two-qubit gate location. Similarly, a measurement fault can be represented as a Pauli error immediately before the measurement and absorbed into the preceding two-qubit gate fault. 
+
+
+Consequently, our verifier introduces fault variables only at two-qubit
+gate locations without changing the set of circuit-level Pauli error
+patterns that can arise during syndrome extraction.
+    
+\end{proof}
+
+
+\begin{figure}[htbp]
+  \centering
+  
+  % --- First Subfigure: Stacked to full width ---
+  \begin{subfigure}{\textwidth}
+    \centering
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{quantikz}[column sep=0.3cm]
+        \lstick{$Q_1$} & \gate[2]{U} & \gate[, style={draw=red}]{E} \gategroup[1, steps=1, style={dashed, rounded corners, fill=red!20, inner xsep=2pt}, background]{fault} & \gate[2]{V} & \qw \\
+        \lstick{$Q_2$} &                           & \qw                                                         &                           & \qw 
+    \end{quantikz}
+    =
+    % \begin{quantikz}[column sep=0.3cm]
+    %     \lstick{$Q_1$} & \gate[2]{U}  & \gate[, style={draw=blue}]{E} \gategroup[2, steps=2, style={dashed, rounded corners, fill=blue!20, inner xsep=2pt}, background]{2-qubit gate fault} & \gate[2]{V} & \qw \\
+    %     \lstick{$Q_2$} &                           & \qw &                           & \qw     
+    % \end{quantikz}
+    
+    % =
+    \begin{quantikz}[column sep=0.3cm]
+        \lstick{$Q_1$} & \gate[2]{U} \gategroup[2, steps=2, style={dashed, rounded corners, fill=blue!20, inner xsep=2pt}, background]{2-qubit gate fault} & \gate[, style={draw=blue}]{E} & \gate[2]{V} & \qw \\
+        \lstick{$Q_2$} &                           & \qw &                           & \qw     
+    \end{quantikz}
+    \end{adjustbox}
+    \subcaption{Equivalence between errors induced by a single-qubit fault and a 2-qubit gate fault.}
+    \label{fig:idle-2q-error-equivalence}
+  \end{subfigure}
+  
+  \vspace{0.6cm} % Adds breathing room between the stacked subfigures
+  
+  % --- Second Subfigure: Stacked to full width ---
+  \begin{subfigure}{\textwidth}
+    \centering
+    \begin{adjustbox}{max width=0.8\textwidth}
+    \begin{quantikz}[column sep=0.5cm]
+    \lstick{$Q_1$} & \gate[2]{U} & \qw & \qw \\
+    \lstick{$Q_2$} &                           & \gate[, style={draw=red}]{E} \gategroup[1, steps=2, style={dashed, rounded corners, fill=red!20, inner xsep=8pt}, background, label style={xshift=0.2cm}]{measurement fault} & \meter{}
+\end{quantikz}
+    =
+    \begin{quantikz}[column sep=0.5cm]
+        \lstick{$Q_1$} & \gate[2]{U} \gategroup[2, steps=2, style={dashed, rounded corners, fill=blue!20, inner xsep=2pt}, background]{2-qubit gate fault} & \qw & \qw \\
+        \lstick{$Q_2$} &                           & \gate[, style={draw=blue}]{E} & \meter{}
+    \end{quantikz}
+    \end{adjustbox}
+    \subcaption{Equivalence between errors induced by a measurement fault and a 2-qubit gate fault.}
+    \label{fig:meas-2q-error-equivalence}
+  \end{subfigure}
+
+  % --- Main Figure Caption ---
+  \caption{Illustration of fault equivalence under Pauli propagation.}
+  \label{equivalence_of_fault}
+\end{figure}
+
+
+
+
 \subsection{Fault-Tolerant Error Correction}
 
 When faults occur within the circuit, a single round of full syndrome extraction is no longer guaranteed to yield the correct syndrome. To ensure reliable recovery in the presence of such faults, we formally define FTEC. Following~\cite{Tansuwannont2023adaptivesyndrome}, we use the following definition of \emph{weak fault-tolerant error correction}.
@@ -705,7 +796,7 @@ Let $\mathcal{Q}$ be an $[[n,k,d]]$ stabilizer code with $t=\lfloor (d-1)/2\rflo
 
 \bw{fix the definiton of the input weight r}
 
-\textcolor{red}{In our setting, an input error on the data qubits is treated as a preparation fault on those data qubits, as described in Section~\ref{sec:circuit-level-noise-model}.} The parameter
+The parameter
 $t=\lfloor (d-1)/2\rfloor$ denotes the maximum number of faults that the protocol is designed to tolerate and is referred to as the \emph{fault bound}. Ideal decoding refers to fault-free error correction based on the ideal syndrome.
 
 Condition~(1) of Definition~\ref{def:weak-FTEC} guarantees that the output state preserves the same logical information as the input state. Since faults within the circuit can propagate errors to multiple qubits, Condition~(2) additionally provides a rigorous upper bound on the weight of the residual error in the final output state.
@@ -841,7 +932,7 @@ Consider a control flow of a flagged error correction protocol. We say a control
    
     \item \textbf{Condition 1:} The measurement  record indicates that $t$ faults have been detected.
     \item \textbf{Condition 2:} A number of faults $w < t$ has been detected, and the protocol subsequently yields an identical full syndrome for $t-w+1$ consecutive extraction rounds without any flag qubit raised.
-    \item  \textbf{Condition 3:} For every in put error $E$ with $wt(E) =r$ and  fault event involving $r + w \le t$ faults, the induced data error has a $\mathrm{wt}_{\mathrm{min}}$ at most $w$.
+    \item  \textbf{Condition 3:} For every input error $E$ with $wt(E) =r$ and  fault event involving $r + w \le t$ faults, the induced data error has a $\mathrm{wt}_{\mathrm{min}}$ at most $w$.
 \end{enumerate}
 \end{definition}
 Condition 3 corresponds to the case where no additional syndrome information is required, since the residual error is already guaranteed to be correctable.
@@ -1068,7 +1159,11 @@ FTEC.
 \begin{itemize}
     \item \textbf{Condition (1):} All residual errors in $\mathcal{E}_m$ share the same ideal  syndrome, so for any decoder choice $C \in \mathcal{E}_m$, $E \cdot C$ commutes with the stabilizers. By our assumption, $E \cdot C \in S$, meaning the logical state is preserved.
     \item \textbf{Condition (2):} The protocol terminates after $t-w+1$ repeated full-syndrome rounds without flags. With at most $t-w$ faults remaining, at least one round $R$ must be fault-free. The data error $E^-$ before $R$ produces the syndrome precisely and will belong to the equivalence class represented by the decoder choice $C$. The final error is $C \cdot E^- \cdot E_{\mathrm{suf}} \sim E_{\mathrm{suf}}$. Because no flags were raised and at most $s-w$ faults occurred after $R$, the  $\mathrm{wt}_{\mathrm{min}}$ of final error is bounded by $  s \le t$, satisfying FTEC.
-    \item \textcolor{red}{\textbf{Condition (3):} If the protocol stops, the resulting error $E \in \mathcal{E}_m$ naturally satisfies $\mathrm{wt}_{min}(E) \le t$. An ideal decoder will successfully recover the state since the total error weight remains within the code's correctable limit, satisfying FTEC.}
+   
+
+    \item \textcolor{red}{\textbf{Condition (3):} Given an input error $E_{in}$ with $\mathrm{wt}(E_{in}) = r$ and $w$ faults in the path such that $r+w \le t$, if the protocol stops, the resulting output error $E_{out} \in \mathcal{E}_m$ naturally satisfies $\mathrm{wt}_{min}(E_{out}) \le w \le t$. Furthermore, because $r \le t$, an ideal decoder will yield the same decoding result for both $E_{in}$ and $E_{out}$, satisfying the FTEC requirements.}
+
+
 \end{itemize}
 \yfc{The bound $\mathrm{wt}_{\min}(E)\le t$ alone does not prove
 FTEC (2), which requires a bound of $s$, the number of circuit faults.
@@ -1377,20 +1472,6 @@ input error. Then explain how this proves both FTEC requirements.}
 % \end{proof}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-%\clearpage
 
 
 
