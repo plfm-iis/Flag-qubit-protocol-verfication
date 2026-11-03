@@ -653,6 +653,7 @@ $ZZ$, which is invalid because the measurement outcomes are not deterministic.}
 \subsection{Equivalent circuit-level noise model}
 
 For verification purposes, we consider only the possible Pauli errors induced by faults in the circuit and do not consider their rates or probabilities.  Therefore, we have the following proposition to reduce the complexity for verification. In this work the although input data error and error induced by faults we introduced in ~\ref{sec:circuit-level-noise-model} can both be described by Pauli errors but we will formulate in as different thing. 
+\yfc{In the syndrome-extraction circuits considered, every single-qubit fault location is immediately adjacent along its wire to a two-qubit gate. A single-qubit Pauli fault therefore has a preceding or following two-qubit gate on the same qubit to which it can be moved.}
 We assume that every data qubit participates in at least one CNOT or CZ
 gate during syndrome extraction. By this assumption we can reduce the  faults introduced in ~\ref{sec:circuit-level-noise-model} to only two qubit gate faults.
 
