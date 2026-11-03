@@ -2233,6 +2233,19 @@ determines the number $w$ of detected faults on the path. The protocol validity
 condition then requires the full syndrome extraction circuit used in the
 repeated-syndrome suffix to satisfy the $(t-w)$-flag condition.
 
+\yfc{We need an additional check for every full syndrome extraction
+circuit used in Condition (2):
+\[
+\forall E_{\mathrm{in}}\in\mathcal P_n,\qquad
+\mathcal F_{\mathrm{circ}}=I
+\ \Longrightarrow\
+f_q(E_{\mathrm{in}},\mathcal F_{\mathrm{circ}})=0
+\quad\text{for every flag qubit }q.
+\]
+That is, in the absence of circuit faults, no input data Pauli error
+may trigger a flag. This property is needed when applying the
+circuit-only flag condition to executions with a pre-existing data error.}
+
 Let $C$ be this full syndrome extraction circuit, and let $F_C$ be the
 set of flag qubits in $C$. For a fault assignment $\mathcal{F}$ on $C$, symbolic Pauli
 propagation produces a residual data error $E_C(\mathcal{F})$ and, for each flag qubit
