@@ -880,40 +880,38 @@ Each execution follows a control-flow path, executing syndrome extraction circui
 % possible terminating executions of the protocol. Specifically, we assume that every terminating path has accumulated sufficient information to perform a reliable error correction that projects the data block back into the code space, possibly leaving only undetected residual data errors.
 % }
 % \bw{add fault <t?}
-Following~\cite{CB18}, we define \textit{control-flow validity} as follows.
-\begin{definition}[\textbf{Validity of a control flow}]
-\label{def:control-flow-validity}
+
 \yfc{Suggested replacement text:
-\par\textbf{Before the control-flow validity definition:}
+\textbf{Before the control-flow validity definition:}
 Inspired by~\cite{CB18}, we define control-flow validity below,
 strengthening Condition (1) with the same-syndrome requirement used in
 our verification theorem.
-\par\textbf{Condition (1):}
+\textbf{Condition (1):}
 The measurement record indicates that $t$ faults have been detected.
 Moreover, any two executions on this path, each satisfying the input and
 circuit fault budget $r+s\le t$, that produce the same measurement record
 have residual data errors with the same ideal syndrome.
-\par\textbf{Protocol validity, item (3):}
+\textbf{Protocol validity, item (3):}
 For each path whose control-flow validity is established using
 Condition (2) of Def.~\ref{def:control-flow-validity}, the full syndrome
 extraction circuit in the repeated-syndrome suffix must satisfy the
 $(t-w)$-flag condition (Def.~\ref{def:flag}), where $w$ is the detected-fault
 count. A path may instead be justified by Condition (1) or Condition (3)
 if all requirements of that case hold.
-\par\textbf{Main theorem assumption:}
+\textbf{Main theorem assumption:}
 Assume that $\Pi$ is valid in the sense of
 Def.~\ref{def:protocol-validity}.
-\par This sentence replaces the current validity assumption together with
+ This sentence replaces the current validity assumption together with
 the separate same-syndrome assumption; the remainder of the theorem
 statement stays unchanged.
-\par\textbf{Opening of the CF1-check subsection:}
+\textbf{Opening of the CF1-check subsection:}
 We next describe the SAT check for the same-syndrome requirement in
 Condition (1) of Def.~\ref{def:control-flow-validity}. For a path whose
 record indicates that $t$ faults have been detected, the verifier searches
 for two executions within the input and circuit fault budget that follow
 the same terminating path and produce the same measurement record, but
 leave residual data errors with different ideal syndromes.
-\par\textbf{ControlFlowValidity description:}
+\textbf{ControlFlowValidity description:}
 The subroutine returns a termination case $k\in\{1,2,3\}$ whose
 requirements have all been established. For Condition (1), it checks
 that the record indicates $t$ detected faults and that
@@ -924,12 +922,16 @@ queries. It returns failure only if no case can be established.
 A failed CF1 check alone therefore does not reject a path that satisfies
 another case. The flag checks for Condition (2) are part of establishing
 that case, rather than an unconditional additional rejection step.
-\par\textbf{NotValid case in the correctness proof:}
+\textbf{NotValid case in the correctness proof:}
 If the algorithm returns \textsc{NotValid}, either a syndrome extraction
 circuit fails Def.~\ref{def:syndrome-extraction-valid}, or some terminating
 path satisfies none of the three termination cases with their required
 checks, including the flag condition when using Condition (2).
 Hence $\Pi$ fails Def.~\ref{def:protocol-validity}.}
+
+Following~\cite{CB18}, we define \textit{control-flow validity} as follows.
+\begin{definition}[\textbf{Validity of a control flow}]
+\label{def:control-flow-validity}
 Consider a control flow of a flagged error correction protocol. We say a control flow is valid if every path of the control flow satisfies one of the following conditions when there are at most $t $ faults :
 \begin{enumerate}
    
