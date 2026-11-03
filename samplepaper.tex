@@ -883,6 +883,16 @@ Each execution follows a control-flow path, executing syndrome extraction circui
 Following~\cite{CB18}, we define \textit{control-flow validity} as follows.
 \begin{definition}[\textbf{Validity of a control flow}]
 \label{def:control-flow-validity}
+\yfc{Suggested revision: include the same-syndrome requirement in
+Condition (1) of control-flow validity. Any two executions on the path,
+each satisfying $r+s\le t$, with the same measurement record must have
+residual data errors with the same ideal syndrome. Then remove this
+separate assumption from the main theorem and align the CF1 description
+and the appendix with the revised definition. The verifier should return
+\textsc{NotValid} only if no termination case can be established; a failed
+CF1 check must not reject a path that satisfies Condition (2), including
+its required flag checks, or Condition (3). Please also check that the
+implementation follows this case-selection rule.}
 Consider a control flow of a flagged error correction protocol. We say a control flow is valid if every path of the control flow satisfies one of the following conditions when there are at most $t $ faults :
 \begin{enumerate}
    
