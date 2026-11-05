@@ -653,9 +653,7 @@ $ZZ$, which is invalid because the measurement outcomes are not deterministic.}
 \subsection{Equivalent circuit-level noise model}
 
 For verification purposes, we consider only the possible Pauli errors induced by faults in the circuit and do not consider their rates or probabilities.  Therefore, we have the following proposition to reduce the complexity for verification. In this work the although input data error and error induced by faults we introduced in ~\ref{sec:circuit-level-noise-model} can both be described by Pauli errors but we will formulate in as different thing. 
-\yfc{In the syndrome-extraction circuits considered, every single-qubit fault location is immediately adjacent along its wire to a two-qubit gate. A single-qubit Pauli fault therefore has a preceding or following two-qubit gate on the same qubit to which it can be moved.}
-We assume that every data qubit participates in at least one CNOT or CZ
-gate during syndrome extraction. By this assumption we can reduce the  faults introduced in ~\ref{sec:circuit-level-noise-model} to only two qubit gate faults.
+In the syndrome-extraction circuits considered, every single-qubit fault location is immediately adjacent along its wire to a two-qubit gate. A single-qubit Pauli fault therefore has a preceding or following two-qubit gate on the same qubit to which it can be moved.
 
 
 
@@ -846,7 +844,7 @@ Flag qubits signal such error amplification, providing additional
 information for recovery. The following condition formalizes when
 this signal is required.
 \begin{definition}[$\cS$-Flag condition] \label{def:flag}
-A syndrome extraction circuit satisfies the $\cS$-flag condition if, whenever  an event involving $w \le s$ faults induce a data error $E_{\mathrm{data}}$ such that $\mathrm{wt}_{\min} (E_{\mathrm{data}}) > w$, at least one flag measurement outcome is $1$.
+A syndrome extraction circuit satisfies the $\cS$-flag condition if, whenever  an event involving $w \le s$ faults induce a data error $E_{\mathrm{data}}$ such that $\mathrm{wt}_{\min} (E_{\mathrm{data}}) > w$, at least one flag measurement outcome is $1$, and when there is no fault in circuit, there is no flag raised. 
 \end{definition}
 
 
@@ -881,36 +879,7 @@ Each execution follows a control-flow path, executing syndrome extraction circui
 % }
 % \bw{add fault <t?}
 
-\yfc{Suggested replacement text:
-\textbf{Before the control-flow validity definition:}
-Inspired by~\cite{CB18}, we define control-flow validity below,
-strengthening Condition (1) with the same-syndrome requirement used in
-our verification theorem.
-\textbf{Condition (1):}
-The measurement record indicates that $t$ faults have been detected.
-Moreover, any two executions on this path, each satisfying the input and
-circuit fault budget $r+s\le t$, that produce the same measurement record
-have residual data errors with the same ideal syndrome.
-\textbf{Protocol validity, item (3):}
-For each path whose control-flow validity is established using
-Condition (2) of Def.~\ref{def:control-flow-validity}, the full syndrome
-extraction circuit in the repeated-syndrome suffix must satisfy the
-$(t-w)$-flag condition (Def.~\ref{def:flag}), where $w$ is the detected-fault
-count. A path may instead be justified by Condition (1) or Condition (3)
-if all requirements of that case hold.
-\textbf{Main theorem assumption:}
-Assume that $\Pi$ is valid in the sense of
-Def.~\ref{def:protocol-validity}.
- This sentence replaces the current validity assumption together with
-the separate same-syndrome assumption; the remainder of the theorem
-statement stays unchanged.
-\textbf{Opening of the CF1-check subsection:}
-We next describe the SAT check for the same-syndrome requirement in
-Condition (1) of Def.~\ref{def:control-flow-validity}. For a path whose
-record indicates that $t$ faults have been detected, the verifier searches
-for two executions within the input and circuit fault budget that follow
-the same terminating path and produce the same measurement record, but
-leave residual data errors with different ideal syndromes.
+\yfc{
 \textbf{ControlFlowValidity description:}
 The subroutine returns a termination case $k\in\{1,2,3\}$ whose
 requirements have all been established. For Condition (1), it checks
@@ -935,7 +904,7 @@ Following~\cite{CB18}, we define \textit{control-flow validity} as follows.
 Consider a control flow of a flagged error correction protocol. We say a control flow is valid if every path of the control flow satisfies one of the following conditions when there are at most $t $ faults :
 \begin{enumerate}
    
-    \item \textbf{Condition 1:} The measurement  record indicates that $t$ faults have been detected.
+    \item \textbf{Condition 1:} The measurement  record indicates that $t$ faults have been detected and for the same measurement record the residual errors have the same ideal syndrome.
     \item \textbf{Condition 2:} A number of faults $w < t$ has been detected, and the protocol subsequently yields an identical full syndrome for $t-w+1$ consecutive extraction rounds without any flag qubit raised.
     \item  \textbf{Condition 3:} For every input error $E$ with $wt(E) =r$ and  $s$ faults involving such that $r + s \le t$ , the induced data error has a $\mathrm{wt}_{\mathrm{min}}$ at most $s$.
 \end{enumerate}
@@ -1112,12 +1081,7 @@ in Section~\ref{sec:FTEC-verification}.
 Consider a flagged error-correction protocol $\Pi$ for a stabilizer
 code with stabilizer group $\cS$, distance $d$, and
 $t=\lfloor (d-1)/2 \rfloor$. Assume that $\Pi$ is valid in the sense of
-Def.~\ref{def:protocol-validity}. On each terminating path satisfying
-Condition (1) of Def.~\ref{def:control-flow-validity}, additionally
-assume that any two executions within the input and circuit fault
-budget $r+s\le t$ with the same measurement record have residual
-errors with the same ideal syndrome.
-For each record $m$, let $\mathcal E_m$ be the residual error set
+Def.~\ref{def:protocol-validity}.For each record $m$, let $\mathcal E_m$ be the residual error set
 from Def.~\ref{def:measurement-record-and-residual-error}.
 Then there exists a lookup-table decoder $D$ such that $(\Pi,D)$
 satisfies FTEC if and only if, for every measurement record $m$,
@@ -2282,53 +2246,46 @@ determines the number $w$ of detected faults on the path. The protocol validity
 condition then requires the full syndrome extraction circuit used in the
 repeated-syndrome suffix to satisfy the $(t-w)$-flag condition.
 
-\yfc{We need an additional check for every full syndrome extraction
-circuit used in Condition (2):
-\[
-\forall E_{\mathrm{in}}\in\mathcal P_n,\qquad
-\mathcal F_{\mathrm{circ}}=I
-\ \Longrightarrow\
-f_q(E_{\mathrm{in}},\mathcal F_{\mathrm{circ}})=0
-\quad\text{for every flag qubit }q.
-\]
-That is, in the absence of circuit faults, no input data Pauli error
-may trigger a flag. This property is needed when applying the
-circuit-only flag condition to executions with a pre-existing data error.}
+
 
 Let $C$ be this full syndrome extraction circuit, and let $F_C$ be the
 set of flag qubits in $C$. For a fault assignment $\mathcal{F}$ on $C$, symbolic Pauli
 propagation produces a residual data error $E_C(\mathcal{F})$ and, for each flag qubit
-$q\in\mathcal F_C$, a recorded flag outcome $f_q(\mathcal{F})$. For each
-$r=1,\ldots,t-w$, the verifier searches for an unflagged $r$-fault execution
+$q\in  F_C$, a recorded flag outcome $f_q(\mathcal{F})$. For each
+$s=1,\ldots,t-w$, the verifier searches for an unflagged $s$-fault execution
 of $C$ with $\mathrm{wt}_{\min}(E_C(\mathcal{F}))>r$:
 \begin{equation}
 \begin{aligned}
-\Psi^{\mathrm{flag}}_{C,r}
+\Psi^{\mathrm{flag}}_{C,s}
 :=
 \exists \mathcal{F}.\quad
 &
-\mathrm{wt}(\mathcal{F})=r
+\mathrm{wt}(\mathcal{F}_{circ})=s
 \\
-&\land\ \bigwedge_{q\in\mathcal F_C}\neg f_q(\mathcal{F})
+&\land\ \bigwedge_{q\in F_C}\neg f_q(\mathcal{F})
 \\
-&\land\ \mathrm{wt}_{\min}(E_C(\mathcal{F}))>r .
+&\land\ \mathrm{wt}_{\min}(E_C(\mathcal{F}))> s 
+\\
+&\lor ( \mathrm{wt}(\mathcal{F}_{circ}) = 0 \land \bigvee_{q\in F_C}  f_q(\mathcal{F}) )  .
 \end{aligned}
 \end{equation}
-The first line fixes the number of faults in the circuit to be $r$. The second
+
+\bw{added : no fault the nno flag}
+The first line fixes the number of faults in the circuit to be $s$. The second
 line requires that no flag qubit is raised. The last line requires the induced
-residual data error to have $\mathrm{wt}_{\mathrm{min}}$ larger than $r$.
+residual data error to have $\mathrm{wt}_{\mathrm{min}}$ larger than $s$.
 
 As in the Condition (3) check, the constraint
-$\mathrm{wt}_{\min}(E_C(\mathcal{F}))>r$ is encoded using Eq.~\eqref{eq:weight-greater-than} with $w$ replaced by $r$.
+$\mathrm{wt}_{\min}(E_C(\mathcal{F}))>s$ is encoded using Eq.~\eqref{eq:minimum-weight} with $w$ replaced by $s$.
 In the binary Pauli representation, this is implemented by XORing the binary
 vector of $E_C(\mathcal{F})$ with the selected stabilizer representative
 and constraining the support cardinality of their XOR.
 
-If $\Psi^{\mathrm{flag}}_{C,r}$ is satisfiable for some $r\le t-w$, then the
+If $\Psi^{\mathrm{flag}}_{C,s}$ is satisfiable for some $s\le t-w$, then the
 circuit violates the required $(t-w)$-flag condition: there is an unflagged
-$r$-fault execution whose residual data error is not stabilizer-equivalent to
+$s$-fault execution whose residual data error is not stabilizer-equivalent to
 any Pauli error of weight at most $r$. If the formula is unsatisfiable for every
-$r=1,\ldots,t-w$, then the circuit satisfies the required $(t-w)$-flag
+$s=1,\ldots,t-w$, then the circuit satisfies the required $(t-w)$-flag
 condition.
 
 \subsubsection{Circuit Correctness Check}
