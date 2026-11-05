@@ -2473,6 +2473,21 @@ The subroutines in Algorithm~\ref{alg:ftec-verification} refer to the checks
 defined above. \textsc{CircuitValidity} checks
 Def.~\ref{def:syndrome-extraction-valid} by stabilizer-tableau simulation and SAT-based check.
 
+\yfc{Suggested replacement for the following description of
+\textsc{ControlFlowValidity}:
+The subroutine first determines which termination case applies
+to the path $\pi$. If no termination case applies, it returns
+\textsc{NotValid}. Otherwise, it performs the checks corresponding
+to the identified case and returns whether they pass.
+For Condition (1), it checks that the record indicates $t$ detected
+faults and that $\Psi^{\mathrm{CF1}}_\pi$ is unsatisfiable.
+For Condition (2), it checks the repeated-syndrome suffix and all
+required $(t-w)$-flag conditions.
+For Condition (3), it checks that all required
+$\Psi^{\mathrm{CF3}}_{\pi,w}$ queries are unsatisfiable.
+The flag checks for Condition (2) are performed only when the path
+is classified under that case.}
+
 \textsc{ControlFlowValidity} checks Def.~\ref{def:control-flow-validity} \footnote{The check of Condition (1) in Def. \ref{def:control-flow-validity} used in Thm. \ref{thm:mains} is also included here}: it
 uses $\Psi^{\mathrm{CF1}}_\pi$ for Condition (1), direct inspection for
 Condition (2), and $\Psi^{\mathrm{CF3}}_{\pi,w}$ for Condition (3). For a path
