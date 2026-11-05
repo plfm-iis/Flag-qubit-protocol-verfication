@@ -2235,7 +2235,7 @@ set of flag qubits in $C$. For a fault assignment $\mathcal{F}$ on $C$, symbolic
 propagation produces a residual data error $E_C(\mathcal{F})$ and, for each flag qubit
 $q\in  F_C$, a recorded flag outcome $f_q(\mathcal{F})$. For each
 $s=1,\ldots,t-w$, the verifier searches for an unflagged $s$-fault execution
-of $C$ with $\mathrm{wt}_{\min}(E_C(\mathcal{F}))>r$:
+of $C$ with $\mathrm{wt}_{\min}(E_C(\mathcal{F}))>s$:
 \begin{equation}
 \begin{aligned}
 \Psi^{\mathrm{flag}}_{C,s}
@@ -2456,8 +2456,8 @@ defined above. \textsc{CircuitValidity} checks
 Def.~\ref{def:syndrome-extraction-valid} by stabilizer-tableau simulation and SAT-based check.
 
 
-\textsc{ControlFlowValidity} checks Def.~\ref{def:control-flow-validity}: the subroutine first determines which termination case applies
-to the path $\pi$. If no termination case applies, it returns
+\textsc{ControlFlowValidity} checks Def.~\ref{def:control-flow-validity}: the subroutine first determines which control flow validity case applies
+to the path $\pi$. If no case applies, it returns
 \textsc{NotValid}. Otherwise, it performs the checks corresponding
 to the identified case and returns whether they pass.
 For Condition (1), it checks that the record indicates $t$ detected
@@ -2908,7 +2908,7 @@ The complete evolution of these generators is detailed in Table~\ref{tab:stabili
         \midrule
         \multirow{4}{*}{\rotatebox[origin=c]{90}{\(\mathcal{S}_{\mathrm{data}} \otimes I_{\mathrm{anc}}\)}} & $g_0 = +X_{D_1} Z_{D_2} Z_{D_3} X_{D_4}$ & $g'_0 = g_0$ \\
          & $g_1 = +X_{D_1} X_{D_3} Z_{D_4} Z_{D_5}$ & $g'_1 = g_1$ \\
-         & $g_2 = +Z_{D_1} Z_{D_2} X_{D_3} X_{D_4}$ & $g'_2 = g_2$ \\
+         & $g_2 = +Z_{D_2} Z_{D_3} X_{D_4} X_{D_5}$ & $g'_2 = g_2$ \\
          & $g_3 = +Z_{D_1} X_{D_2} X_{D_4} Z_{D_5}$ & $g'_3 = g_3$ \\
         \midrule
         \multirow{6}{*}{\rotatebox[origin=c]{90}{\(I_{\mathrm{data}} \otimes \mathcal{S}_{\mathrm{anc}}\) }} & $g_4 = +X_{A_{x,1}}$ & \begin{tabular}{@{}l@{}}$g'_4 = +X_{D_1} Z_{D_2} Z_{D_3} X_{D_4}$ \\ $\quad\quad\;  X_{A_{x,1}} Z_{A_{x,2}} Z_{A_{x,3}} Z_{A_{x,4}}$\end{tabular} \\[1ex]
