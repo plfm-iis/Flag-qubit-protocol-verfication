@@ -1047,16 +1047,7 @@ The following theorem characterizes decoder existence under these
 case-specific assumptions and supports the verification algorithm
 in Section~\ref{sec:FTEC-verification}.
 
-% \begin{theorem}
-% \label{thm:mains}
-%  Consider a flagged error correction protocol $\Pi$ for a stabilizer code
-% with stabilizer group $\cS$, distance $d$, and
-% $t=\lfloor (d-1)/2 \rfloor$. Assume that $\Pi$ is valid in the sense of Def.~\ref{def:protocol-validity} and the path satisfies condition (1)  Def \ref{def:control-flow-validity} has all residual error  with same ideal syndrome while the measurement record are the same.
-% Then there exists a suitable lookup-table decoder $D$ such that $(\Pi,D)$ satisfies
-% FTEC if and only if, for all measurement record $m$,
-% $\forall E_1,E_2\in \mathcal{E}_{m},
-%     E_1E_2 \notin N(\cS)\setminus S$.  
-% \end{theorem}
+
 
 \begin{theorem}
 \label{thm:mains}
@@ -2306,14 +2297,15 @@ differs from the ideal syndrome:
 \begin{aligned}
 \Psi^{\mathrm{corr}}_{\cC}
 :=
-\exists E_{\mathrm{in}}.\;
-\Bigl(
-E_{\mathrm{out}}\not\sim E_{\mathrm{in}}
+\exists \mathcal{F}. \quad wt (\mathcal{F}_{\mathrm{circ}}) = 0 
+\quad & 
+ \land \Bigl(
+E_{\mathrm{out}}(\mathcal{F})\not\sim E_{\mathrm{in}}(\mathcal{F})
 \;\vee\;
 \bigvee_{i=1}^{m}
-R_i(E_{\mathrm{in}})
+R_i(E_{\mathrm{in}}(\mathcal{F}))
 \neq
-E_{\mathrm{in}}\odot P_i
+E_{\mathrm{in}}(\mathcal{F})\odot P_i
 \Bigr).
 \end{aligned}
 \end{equation}
@@ -2908,13 +2900,13 @@ The complete evolution of these generators is detailed in Table~\ref{tab:stabili
         \midrule
         \multirow{4}{*}{\rotatebox[origin=c]{90}{\(\mathcal{S}_{\mathrm{data}} \otimes I_{\mathrm{anc}}\)}} & $g_0 = +X_{D_1} Z_{D_2} Z_{D_3} X_{D_4}$ & $g'_0 = g_0$ \\
          & $g_1 = +X_{D_1} X_{D_3} Z_{D_4} Z_{D_5}$ & $g'_1 = g_1$ \\
-         & $g_2 = +Z_{D_2} Z_{D_3} X_{D_4} X_{D_5}$ & $g'_2 = g_2$ \\
+         & $g_2 = +X_{D_2} Z_{D_3} Z_{D_4} X_{D_5}$ & $g'_2 = g_2$ \\
          & $g_3 = +Z_{D_1} X_{D_2} X_{D_4} Z_{D_5}$ & $g'_3 = g_3$ \\
         \midrule
         \multirow{6}{*}{\rotatebox[origin=c]{90}{\(I_{\mathrm{data}} \otimes \mathcal{S}_{\mathrm{anc}}\) }} & $g_4 = +X_{A_{x,1}}$ & \begin{tabular}{@{}l@{}}$g'_4 = +X_{D_1} Z_{D_2} Z_{D_3} X_{D_4}$ \\ $\quad\quad\;  X_{A_{x,1}} Z_{A_{x,2}} Z_{A_{x,3}} Z_{A_{x,4}}$\end{tabular} \\[1ex]
-         & $g_5 = +X_{A_{x,2}}$ & \begin{tabular}{@{}l@{}}$g'_5 = +X_{D_1} X_{D_2} Z_{D_3} Z_{D_4}$ \\ $\quad\quad\; Z_{A_{x,1}} X_{A_{x,2}} Z_{A_{x,3}}$\end{tabular} \\[1ex]
-         & $g_6 = +X_{A_{x,3}}$ & \begin{tabular}{@{}l@{}}$g'_6 = +Z_{D_1} Z_{D_2} X_{D_3} X_{D_4}$ \\ $\quad\quad\; X_{A_{x,1}} Z_{A_{x,2}} Z_{A_{x,3}}$\end{tabular} \\[1ex]
-         & $g_7 = +X_{A_{x,4}}$ & $g'_7 = +Z_{D_1} X_{D_2} X_{D_3} Z_{D_4} X_{A_{x,1}} X_{A_{x,4}}$ \\
+         & $g_5 = +X_{A_{x,2}}$ & \begin{tabular}{@{}l@{}}$g'_5 = +X_{D_1} X_{D_3} Z_{D_4} Z_{D_5}$ \\ $\quad\quad\; Z_{A_{x,1}} X_{A_{x,2}} Z_{A_{x,3}}$\end{tabular} \\[1ex]
+         & $g_6 = +X_{A_{x,3}}$ & \begin{tabular}{@{}l@{}}$g'_6 = +X_{D_2} Z_{D_3} X_{D_4} X_{D_5}$ \\ $\quad\quad\; X_{A_{x,1}} Z_{A_{x,2}} Z_{A_{x,3}}$\end{tabular} \\[1ex]
+         & $g_7 = +X_{A_{x,4}}$ & $g'_7 = +Z_{D_1} X_{D_2} X_{D_4} Z_{D_5} X_{A_{x,1}} X_{A_{x,4}}$ \\
         %\midrule
          & $g_8 = +Z_{F_{z,1}}$  & $g'_8 = g_8$ \\
          & $g_9 = +Z_{F_{z,2}}$  & $g'_9 = g_9$ \\
@@ -3223,159 +3215,113 @@ For any fault event of weight $w \leq t$, every resulting error $E \in \mathcal{
 \end{proof}
 
 \section{section 3 appendix}
-\begin{theorem}
-\label{thm:syndrome-extraction-valid}
-Let $U$ be a Clifford syndrome extraction circuit
-before the final ancilla measurements. Let
+\section{Proof of Theorem 3.11}
+\label{app:proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:mains}]
+All Pauli products are considered up to global phase. Throughout the proof,
+$r$ denotes the input error weight and $s$ the number of circuit faults,
+with $r+s\le t$. The residual error sets $\mathcal E_m$ are understood to
+range over these admissible executions.
+
+\paragraph{($\Rightarrow$).}
+Suppose there exists a lookup-table decoder $D$ such that $(\Pi,D)$
+satisfies FTEC. Fix a measurement record $m$ and two residual errors
+$E_1,E_2\in\mathcal E_m$. Since the records are identical, the decoder
+applies the same correction $C=D(m)$ to both errors.
+The two FTEC requirements ensure that each corrected error is equivalent,
+up to a stabilizer, to an error of weight at most the number of circuit
+faults in its execution, and hence at most $t$.
+
+Suppose, for a contradiction, that
+$E_1\cdot E_2\in N(\cS)\setminus\cS$.
+A nontrivial logical operator has minimum weight at least $d$.
+On the other hand, minimum weight is subadditive, so
 \[
-    \mathcal{S}_{\mathrm{data}}
-    =\langle G_1,\ldots,G_{n-k}\rangle,
-    \qquad
-    \mathcal{S}_{\mathrm{anc}}
-    =\langle A_1,\ldots,A_r\rangle
+\begin{aligned}
+ d
+ &\le \mathrm{wt}_{\min}(E_1\cdot E_2)\\
+ &=\mathrm{wt}_{\min}\bigl((E_1\cdot C)(E_2\cdot C)\bigr)\\
+ &\le\mathrm{wt}_{\min}(E_1\cdot C)+\mathrm{wt}_{\min}(E_2\cdot C)
+ \le 2t,
+\end{aligned}
 \]
-be the data stabilizer group and the stabilizer group
-of the prepared ancillas, respectively, where each
-$A_i$ is the corresponding single-qubit preparation
-and measurement observable.
+contradicting $d>2t$. Therefore,
+$E_1\cdot E_2\notin N(\cS)\setminus\cS$.
 
-Among the $r$ ancillas, the first $m$ are designated
-for extracting the Pauli checks
-$\{P_i\}_{i=1}^{m}\subseteq\mathcal{S}_{\mathrm{data}}$,
-where $m\leq r$.
-
-Define
+\paragraph{($\Leftarrow$).}
+Assume that, for every measurement record $m$,
 \[
-    \mathcal{S}_{\mathrm{joint}}
-    =\langle G_1,\ldots,G_{n-k},
-               A_1,\ldots,A_r\rangle.
+ \forall E_1,E_2\in\mathcal E_m,\qquad
+ E_1\cdot E_2\notin N(\cS)\setminus\cS.
 \]
-Let $L_1,\ldots,L_{2k}$ be Hermitian representatives
-of a complete set of logical Pauli generators.
-Identity extensions on the complementary register
-are understood.
+We choose a correction for each reachable record according to the
+termination condition of its path and prove the two FTEC requirements.
+Unreachable records may be assigned arbitrary corrections.
 
-Then $U$ is valid if and only if $U$ is correct
-and the following conditions hold:
+\paragraph{Termination Condition (1).}
+By control-flow validity, all errors in $\mathcal E_m$ have the same
+ideal syndrome. Choose any representative $C\in\mathcal E_m$ as the
+decoder output. For every $E\in\mathcal E_m$, equal syndromes imply
+$E\cdot C\in N(\cS)$. The assumed pairwise condition then gives
+$E\cdot C\in\cS$. Thus recovery preserves the original logical state
+and leaves minimum residual weight $0\le s$, satisfying both FTEC
+requirements.
+
+\paragraph{Termination Condition (2).}
+Let $w$ be the certified lower bound on the number of circuit faults
+before the repeated suffix. The suffix consists of $t-w+1$ full syndrome
+extraction rounds with identical syndrome outcomes and no flags.
+For any execution with $s$ circuit faults, at most $s-w\le t-w$
+faults occur in this suffix. Therefore, at least one of these rounds is
+fault-free and reports the ideal syndrome of its input data error.
+
+Consider the execution obtained by keeping the same input error and all
+faults before this fault-free round, and removing all faults after it.
+Every subsequent round then preserves the data error up to stabilizers,
+reports the same syndrome, and raises no flag. Thus the modified execution
+has the same record $m$, remains within the fault budget, and leaves a
+residual error in $\mathcal E_m$ equivalent to the error at the fault-free
+round.
+
+For a fixed record $m$, all modified executions constructed this way
+leave errors with the same ideal syndrome. For any two such errors
+$E_1,E_2\in\mathcal E_m$, we therefore have
+$E_1\cdot E_2\in N(\cS)$. The assumed pairwise condition implies
+$E_1\cdot E_2\in\cS$. Choose one of these errors as the correction $C$.
+This single choice depends only on $m$ and cancels, up to stabilizers,
+the error at a fault-free suffix round in every compatible execution.
+
+Consequently, for an actual residual error $E\in\mathcal E_m$,
+$E\cdot C$ is equivalent up to stabilizers to the error induced by
+faults after that fault-free round. Apply the $(t-w)$-flag condition
+to each remaining round. The no-fault flag property holds for every
+input data error; by linearity of Pauli propagation, an existing data
+error cannot cancel flags caused by circuit faults. Each unflagged
+round therefore contributes an error of minimum weight at most its
+number of faults. Circuit correctness preserves incoming errors up to
+stabilizers, and minimum weight is subadditive. Adding these bounds gives
 \[
-\begin{gathered}
-    \mathcal{S}'_{\mathrm{joint}}
-    =U\mathcal{S}_{\mathrm{joint}}U^\dagger
-    =\mathcal{S}_{\mathrm{joint}},
-    \\
-    (UL_iU^\dagger)L_i\in\mathcal{S}_{\mathrm{joint}}
-    \qquad\text{for every }i=1,\ldots,2k.
-\end{gathered}
+ \mathrm{wt}_{\min}(E\cdot C)\le s-w\le s.
 \]
-Both stabilizer equality and membership retain
-the Pauli signs.
-\end{theorem}
+This proves FTEC~(2). Since the remaining error is relative to the
+original logical state and has minimum weight at most $s\le t$,
+ideal decoding removes it, proving FTEC~(1).
 
-\begin{proof}
-\label{app:proof-syndrome-extraction}
-\textbf{($\Leftarrow$).}
-Suppose $U$ is correct and both preservation
-conditions hold.
-
-Joint stabilizer preservation implies that $U$
-maps the joint stabilized subspace onto itself.
-Moreover, logical preservation implies that
+\paragraph{Termination Condition (3).}
+Choose the identity correction, $D(m)=I$.
+By Condition~(3) of control-flow validity, every execution with
+$r+s\le t$ producing $m$ has residual error $E\in\mathcal E_m$ satisfying
 \[
-    UL_iU^\dagger=L_iS_i
+ \mathrm{wt}_{\min}(E)\le s.
 \]
-for some $S_i\in\mathcal{S}_{\mathrm{joint}}$.
-Since every $S_i$ acts as the identity on the
-joint stabilized subspace, the restriction of
-$U$ to this subspace commutes with every logical
-Pauli generator.
+This directly establishes FTEC~(2). Because $s\le t$, ideal decoding
+corrects this residual error and recovers the original logical state,
+establishing FTEC~(1).
 
-As the logical Pauli generators act irreducibly
-on the encoded logical space, $U$ acts as a
-common global phase on the entire joint
-stabilized subspace. Thus, for every codespace
-state $\ket{\psi}$ and prepared ancilla state
-$\ket{a}$,
-\[
-    U(\ket{\psi}\otimes\ket{a})
-    =e^{i\theta}\ket{\psi}\otimes\ket{a}.
-\]
-
-For an arbitrary input Pauli error $E$,
-Clifford propagation gives
-\[
-    U(E\otimes I_{\mathrm{anc}})U^\dagger
-    =\omega(E'\otimes E_{\mathrm{anc}}).
-\]
-Consequently,
-\[
-    U(E\ket{\psi}\otimes\ket{a})
-    =\omega e^{i\theta}
-      E'\ket{\psi}\otimes
-      E_{\mathrm{anc}}\ket{a}.
-\]
-Since $E_{\mathrm{anc}}$ is a Pauli operator,
-each ancilla measurement outcome is uniquely
-determined by the commutation parity
-$E_{\mathrm{anc}}\odot A_i$, independently
-of the encoded state.
-Furthermore, correctness guarantees
-$E'\sim E$, so the output data remains in
-the codespace up to a Pauli error.
-
-For $E=I$, all ancilla outcomes are $+1$
-and the encoded logical state is unchanged.
-Hence $U$ is deterministic and therefore valid.
-
-\textbf{($\Rightarrow$).}
-Suppose $U$ is valid, and hence correct and
-deterministic.
-
-Let $\ket{a}$ be the prepared ancilla state.
-For $E=I$, determinism requires all ancilla
-outcomes to be $+1$ and the encoded logical
-state to remain unchanged.
-Since the joint $+1$ eigenspace of the ancilla
-measurement observables is one-dimensional,
-the premeasurement state must satisfy
-\[
-    U(\ket{\psi}\otimes\ket{a})
-    =e^{i\theta}\ket{\psi}\otimes\ket{a}
-\]
-for every codespace state $\ket{\psi}$,
-with a common phase by linearity.
-
-Thus $U$ acts as a global phase on the entire
-joint stabilized subspace. In particular,
-conjugation by $U$ preserves its signed Pauli
-stabilizer group. Since $U$ is Clifford,
-\[
-    \mathcal{S}'_{\mathrm{joint}}
-    =U\mathcal{S}_{\mathrm{joint}}U^\dagger
-    =\mathcal{S}_{\mathrm{joint}}.
-\]
-
-Moreover, each logical Pauli generator $L_i$
-preserves the joint stabilized subspace and
-satisfies $L_i^2=I$. Therefore,
-\[
-    (UL_iU^\dagger)L_i
-    (\ket{\psi}\otimes\ket{a})
-    =\ket{\psi}\otimes\ket{a}
-\]
-for every codespace state $\ket{\psi}$.
-
-Since $U$ is Clifford, the operator
-$(UL_iU^\dagger)L_i$ is a Pauli operator.
-It acts as the identity on the entire joint
-stabilized subspace and therefore belongs to
-its signed Pauli stabilizer group:
-\[
-    (UL_iU^\dagger)L_i
-    \in\mathcal{S}_{\mathrm{joint}}.
-\]
-Hence both preservation conditions hold.
+The decoder defined by these choices satisfies both FTEC requirements
+on every terminating path, completing the proof.
 \end{proof}
-
 
 % ==========================================
 % TABLE: Stabilizer Evolution
