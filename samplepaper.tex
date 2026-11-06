@@ -1028,6 +1028,9 @@ A flagged error correction protocol is valid if all the following condition sati
     \item The control flow of the protocol is valid (Def \ref{def:control-flow-validity}).
     \item For each terminating path satisfying Condition (2) of Def.~\ref{def:control-flow-validity} with $w$ detected faults, the full syndrome extraction circuit $C$ used in the repeated-syndrome suffix must satisfy the $(t-w)$-flag condition (Def.~\ref{def:flag}). 
 \end{enumerate}
+The flag-condition requirement applies to every terminating path satisfying
+Condition (2), regardless of whether the path also satisfies Condition (1)
+or Condition (3).
 \end{definition}
 
 
@@ -2431,7 +2434,7 @@ Algorithm~\ref{alg:ftec-verification} summarizes the verification procedure. Alt
 \ForEach{terminating path $\pi\in \Pi$}{
     \lIf{\textsc{ControlFlowValidity}$(\pi,t)$ fails}{\Return \textsc{NotValid}}
     
-    \If{$\pi$ satisfies Condition (2) with detected-fault count $w$}{
+    \If{$\pi$ satisfies the termination requirements of Condition (2) with detected-fault count $w$}{
         Let $C$ be the full syndrome extraction circuit used in the repeated-syndrome suffix of $\pi$\;
         \lIf{\textsc{FlagCondition}$(C,t-w)$ fails}{\Return \textsc{NotValid}}
     }
@@ -2449,10 +2452,9 @@ defined above. \textsc{CircuitValidity} checks
 Def.~\ref{def:syndrome-extraction-valid} by stabilizer-tableau simulation and SAT-based check.
 
 
-\textsc{ControlFlowValidity} checks Def.~\ref{def:control-flow-validity}: the subroutine first determines which control flow validity case applies
-to the path $\pi$. If no case applies, it returns
-\textsc{NotValid}. Otherwise, it performs the checks corresponding
-to the identified case and returns whether they pass.
+\textsc{ControlFlowValidity} checks whether at least one of the three
+conditions in Def.~\ref{def:control-flow-validity} holds for the path $\pi$.
+It returns success if any condition is satisfied, and failure otherwise.
 For Condition (1), it checks that the record indicates $t$ detected
 faults and that $\Psi^{\mathrm{CF1}}_\pi$ is unsatisfiable.
 For Condition (2), it checks that the path has detected $w<t$ faults
@@ -2460,8 +2462,9 @@ and terminates after $t-w+1$ consecutive full syndrome extraction rounds
 with identical syndrome outcomes and no raised flags.
 For Condition (3), it checks that all required
 $\Psi^{\mathrm{CF3}}_{\pi,w}$ queries are unsatisfiable.
-The required $(t-w)$-flag condition for Condition (2) is checked separately
-by \textsc{FlagCondition} in Algorithm~\ref{alg:ftec-verification}.
+The required $(t-w)$-flag condition is checked separately by
+\textsc{FlagCondition} in Algorithm~\ref{alg:ftec-verification} for every
+path satisfying Condition (2), even if another termination condition also holds.
 
 \begin{theorem}[Verification correctness]
 \label{thm:verification-correctness}
@@ -2479,10 +2482,9 @@ Algorithm~\ref{alg:ftec-verification} satisfies the following:
 \begin{proof}
 If the algorithm returns \textsc{NotValid}, either a syndrome
 extraction circuit fails Def.~\ref{def:syndrome-extraction-valid},
-or some terminating path cannot be classified under any termination
-case, or a required check for its identified case fails, including
-the flag condition for Condition (2).
-Hence $\Pi$ fails Def.~\ref{def:protocol-validity}.
+or none of the three control-flow validity conditions holds for some
+terminating path, or the required flag-condition check fails for a path
+satisfying Condition (2). Hence $\Pi$ fails Def.~\ref{def:protocol-validity}.
 
 Suppose the algorithm reaches the FTEC-check loop. Then all protocol-validity
 checks have passed, so $\Pi$ is a valid protocol in the sense of
