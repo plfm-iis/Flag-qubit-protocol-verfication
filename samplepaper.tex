@@ -2107,7 +2107,7 @@ To encode the condition $\mathrm{wt}_{\min}(E_\pi(\mathcal{F})) > w$, we must as
 
 \begin{equation} \label{eq:minimum-weight}
     \begin{aligned}
-      \mathrm{wt}_{\min}(E_\pi(\mathcal{F}))>w \ =   \bigwedge_{P : \mathrm{wt}(P) \leq w } \neg  \mathrm{Norm}(P \cdot E_\pi(\mathcal{F}), \mathcal{S}) \lor \mathrm{Stab}_{\mathrm{non}}(P \cdot E_\pi(\mathcal{F}), \mathcal{L}) 
+      \mathrm{wt}_{\min}(E_\pi(\mathcal{F}))>w \ = \bigwedge_{P : \mathrm{wt}(P) \leq w} \left(\neg\mathrm{Norm}(P \cdot E_\pi(\mathcal{F}), \mathcal{S}) \lor \mathrm{Stab}_{\mathrm{non}}(P \cdot E_\pi(\mathcal{F}), \mathcal{L})\right)
     \end{aligned}
 \end{equation}
 
@@ -2272,9 +2272,8 @@ faults, without any raised flag, for some $1\le s\le k$.
 As in the Condition (3) check, the constraint
 $\mathrm{wt}_{\min}(E_C(\mathcal{F}))>s$ is encoded using
 Eq.~\eqref{eq:minimum-weight} with $w$ replaced by $s$.
-In the binary Pauli representation, this is implemented by XORing the binary
-vector of $E_C(\mathcal{F})$ with the selected stabilizer representative
-and constraining the support cardinality of their XOR.
+This encoding enumerates Pauli operators $P$ of weight at most $s$
+and checks that $P E_C(\mathcal{F})$ does not belong to the stabilizer group.
 
 If $\Psi^{\mathrm{flag}}_{C,k}$ is satisfiable, at least one of the two
 flag-condition requirements is violated. The circuit satisfies the required
