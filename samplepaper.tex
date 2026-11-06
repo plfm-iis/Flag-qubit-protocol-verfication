@@ -1026,7 +1026,7 @@ A flagged error correction protocol is valid if all the following condition sati
 \begin{enumerate}
     \item All syndrome extraction circuits used in this protocol are valid (Def \ref{def:syndrome-extraction-valid}).
     \item The control flow of the protocol is valid (Def \ref{def:control-flow-validity}).
-    \item For each path of the control flow satisfying the Condition (2) of Def~\ref{def:control-flow-validity} and has detected $w$ faults, the full syndrome extraction circuit needs to satisfies $(t-w)$-flag condition (Def.~\ref{def:flag}). 
+    \item For each terminating path satisfying Condition (2) of Def.~\ref{def:control-flow-validity} with $w$ detected faults, the full syndrome extraction circuit $C$ used in the repeated-syndrome suffix must satisfy the $(t-w)$-flag condition (Def.~\ref{def:flag}). 
 \end{enumerate}
 \end{definition}
 
@@ -2432,7 +2432,8 @@ Algorithm~\ref{alg:ftec-verification} summarizes the verification procedure. Alt
     \lIf{\textsc{ControlFlowValidity}$(\pi,t)$ fails}{\Return \textsc{NotValid}}
     
     \If{$\pi$ satisfies Condition (2) with detected-fault count $w$}{
-        \ForEach{full syndrome extraction circuit $C\in \pi$}{\lIf{\textsc{FlagCondition}$(C,t-w)$ fails}{\Return \textsc{NotValid}}}
+        Let $C$ be the full syndrome extraction circuit used in the repeated-syndrome suffix of $\pi$\;
+        \lIf{\textsc{FlagCondition}$(C,t-w)$ fails}{\Return \textsc{NotValid}}
     }
 }
 
@@ -2454,12 +2455,13 @@ to the path $\pi$. If no case applies, it returns
 to the identified case and returns whether they pass.
 For Condition (1), it checks that the record indicates $t$ detected
 faults and that $\Psi^{\mathrm{CF1}}_\pi$ is unsatisfiable.
-For Condition (2), it checks the repeated-syndrome suffix and all
-required $(t-w)$-flag conditions.
+For Condition (2), it checks that the path has detected $w<t$ faults
+and terminates after $t-w+1$ consecutive full syndrome extraction rounds
+with identical syndrome outcomes and no raised flags.
 For Condition (3), it checks that all required
 $\Psi^{\mathrm{CF3}}_{\pi,w}$ queries are unsatisfiable.
-The flag checks for Condition (2) are performed only when the path
-is classified under that case.
+The required $(t-w)$-flag condition for Condition (2) is checked separately
+by \textsc{FlagCondition} in Algorithm~\ref{alg:ftec-verification}.
 
 \begin{theorem}[Verification correctness]
 \label{thm:verification-correctness}
