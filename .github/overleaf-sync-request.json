@@ -2,5 +2,5 @@
   "schema": 1,
   "expected_overleaf_revision": "ae75ea1cec61fdc7e2e5590be38628b7486e4d0e",
   "approved_github_commit": "5aeeecdbe4f8ad5a8a97566415a525ad4a6c1d04",
-  "dry_run": true
+  "dry_run": false
 }
