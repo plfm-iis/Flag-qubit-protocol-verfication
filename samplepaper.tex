@@ -844,7 +844,15 @@ Flag qubits signal such error amplification, providing additional
 information for recovery. The following condition formalizes when
 this signal is required.
 \begin{definition}[$\cS$-Flag condition] \label{def:flag}
-A syndrome extraction circuit satisfies the $\cS$-flag condition if, whenever  an event involving $w \le s$ faults induce a data error $E_{\mathrm{data}}$ such that $\mathrm{wt}_{\min} (E_{\mathrm{data}}) > w$, at least one flag measurement outcome is $1$, and when there is no fault in circuit, there is no flag raised. 
+A syndrome extraction circuit satisfies the $\cS$-flag condition if the
+following hold:
+\begin{enumerate}
+    \item With no input data error, whenever an event involving $w\le s$
+    circuit faults induces a data error $E_{\mathrm{data}}$ such that
+    $\mathrm{wt}_{\min}(E_{\mathrm{data}})>w$, at least one flag
+    measurement outcome is $1$.
+    \item With no circuit faults, no flag is raised for any input data error.
+\end{enumerate}
 \end{definition}
 
 
@@ -2225,44 +2233,53 @@ repeated-syndrome suffix to satisfy the $(t-w)$-flag condition.
 
 
 Let $C$ be this full syndrome extraction circuit, and let $F_C$ be the
-set of flag qubits in $C$. For a fault assignment $\mathcal{F}$ on $C$, symbolic Pauli
-propagation produces a residual data error $E_C(\mathcal{F})$ and, for each flag qubit
-$q\in  F_C$, a recorded flag outcome $f_q(\mathcal{F})$. For each
-$s=1,\ldots,t-w$, the verifier searches for an unflagged $s$-fault execution
-of $C$ with $\mathrm{wt}_{\min}(E_C(\mathcal{F}))>s$:
+set of flag qubits in $C$. For a fault assignment $\mathcal{F}$ on $C$,
+symbolic Pauli propagation produces a residual data error
+$E_C(\mathcal{F})$ and, for each flag qubit $q\in F_C$, a recorded flag
+outcome $f_q(\mathcal{F})$. Let $k=t-w$. We encode both violations of the
+$k$-flag condition in a single SAT query:
 \begin{equation}
+\label{eq:flag-check}
 \begin{aligned}
-\Psi^{\mathrm{flag}}_{C,s}
-:=
-\exists \mathcal{F}.\quad
-&
-\mathrm{wt}(\mathcal{F}_{circ})=s
+\Psi^{\mathrm{flag}}_{C,k}
+:=\exists\mathcal{F}.\quad
+&\left(
+\mathrm{wt}(\mathcal{F}_{\mathrm{circ}})=0
+\land \bigvee_{q\in F_C}f_q(\mathcal{F})
+\right)
+\\
+&\lor\bigvee_{s=1}^{k}
+\left(
+\begin{aligned}
+&\mathcal{F}_{\mathrm{in}}=I
+\\
+&\land\ \mathrm{wt}(\mathcal{F}_{\mathrm{circ}})=s
 \\
 &\land\ \bigwedge_{q\in F_C}\neg f_q(\mathcal{F})
 \\
-&\land\ \mathrm{wt}_{\min}(E_C(\mathcal{F}))> s 
-\\
-&\lor ( \mathrm{wt}(\mathcal{F}_{circ}) = 0 \land \bigvee_{q\in F_C}  f_q(\mathcal{F}) )  .
+&\land\ \mathrm{wt}_{\min}(E_C(\mathcal{F}))>s
+\end{aligned}
+\right).
 \end{aligned}
 \end{equation}
 
-\bw{added : no fault the nno flag}
-The first line fixes the number of faults in the circuit to be $s$. The second
-line requires that no flag qubit is raised. The last line requires the induced
-residual data error to have $\mathrm{wt}_{\mathrm{min}}$ larger than $s$.
+The first disjunct detects a raised flag when there are no circuit faults,
+allowing arbitrary input data errors. The second disjunct assumes no input
+data error ($\mathcal{F}_{\mathrm{in}}=I$) and detects a fault-induced
+data error with minimum weight greater than the number $s$ of circuit
+faults, without any raised flag, for some $1\le s\le k$.
 
 As in the Condition (3) check, the constraint
-$\mathrm{wt}_{\min}(E_C(\mathcal{F}))>s$ is encoded using Eq.~\eqref{eq:minimum-weight} with $w$ replaced by $s$.
+$\mathrm{wt}_{\min}(E_C(\mathcal{F}))>s$ is encoded using
+Eq.~\eqref{eq:minimum-weight} with $w$ replaced by $s$.
 In the binary Pauli representation, this is implemented by XORing the binary
 vector of $E_C(\mathcal{F})$ with the selected stabilizer representative
 and constraining the support cardinality of their XOR.
 
-If $\Psi^{\mathrm{flag}}_{C,s}$ is satisfiable for some $s\le t-w$, then the
-circuit violates the required $(t-w)$-flag condition: there is an unflagged
-$s$-fault execution whose residual data error is not stabilizer-equivalent to
-any Pauli error of weight at most $r$. If the formula is unsatisfiable for every
-$s=1,\ldots,t-w$, then the circuit satisfies the required $(t-w)$-flag
-condition.
+If $\Psi^{\mathrm{flag}}_{C,k}$ is satisfiable, at least one of the two
+flag-condition requirements is violated. The circuit satisfies the required
+$k$-flag condition if and only if $\Psi^{\mathrm{flag}}_{C,k}$ is
+unsatisfiable.
 
 \subsubsection{Circuit Correctness Check}
 \label{subsec:circuit-correctness-check}
