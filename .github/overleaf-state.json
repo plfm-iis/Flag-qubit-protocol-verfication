@@ -1,5 +1,5 @@
 {
-  "overleaf_revision": "0b8b55c9e1a94d5457600b6e4949060b1ca07f5b",
+  "overleaf_revision": "36377e108d8dd6b084d63951916a517a25336c00",
   "paper_manifest": {
     "appendix.tex": {
       "mode": "100644",
@@ -48,6 +48,10 @@
     "splncs04.bst": {
       "mode": "100644",
       "oid": "7d63c492d92fd1aa5db77c3f18b469e1c359ff93"
+    },
+    "sync-smoke-test-20261106.txt": {
+      "mode": "100644",
+      "oid": "c3d1335eeecda1c3738b8114c7391d0e17c5266c"
     },
     "syndrome_extraction_short_logical_preservation.tex": {
       "mode": "100644",
