@@ -1454,7 +1454,7 @@ correction depends only on $m$. This completes the sketch.
 \section{FTEC Verification Algorithm}
 \label{sec:FTEC-verification}
 
-\begin{wrapfigure}[14]{r}{0.45\textwidth}
+\begin{wrapfigure}[20]{r}{0.45\textwidth}
 \vspace{-1.2em}
 \centering
 \begin{tikzpicture}[
@@ -2611,9 +2611,9 @@ AMD EPYC 7742 64-core processor (1.5\,GHz), 2\,TiB of RAM, and a 1\,TB SSD. We i
 % \#Vars & 45--656 & 188--656 & 183--658 & 184--660 & 184--664 & 45--656 & 147--820 & 45--848 & 2082--5506178 \\
 % \#Clauses & 352--4754 & 2053--4766 & 2049--4802 & 2049--4802 & 2049--4826 & 352--4756 & 1198--6008 & 340--6317 & 5484--146548287 \\
 % \midrule
-% \multicolumn{10}{c}{\textbf{Correctability Verification}} \\
+% \multicolumn{10}{c}{\textbf{FTEC}} \\
 % \midrule
-% Correctability failures (paths) & 0 & 0 & 1 & 1 & 1 & 0 & 1 & 0 & 0 \\
+% FTEC (path) & 0 & 0 & 1 & 1 & 1 & 0 & 1 & 0 & 0 \\
 % Time (s) & 0.351 & 0.091 & 0.088 & 0.085 & 0.096 & 0.192 & 0.143 & 0.155 & 0.262 \\
 % Peak Mem (MB) & 85.4 & 88.0 & 90.0 & 90.0 & 71.0 & 87.0 & 87.8 & 87.6 & 144.3 \\
 % SAT Calls & 13 & 2 & 2 & 2 & 2 & 5 & 4 & 19 & 4 \\
@@ -2658,9 +2658,9 @@ AMD EPYC 7742 64-core processor (1.5\,GHz), 2\,TiB of RAM, and a 1\,TB SSD. We i
 % \#Vars & 2088--5506171 & 5393--1377250 & 5321--1377246 & 2378--11697 & 5039--11889 & 1708--14317 & 4952--21105 \\
 % \#Clauses & 5094--146548217 & 48159--27335500 & 47631--27335447 & 5825--122996 & 46654--120744 & 3664--119917 & 45073--153479 \\
 % \midrule
-% \multicolumn{8}{c}{\textbf{Correctability Verification}} \\
+% \multicolumn{8}{c}{\textbf{FTEC}} \\
 % \midrule
-% Correctability failures (paths) & 0 & 0 & 0 & 3 & 0 & 0 & 0 \\
+% FTEC (path) & 0 & 0 & 0 & 3 & 0 & 0 & 0 \\
 % Time (s) & 0.307 & 0.262 & 0.257 & 0.211 & 0.222 & 0.263 & 0.348 \\
 % Peak Mem (MB) & 155.6 & 111.8 & 114.6 & 306.3 & 164.1 & 321.4 & 172.8 \\
 % SAT Calls & 4 & 4 & 4 & 21 & 21 & 21 & 21 \\
@@ -2670,7 +2670,7 @@ AMD EPYC 7742 64-core processor (1.5\,GHz), 2\,TiB of RAM, and a 1\,TB SSD. We i
 % \bottomrule
 % \end{tabular}%
 % }
-% \caption{Experimental results of protocol-validity and correctability verification (Top: Part 1, Bottom: Part 2).}
+% \caption{Experimental results of the protocol verification and FTEC verification (Top: Part 1, Bottom: Part 2).}
 % \label{tab:combined-results}
 
 % \end{table}
@@ -2711,9 +2711,9 @@ AMD EPYC 7742 64-core processor (1.5\,GHz), 2\,TiB of RAM, and a 1\,TB SSD. We i
 % \#Vars & 45--615 & 188--615 & 183--625 & 184--627 & 184--623 & 45--615 & 147--763 & 45--793 & 6480--5506178 \\
 % \#Clauses & 352--4551 & 2053--4563 & 2049--4623 & 2049--4623 & 2049--4623 & 352--4553 & 1198--5717 & 340--6317 & 53375--146548287 \\
 % \midrule
-% \multicolumn{10}{c}{\textbf{Correctability Verification}} \\
+% \multicolumn{10}{c}{\textbf{FTEC}} \\
 % \midrule
-% Correctability failures (paths) & 0 & 0 & 1 & 1 & 1 & 0 & 1 & 0 & 0 \\
+% FTEC (path) & 0 & 0 & 1 & 1 & 1 & 0 & 1 & 0 & 0 \\
 % Peak Mem (MB) & 85.4 & 88.0 & 90.0 & 90.0 & 71.0 & 87.0 & 87.8 & 87.6 & 144.3 \\
 % SAT Calls & 13 & 2 & 2 & 2 & 2 & 5 & 4 & 19 & 4 \\
 % Total SAT Time (s) & 0.145 & 0.065 & 0.027 & 0.057 & 0.058 & 0.079 & 0.052 & 0.207 & 2104.4 \\
@@ -2758,9 +2758,9 @@ AMD EPYC 7742 64-core processor (1.5\,GHz), 2\,TiB of RAM, and a 1\,TB SSD. We i
 % \#Vars & 6409--5506171 & 5390--2295123 & 5324--2295129 & 4918--1377144 & 5039--1377172 & 5925--5506042 & 4952--21105 \\
 % \#Clauses & 53020--146548217 & 48101--39995851 & 47621--39995821 & 43363--27334792 & 46654--27335250 & 49992--146547428 & 45073--153479 \\
 % \midrule
-% \multicolumn{8}{c}{\textbf{Correctability Verification}} \\
+% \multicolumn{8}{c}{\textbf{FTEC}} \\
 % \midrule
-% Correctability failures (paths) & 0 & 0 & 0 & 3 & 0 & 0 & 0 \\
+% FTEC (path) & 0 & 0 & 0 & 3 & 0 & 0 & 0 \\
 % Peak Mem (MB) & 155.6 & 111.8 & 114.6 & 306.3 & 164.1 & 321.4 & 172.8 \\
 % SAT Calls & 4 & 4 & 4 & 21 & 21 & 21 & 21 \\
 % Total SAT Time (s) & 2312.0 & 1243.5 & 1562.3 & 123486.4 & 86124.3 & 151274.4 & 40477.4 \\
@@ -2770,7 +2770,7 @@ AMD EPYC 7742 64-core processor (1.5\,GHz), 2\,TiB of RAM, and a 1\,TB SSD. We i
 % \bottomrule
 % \end{tabular}%
 % }
-% \caption{Experimental results of protocol-validity and correctability verification (Top: Part 1, Bottom: Part 2). Total CPU Time differs from Total SAT Time by including symbolic execution and DIMACS export .}
+% \caption{Experimental results of the protocol verification and FTEC verification (Top: Part 1, Bottom: Part 2). Total CPU Time differs from Total SAT Time by including symbolic execution and DIMACS export .}
 % \label{tab:combined-results}
 
 % \end{table}
@@ -2812,7 +2812,7 @@ Total CPU Time (s) & 10.2 & 4.3 & 4.1 & 4.2 & 4.5 & 6.2 & 6.4 & 16.4 & 60.5 \\
 \midrule
 \multicolumn{10}{c}{\textbf{Correctability Verification}} \\
 \midrule
-Correctability failures (paths) & 0 & 0 & 1 & 1 & 1 & 0 & 1 & 0 & 0 \\
+Corr. failures (paths) & 0 & 0 & 1 & 1 & 1 & 0 & 1 & 0 & 0 \\
 Peak Mem (MB) & 85.5 & 81.5 & 80.4 & 88.0 & 85.4 & 84.0 & 71.4 & 79.7 & 200.8 \\
 SAT Calls & 13 & 2 & 2 & 2 & 2 & 5 & 4 & 19 & 4 \\
 Total SAT Time (s) & 5.020 & 0.937 & 0.911 & 1.034 & 0.990 & 2.001 & 2.243 & 8.948 & 1403.4 \\
@@ -2859,7 +2859,7 @@ Total CPU Time (s) & 52.3 & 70.0 & 60.4 & 2194.0 & 1204.8 & 2623.5 & 638.3 \\
 \midrule
 \multicolumn{8}{c}{\textbf{Correctability Verification}} \\
 \midrule
-Correctability failures (paths) & 0 & 0 & 0 & 3 & 0 & 0 & 0 \\
+Corr. failures (paths) & 0 & 0 & 0 & 3 & 0 & 0 & 0 \\
 Peak Mem (MB) & 179.7 & 145.6 & 226.9 & 862.7 & 537.9 & 870.1 & 387.0 \\
 SAT Calls & 4 & 4 & 4 & 21 & 21 & 21 & 21 \\
 Total SAT Time (s) & 1417.6 & 779.4 & 1157.5 & 38948.4 & 37119.7 & 59767.7 & 21011.6 \\
