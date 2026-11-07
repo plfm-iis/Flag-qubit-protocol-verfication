@@ -1049,10 +1049,10 @@ or Condition (3).
 % Each internal node represents a syndrome extraction circuit, and each outgoing edge is labeled by a branch condition on the syndrome and flag outcomes. A terminating path determines the corresponding measurement record. In this example,
 % The paths ending at Decoder 1--4 satisfy termination condition (2). The branch condition $m_i=1 \vee f_i=1$ indicates that at least one fault has been detected, so $w=1$. Since $t-w+1=1$, condition (2) requires only one full syndrome extraction circuit in the terminating suffix; this is the blue node immediately before the decoder. The path ending at the End node satisfies
 % termination condition (3).
-Protocol validity establishes the prerequisites for verification;
-weak FTEC must still be checked.
-For each terminating path, we first establish which termination
-condition it satisfies and then apply the corresponding FTEC checks.
+Protocol validity and error-set correctability are verified separately;
+both must pass for the verifier to accept the protocol as FTEC.
+For protocol validity, every terminating path must satisfy at least
+one of the following termination conditions.
 Condition (1) requires the measurement record to determine the
 ideal syndrome. Condition (2) requires repeated identical syndromes
 without flags. Condition (3) requires the residual error weight
@@ -1078,9 +1078,9 @@ satisfies FTEC if and only if, for every measurement record $m$,
 \end{align}
 \end{theorem}
 
-
-
-
+By Eq.~\ref{eq:QECC_condition}, the condition in this theorem states
+that $\mathcal E_m$ is correctable for every reachable measurement
+record $m$, i.e., every record with $\mathcal E_m\neq\varnothing$.
 
 \begin{proof}[Proof sketch]
 The full proof is given in Appendix~\ref{app:proof}.
@@ -1481,21 +1481,27 @@ Fault bound $t$
 };
 
 \node[box, below=of input] (circuit) {
-\textbf{Protocol Validity (Def.~\ref{def:protocol-validity}})\\
+\textbf{Protocol Validity (Def.~\ref{def:protocol-validity})}\\
 Circuit Validity Check (Def.~\ref{def:syndrome-extraction-valid})\\
 Control Flow Validity Check (Def.~\ref{def:control-flow-validity})\\
 Flag Condition Check (Def.~\ref{def:flag})
 };
 
 \node[box, below=of circuit] (protocol) {
-\textbf{FTEC Check for a Valid Protocol}\\
+\textbf{Correctability Check}\\
 Same-record counterexample search\\
-SAT $\Leftrightarrow$ counterexample to FTEC\\
-UNSAT $\Leftrightarrow$ $\Pi$ satisfies FTEC by Thm.~\ref{thm:mains}
+SAT $\Leftrightarrow$ uncorrectable $\mathcal E_m$\\
+UNSAT for all paths $\Leftrightarrow$ correctability
 };
 
+\node[box, below=of protocol] (result) {
+\textbf{Overall FTEC Verification}\\
+Both checks must pass
+};
 \draw[arrow] (input) -- (circuit);
-\draw[arrow] (circuit) -- node[right] {validity passed} (protocol);
+\draw[arrow] (input.east) -- ++(0.25cm,0) |- (protocol.east);
+\draw[arrow] (circuit.west) -- ++(-0.25cm,0) |- (result.west);
+\draw[arrow] (protocol) -- (result);
 
 \end{tikzpicture}
 \caption{SAT-based verification pipeline.}
@@ -1503,13 +1509,17 @@ UNSAT $\Leftrightarrow$ $\Pi$ satisfies FTEC by Thm.~\ref{thm:mains}
 \vspace{-1.0em}
 \end{wrapfigure}
 
-This section presents the verification algorithm for checking whether a flagged error correction protocol $\Pi$ satisfies FTEC. The algorithm is based on Thm.~\ref{thm:mains}. It first checks that $\Pi$ is a valid protocol in the sense of Def.~\ref{def:protocol-validity}. It then checks the condition in Thm.~\ref{thm:mains}: no two executions within the fault
-bound may produce the same measurement record while leaving residual data errors whose relative error is a nontrivial logical operator.
+This section verifies two properties separately: protocol validity
+(Def.~\ref{def:protocol-validity}) and error-set correctability
+(Eq.~\ref{eq:QECC_condition}). The correctability check asks whether
+$\mathcal E_m$ is correctable for every reachable measurement record $m$;
+it does not depend on the outcome of the validity check. The verifier
+accepts a protocol as FTEC only if both checks pass. For valid protocols,
+this conclusion follows from Thm.~\ref{thm:mains}.
 
-
-We organize the presentation by the analysis method used by the verifier. We first present the SAT-based checks, including the SAT formula for the FTEC condition in Thm.~\ref{thm:mains}, circuit correctness check, flag condition, and the control flow validity conditions that are reduced to SAT queries. We then describe the remaining validity checks: circuit determinism is checked by stabilizer simulation, and Condition (2) of Def.~\ref{def:control-flow-validity} is checked by direct inspection of terminating paths. The overall algorithm first establishes protocol validity and then applies the FTEC check.
-
-
+We first describe the SAT-based checks for correctability and validity,
+then the remaining simulation-based and structural checks. The overall
+algorithm reports both results independently.
 
 \subsection{SAT-Based Checks}
 \label{subsec:sat-based-checks}
@@ -1901,15 +1911,14 @@ have Boolean encodings of the three quantities used by the verification
 queries: the path condition $\Phi_\pi(\mathcal{F})$, the residual data error
 $E_\pi(\mathcal{F})$, and the measurement record $m_\pi(\mathcal{F})$.
 
-\subsubsection{FTEC Check}
+\subsubsection{Correctability Check}
 \label{subsec:ftec-check}
 
-We first present the SAT formula for checking the condition in
-Thm.~\ref{thm:mains}. This check is applied after the verifier has
-established that the input protocol is valid in the sense of
-Def.~\ref{def:protocol-validity}. As in Thm.~\ref{thm:mains}, we ignore
-global phases and write the relative Pauli error as the product of the two
-residual data errors.
+We first present the SAT formula for checking whether every reachable
+$\mathcal E_m$ is correctable, as in Eq.~\ref{eq:QECC_condition}.
+This check is independent of protocol validity. As in
+Thm.~\ref{thm:mains}, we ignore global phases and write the relative
+Pauli error as the product of two residual data errors.
 
 For each terminating path $\pi$, the verifier searches for two fault
 assignments $\mathcal{F}_1$ and $\mathcal{F}_2$ such that both executions follow $\pi$, both contain
@@ -1919,7 +1928,7 @@ formula is
 
 \begin{equation}
 \begin{aligned}
-\Psi^{\mathrm{FTEC}}_\pi
+\Psi^{\mathrm{Corr}}_\pi
 :=
 \exists \mathcal{F}_1,\mathcal{F}_2.\quad
 &
@@ -1945,14 +1954,13 @@ The last line requires the two residual data errors to violate the quantum
 error correction condition, since their product is a nontrivial logical
 operator.
 
-Thus, if $\Psi^{\mathrm{FTEC}}_\pi$ is satisfiable, the satisfying assignment
-gives a concrete counterexample to the condition in
-Thm.~\ref{thm:mains}. If $\Psi^{\mathrm{FTEC}}_\pi$ is unsatisfiable for
-every terminating path $\pi$, then no such counterexample exists within the
-fault bound. For a valid protocol, Thm.~\ref{thm:mains} implies that this
-is equivalent to $\Pi$ satisfying FTEC.
+Thus, if $\Psi^{\mathrm{Corr}}_\pi$ is satisfiable, it witnesses a
+reachable record $m$ whose error set $\mathcal E_m$ is not correctable.
+If this query is unsatisfiable for all terminating paths, every reachable
+$\mathcal E_m$ is correctable. This check does not require protocol
+validity; when validity also holds, Thm.~\ref{thm:mains} yields an FTEC decoder.
 
-It remains to encode the last conjunct of $\Psi^{\mathrm{FTEC}}_\pi$. Let
+It remains to encode the last conjunct of $\Psi^{\mathrm{Corr}}_\pi$. Let
 
 $
 Q=E_\pi(\mathcal{F}_1) \cdot E_\pi(\mathcal{F}_2).
@@ -2025,7 +2033,7 @@ constraint encode
 $
 Q\in N(\mathcal S)\setminus\mathcal S.
 $
-Therefore $\Psi^{\mathrm{FTEC}}_\pi$ is a SAT query whose satisfying
+Therefore $\Psi^{\mathrm{Corr}}_\pi$ is a SAT query whose satisfying
 assignments are exactly the counterexamples to the condition in
 Thm.~\ref{thm:mains} on the path $\pi$.
 
@@ -2461,7 +2469,10 @@ Section~\ref{subsec:tw-flag-condition-check}.
 \subsection{Overall Algorithm}
 \label{subsec:overall-algorithm}
 
-Algorithm~\ref{alg:ftec-verification} summarizes the verification procedure. Although the previous subsections present the SAT-based checks first, the algorithm first establishes protocol validity, because Thm.~\ref{thm:mains} applies only to valid protocols. If the protocol is invalid, it returns \textsc{NotValid}. If valid, the algorithm then checks the condition in Thm.~\ref{thm:mains} on every terminating path and returns either \textsc{NotFTEC} or \textsc{FTEC}.
+Algorithm~\ref{alg:ftec-verification} checks validity and
+correctability independently and reports both outcomes. It accepts a
+protocol as FTEC only when both checks pass, applying
+Thm.~\ref{thm:mains} under its validity premise.
 
 \begin{algorithm}[t]
 
@@ -2471,26 +2482,27 @@ Algorithm~\ref{alg:ftec-verification} summarizes the verification procedure. Alt
 \caption{Verification of a flagged error correction protocol}
 \label{alg:ftec-verification}
 \KwIn{Stabilizer code $\mathcal Q$, flagged protocol $\Pi$, fault bound $t$}
-\KwOut{\textsc{NotValid}, \textsc{NotFTEC}, or \textsc{FTEC}}
+\KwOut{Validity result $v$ and correctability result $c$; FTEC iff both pass}
+
+$v\gets\mathrm{true}$; $c\gets\mathrm{true}$\;
 
 \ForEach{syndrome extraction circuit $C$ used in $\Pi$}{
-    \lIf{\textsc{CircuitValidity}$(C)$ fails}{\Return \textsc{NotValid}}
+    \lIf{\textsc{CircuitValidity}$(C)$ fails}{$v\gets\mathrm{false}$}
 }
 
-\ForEach{terminating path $\pi\in \Pi$}{
-    \lIf{\textsc{ControlFlowValidity}$(\pi,t)$ fails}{\Return \textsc{NotValid}}
-    
+\ForEach{terminating path $\pi\in\Pi$}{
+    \lIf{\textsc{ControlFlowValidity}$(\pi,t)$ fails}{$v\gets\mathrm{false}$}
     \If{$\pi$ satisfies the termination requirements of Condition (2) with detected-fault count $w$}{
         Let $C$ be the full syndrome extraction circuit used in the repeated-syndrome suffix of $\pi$\;
-        \lIf{\textsc{FlagCondition}$(C,t-w)$ fails}{\Return \textsc{NotValid}}
+        \lIf{\textsc{FlagCondition}$(C,t-w)$ fails}{$v\gets\mathrm{false}$}
     }
 }
 
 \ForEach{terminating path $\pi\in\Pi$}{
-    \lIf{$\Psi^{\mathrm{FTEC}}_\pi$ is SAT}{\Return \textsc{NotFTEC}}
+    \lIf{$\Psi^{\mathrm{Corr}}_\pi$ is SAT}{$c\gets\mathrm{false}$}
 }
 
-\Return \textsc{FTEC}
+\Return $(v,c)$
 \end{algorithm}
 
 The subroutines in Algorithm~\ref{alg:ftec-verification} refer to the checks
@@ -2514,42 +2526,25 @@ path satisfying Condition (2), even if another termination condition also holds.
 
 \begin{theorem}[Verification correctness]
 \label{thm:verification-correctness}
-Algorithm~\ref{alg:ftec-verification} satisfies the following:
-\begin{enumerate}
-    \item If it returns \textsc{NotValid}, then $\Pi$ fails
-    Def.~\ref{def:protocol-validity}.
-    \item If it returns \textsc{NotFTEC}, then $\Pi$ is a valid protocol but
-    does not satisfy FTEC.
-    \item If it returns \textsc{FTEC}, then $\Pi$ is a valid protocol and
-    satisfies FTEC.
-\end{enumerate}
+Algorithm~\ref{alg:ftec-verification} returns $(v,c)$, where
+$v=\mathrm{true}$ if and only if $\Pi$ satisfies
+Def.~\ref{def:protocol-validity}, and $c=\mathrm{true}$ if and
+only if $\mathcal E_m$ is correctable for every reachable record $m$.
+If both results are true, there exists a lookup-table decoder $D$
+such that $(\Pi,D)$ satisfies FTEC.
 \end{theorem}
 
 \begin{proof}
-If the algorithm returns \textsc{NotValid}, either a syndrome
-extraction circuit fails Def.~\ref{def:syndrome-extraction-valid},
-or none of the three control-flow validity conditions holds for some
-terminating path, or the required flag-condition check fails for a path
-satisfying Condition (2). Hence $\Pi$ fails Def.~\ref{def:protocol-validity}.
-
-Suppose the algorithm reaches the FTEC-check loop. Then all protocol-validity
-checks have passed, so $\Pi$ is a valid protocol in the sense of
-Def.~\ref{def:protocol-validity}. If the algorithm returns \textsc{NotFTEC},
-then $\Psi^{\mathrm{FTEC}}_\pi$ is satisfiable for some terminating path
-$\pi$. Thus, there exist two executions within the fault bound that follow the
-same terminating path, produce the same measurement record, and leave residual
-data errors whose product lies in
-$N(\mathcal S)\setminus\mathcal S$. This violates the condition in
-Thm.~\ref{thm:mains}. Since $\Pi$ is valid, the theorem implies that
-$\Pi$ does not satisfy FTEC.
-
-Finally, if the algorithm returns \textsc{FTEC}, then all protocol-validity
-checks have passed and every formula $\Psi^{\mathrm{FTEC}}_\pi$ is
-unsatisfiable. Hence no two executions within the fault bound produce the same
-measurement record while leaving residual data errors whose product lies in
-$N(\mathcal S)\setminus\mathcal S$. Therefore the condition in
-Thm.~\ref{thm:mains} holds. Since $\Pi$ is valid, the theorem implies
-that $\Pi$ satisfies FTEC.
+The circuit-validity, control-flow-validity, and flag-condition checks
+are precisely the requirements of Def.~\ref{def:protocol-validity};
+hence $v$ remains true exactly when the protocol is valid.
+By construction, $\Psi^{\mathrm{Corr}}_\pi$ is satisfiable exactly
+when two admissible executions on $\pi$ produce the same record but
+leave errors whose product lies in
+$N(\mathcal S)\setminus\mathcal S$. Thus $c$ remains true exactly
+when all reachable residual error sets are correctable by
+Eq.~\ref{eq:QECC_condition}. Both results are computed independently.
+When both pass, Thm.~\ref{thm:mains} establishes the claimed decoder.
 \end{proof}
 
 \section{Related Work}
@@ -2616,9 +2611,9 @@ AMD EPYC 7742 64-core processor (1.5\,GHz), 2\,TiB of RAM, and a 1\,TB SSD. We i
 % \#Vars & 45--656 & 188--656 & 183--658 & 184--660 & 184--664 & 45--656 & 147--820 & 45--848 & 2082--5506178 \\
 % \#Clauses & 352--4754 & 2053--4766 & 2049--4802 & 2049--4802 & 2049--4826 & 352--4756 & 1198--6008 & 340--6317 & 5484--146548287 \\
 % \midrule
-% \multicolumn{10}{c}{\textbf{FTEC}} \\
+% \multicolumn{10}{c}{\textbf{Correctability Verification}} \\
 % \midrule
-% FTEC (path) & 0 & 0 & 1 & 1 & 1 & 0 & 1 & 0 & 0 \\
+% Correctability failures (paths) & 0 & 0 & 1 & 1 & 1 & 0 & 1 & 0 & 0 \\
 % Time (s) & 0.351 & 0.091 & 0.088 & 0.085 & 0.096 & 0.192 & 0.143 & 0.155 & 0.262 \\
 % Peak Mem (MB) & 85.4 & 88.0 & 90.0 & 90.0 & 71.0 & 87.0 & 87.8 & 87.6 & 144.3 \\
 % SAT Calls & 13 & 2 & 2 & 2 & 2 & 5 & 4 & 19 & 4 \\
@@ -2663,9 +2658,9 @@ AMD EPYC 7742 64-core processor (1.5\,GHz), 2\,TiB of RAM, and a 1\,TB SSD. We i
 % \#Vars & 2088--5506171 & 5393--1377250 & 5321--1377246 & 2378--11697 & 5039--11889 & 1708--14317 & 4952--21105 \\
 % \#Clauses & 5094--146548217 & 48159--27335500 & 47631--27335447 & 5825--122996 & 46654--120744 & 3664--119917 & 45073--153479 \\
 % \midrule
-% \multicolumn{8}{c}{\textbf{FTEC}} \\
+% \multicolumn{8}{c}{\textbf{Correctability Verification}} \\
 % \midrule
-% FTEC(path) & 0 & 0 & 0 & 3 & 0 & 0 & 0 \\
+% Correctability failures (paths) & 0 & 0 & 0 & 3 & 0 & 0 & 0 \\
 % Time (s) & 0.307 & 0.262 & 0.257 & 0.211 & 0.222 & 0.263 & 0.348 \\
 % Peak Mem (MB) & 155.6 & 111.8 & 114.6 & 306.3 & 164.1 & 321.4 & 172.8 \\
 % SAT Calls & 4 & 4 & 4 & 21 & 21 & 21 & 21 \\
@@ -2675,7 +2670,7 @@ AMD EPYC 7742 64-core processor (1.5\,GHz), 2\,TiB of RAM, and a 1\,TB SSD. We i
 % \bottomrule
 % \end{tabular}%
 % }
-% \caption{Experimental results of the protocol verification and FTEC verification (Top: Part 1, Bottom: Part 2).}
+% \caption{Experimental results of protocol-validity and correctability verification (Top: Part 1, Bottom: Part 2).}
 % \label{tab:combined-results}
 
 % \end{table}
@@ -2716,9 +2711,9 @@ AMD EPYC 7742 64-core processor (1.5\,GHz), 2\,TiB of RAM, and a 1\,TB SSD. We i
 % \#Vars & 45--615 & 188--615 & 183--625 & 184--627 & 184--623 & 45--615 & 147--763 & 45--793 & 6480--5506178 \\
 % \#Clauses & 352--4551 & 2053--4563 & 2049--4623 & 2049--4623 & 2049--4623 & 352--4553 & 1198--5717 & 340--6317 & 53375--146548287 \\
 % \midrule
-% \multicolumn{10}{c}{\textbf{FTEC}} \\
+% \multicolumn{10}{c}{\textbf{Correctability Verification}} \\
 % \midrule
-% FTEC (path) & 0 & 0 & 1 & 1 & 1 & 0 & 1 & 0 & 0 \\
+% Correctability failures (paths) & 0 & 0 & 1 & 1 & 1 & 0 & 1 & 0 & 0 \\
 % Peak Mem (MB) & 85.4 & 88.0 & 90.0 & 90.0 & 71.0 & 87.0 & 87.8 & 87.6 & 144.3 \\
 % SAT Calls & 13 & 2 & 2 & 2 & 2 & 5 & 4 & 19 & 4 \\
 % Total SAT Time (s) & 0.145 & 0.065 & 0.027 & 0.057 & 0.058 & 0.079 & 0.052 & 0.207 & 2104.4 \\
@@ -2763,9 +2758,9 @@ AMD EPYC 7742 64-core processor (1.5\,GHz), 2\,TiB of RAM, and a 1\,TB SSD. We i
 % \#Vars & 6409--5506171 & 5390--2295123 & 5324--2295129 & 4918--1377144 & 5039--1377172 & 5925--5506042 & 4952--21105 \\
 % \#Clauses & 53020--146548217 & 48101--39995851 & 47621--39995821 & 43363--27334792 & 46654--27335250 & 49992--146547428 & 45073--153479 \\
 % \midrule
-% \multicolumn{8}{c}{\textbf{FTEC}} \\
+% \multicolumn{8}{c}{\textbf{Correctability Verification}} \\
 % \midrule
-% FTEC(path) & 0 & 0 & 0 & 3 & 0 & 0 & 0 \\
+% Correctability failures (paths) & 0 & 0 & 0 & 3 & 0 & 0 & 0 \\
 % Peak Mem (MB) & 155.6 & 111.8 & 114.6 & 306.3 & 164.1 & 321.4 & 172.8 \\
 % SAT Calls & 4 & 4 & 4 & 21 & 21 & 21 & 21 \\
 % Total SAT Time (s) & 2312.0 & 1243.5 & 1562.3 & 123486.4 & 86124.3 & 151274.4 & 40477.4 \\
@@ -2775,7 +2770,7 @@ AMD EPYC 7742 64-core processor (1.5\,GHz), 2\,TiB of RAM, and a 1\,TB SSD. We i
 % \bottomrule
 % \end{tabular}%
 % }
-% \caption{Experimental results of the protocol verification and FTEC verification (Top: Part 1, Bottom: Part 2). Total CPU Time differs from Total SAT Time by including symbolic execution and DIMACS export .}
+% \caption{Experimental results of protocol-validity and correctability verification (Top: Part 1, Bottom: Part 2). Total CPU Time differs from Total SAT Time by including symbolic execution and DIMACS export .}
 % \label{tab:combined-results}
 
 % \end{table}
@@ -2815,9 +2810,9 @@ Total CPU Time (s) & 10.2 & 4.3 & 4.1 & 4.2 & 4.5 & 6.2 & 6.4 & 16.4 & 60.5 \\
 \#Vars & 58--615 & 192--615 & 193--625 & 194--627 & 186--623 & 58--615 & 85--763 & 51--793 & 1104--8973 \\
 \#Clauses & 312--4551 & 1369--4563 & 1385--4623 & 1385--4623 & 1345--4623 & 312--4553 & 524--5717 & 272--5999 & 8806--66744 \\
 \midrule
-\multicolumn{10}{c}{\textbf{FTEC}} \\
+\multicolumn{10}{c}{\textbf{Correctability Verification}} \\
 \midrule
-FTEC (path) & 0 & 0 & 1 & 1 & 1 & 0 & 1 & 0 & 0 \\
+Correctability failures (paths) & 0 & 0 & 1 & 1 & 1 & 0 & 1 & 0 & 0 \\
 Peak Mem (MB) & 85.5 & 81.5 & 80.4 & 88.0 & 85.4 & 84.0 & 71.4 & 79.7 & 200.8 \\
 SAT Calls & 13 & 2 & 2 & 2 & 2 & 5 & 4 & 19 & 4 \\
 Total SAT Time (s) & 5.020 & 0.937 & 0.911 & 1.034 & 0.990 & 2.001 & 2.243 & 8.948 & 1403.4 \\
@@ -2862,9 +2857,9 @@ Total CPU Time (s) & 52.3 & 70.0 & 60.4 & 2194.0 & 1204.8 & 2623.5 & 638.3 \\
 \#Vars & 1102--8875 & 930--7743 & 945--7660 & 1744--11570 & 1660--11760 & 2118--14170 & 1070--11297 \\
 \#Clauses & 8770--66244 & 7481--53071 & 7517--52736 & 13124--122318 & 12806--120077 & 17465--114426 & 9769--123213 \\
 \midrule
-\multicolumn{8}{c}{\textbf{FTEC}} \\
+\multicolumn{8}{c}{\textbf{Correctability Verification}} \\
 \midrule
-FTEC(path) & 0 & 0 & 0 & 3 & 0 & 0 & 0 \\
+Correctability failures (paths) & 0 & 0 & 0 & 3 & 0 & 0 & 0 \\
 Peak Mem (MB) & 179.7 & 145.6 & 226.9 & 862.7 & 537.9 & 870.1 & 387.0 \\
 SAT Calls & 4 & 4 & 4 & 21 & 21 & 21 & 21 \\
 Total SAT Time (s) & 1417.6 & 779.4 & 1157.5 & 38948.4 & 37119.7 & 59767.7 & 21011.6 \\
@@ -2874,7 +2869,7 @@ Total CPU Time (s) & 1451.0 & 803.1 & 1183.0 & 39177.5 & 37422.7 & 60069.4 & 213
 \bottomrule
 \end{tabular}%
 }
-\caption{Experimental results of the protocol verification and FTEC verification (Top: Part 1, Bottom: Part 2). Total CPU Time differs from Total SAT Time by including symbolic execution and DIMACS export .}
+\caption{Experimental results of protocol-validity and correctability verification (Top: Part 1, Bottom: Part 2). Total CPU Time differs from Total SAT Time by including symbolic execution and DIMACS export .}
 \label{tab:combined-results}
 
 \end{table}
@@ -2885,7 +2880,7 @@ Total CPU Time (s) & 1451.0 & 803.1 & 1183.0 & 39177.5 & 37422.7 & 60069.4 & 213
     \item \textbf{Stim:} These rows report the wall-clock runtime and peak memory required to run the complete Stim simulation for each setup.
     \item \textbf{SAT Solver:} 
     \emph{Total runtime} reflects the end-to-end wall time, encompassing Z3 constraint export and parallel SAT solving. \emph{Total SAT time} aggregates the per-path solver durations; because paths are solved concurrently, this sum can exceed the total wall time (conversely, on smaller instances, Z3 export overhead may dominate). This section also reports peak memory, total SAT calls, and the range (min--max) of variables (\#\textsc{vars}) and clauses (\#\textsc{clauses}) across the evaluated paths.
-    \item \textbf{FTEC:} This block reports the number of FTEC failures over the total flag circuits checked, accompanied by the summed per-circuit runtime, peak memory, SAT calls, cumulative SAT solver time (excluding export overhead), and range (min--max) of variables (\#\textsc{vars}) and clauses (\#\textsc{clauses}) across the evaluated paths.
+    \item \textbf{Correctability Verification:} This block reports the number of paths with uncorrectable reachable error sets, independently of protocol validity, along with runtime, memory, SAT calls, and formula-size ranges.
 \end{itemize}
 
 
@@ -2896,10 +2891,21 @@ Total CPU Time (s) & 1451.0 & 803.1 & 1183.0 & 39177.5 & 37422.7 & 60069.4 & 213
 
 Highlighting specific findings from Table~\ref{tab:combined-results}, the $[[5,1,3]]$ code with the $[2,2]$ and $[2,2]^T$ optimizations, as well as the $[[17,1,5]]$ code with the $[2,2,2,1,1]^T$ optimization, initially failed the Stim determinism check. However, the corrected $[[5,1,3]]$ version, denoted as $[2,2]^T$ fix$_2$, successfully satisfied all determinism requirements. For the low-depth optimizations applied to the $[[5,1,3]]$ and $[[7,1,3]]$ codes, protocol bugs primarily stemmed from violations of Condition (1) of Def~\ref{def:control-flow-validity}, as the resulting errors were not syndrome-consistent. Furthermore, the $[[17,1,5]]$ and $[[19,1,5]]$ protocols from~\cite{Du24} both failed the flag condition (Def~\ref{def:flag}).
 
-Finally, our FTEC verification revealed protocols that failed to be valid or satisfy FTEC. For the $[[5,1,3]]$ code, we found paths that fell short of FTEC requirements under both the $[2,2]$ and $[2,2]^T$ optimizations. Notably, these violations persisted even in the corrected version of the syndrome circuit ($[2,2]^T$ fix$_2$). We also observed FTEC failures in the low-depth $[[7,1,3]]$ code, as well as three paths in the $[[17,1,5]]$ protocol from~\cite{Du24} that violated FTEC.
+The independent correctability checks found uncorrectable error sets
+on paths of the $[[5,1,3]]$ protocols with $[2,2]$ and $[2,2]^T$
+optimizations, including the corrected syndrome-circuit variant
+($[2,2]^T$ fix$_2$). They also found a correctability failure in the
+low-depth $[[7,1,3]]$ protocol and three such paths in the
+$[[17,1,5]]$ protocol from~\cite{Du24}. Both validity and
+correctability must pass for overall FTEC acceptance.
  
  
-We illustrate two bugs found by the verifier. Example 1 demonstrates an invalid protocol, as one of its syndrome extraction circuits fails to satisfy the determinism requirement of Definition~\ref{def:syndrome-extraction-deterministic}. Example 2 illustrates a scenario where the protocol itself is valid, but it ultimately violates FTEC (Definition~\ref{def:weak-FTEC}); specifically, there exist two possible residual errors corresponding to the same measurement outcome $m$ whose product forms a non-trivial logical operator.
+We illustrate failures of the two separate verification tasks.
+Example 1 demonstrates a protocol-validity failure: a syndrome extraction
+circuit violates Def.~\ref{def:syndrome-extraction-deterministic}.
+Example 2 demonstrates a correctability failure: two admissible
+executions with the same reachable measurement record leave residual
+errors whose product is a nontrivial logical operator.
 
 
 \textbf{Example 1.} Figure~\ref{fig:[[5,1,3]]_[2,2]^T} illustrates the flagged syndrome extraction circuit for the $[[5,1,3]]$ code utilizing the $[2,2]^T$ optimization from [LL25]. Let $U$ denote the overall unitary evolution of this circuit, 
@@ -3191,7 +3197,6 @@ Assume that, for every measurement record $m$,
 \]
 We choose a correction for each reachable record according to the
 termination condition of its path and prove the two FTEC requirements.
-Unreachable records may be assigned arbitrary corrections.
 
 \paragraph{Termination Condition (1).}
 By control-flow validity, all errors in $\mathcal E_m$ have the same
