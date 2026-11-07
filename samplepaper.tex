@@ -1560,6 +1560,10 @@ identity. The input error weight of $\mathcal{F_{in}}$ and fault weight of $\mat
 =
 \sum_{\ell\in\mathcal{L}_\pi} a_\ell.
 \]
+The total fault-assignment weight is defined as
+$\mathrm{wt}(\mathcal F)=\mathrm{wt}(\mathcal F_{\mathrm{in}})
++\mathrm{wt}(\mathcal F_{\mathrm{circ}})$,
+accounting for both input data errors and circuit faults.
 We encode $\mathrm{wt}(\mathcal{F})\le t$ and
 $\mathrm{wt}(\mathcal{F}_{circ})=w$ with cardinality
 constraints~\cite{sinz2005towards}.
@@ -1921,8 +1925,8 @@ Thm.~\ref{thm:mains}, we ignore global phases and write the relative
 Pauli error as the product of two residual data errors.
 
 For each terminating path $\pi$, the verifier searches for two fault
-assignments $\mathcal{F}_1$ and $\mathcal{F}_2$ such that both executions follow $\pi$, both contain
-at most $t$ faults, and both produce the same measurement record, but their
+assignments $\mathcal{F}_1$ and $\mathcal{F}_2$ such that both executions follow $\pi$, both have
+total fault-assignment weight at most $t$, and both produce the same measurement record, but their
 residual data errors violate the quantum error correction condition. The SAT
 formula is
 
