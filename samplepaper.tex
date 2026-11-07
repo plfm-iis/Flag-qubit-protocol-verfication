@@ -3148,131 +3148,15 @@ measurement-based quantum computation.
 % To generate the version WITHOUT the appendix, comment out the line below:
 \newpage
 \appendix
-\section{Proof of Main Theorem}
-\label{app:proof}
-
-\begin{theorem}
-\label{thm:mains-appendix}
- Consider a flagged error correction protocol $\Pi$ for a stabilizer code
-with stabilizer group $\cS$, distance $d$, and
-$t=\lfloor (d-1)/2 \rfloor$. Assume that $\Pi$ is valid in the sense of Def.~\ref{def:protocol-validity}
-Then there exists a suitable lookup-table decoder $D$ such that $(\Pi,D)$ satisfies
-FTEC if and only if, for all measurement record $m$,
-$\forall E_1,E_2\in \mathcal{E}_{m},
-    E_1\cdot E_2 \notin N(\cS) \setminus \cS$.  
-\end{theorem}\label{thm:ftec-verify}
-
-% \begin{theorem}
-% \label{thm:mains}
-% Consider a flagged error correction protocol for a QECC of distance $d$ and $t = \lfloor\frac{d-1}{2} \rfloor$. Assume that the protocol satisfies Def.~\ref{def:protocol-validity}. 
-% The flagged error correction protocol, coupled with any suitable LUT decoder from Definition~\ref{def:decoder}, achieves fault-tolerant error correction if and only if for each $m$, $\forall E_1, E_2 \in \mathcal{E}_{m}$, $E_1 \cdot E_2 \notin \mathcal{N(S)} \setminus \mathcal{S}$.
-% \end{theorem}\label{thm:ftec-verify}
-
-\begin{proof}
-\textbf{($\Rightarrow$) 
-Let $E_1$ and $E_2$ be any two possible residual errors in $\mathcal{E}_{m}$ resulting from distinct fault events. Assume the protocol achieves FTEC. We must show $E_1 \cdot E_2 \notin N(\cS) \setminus \cS$.}\\
-We proceed by contradiction. Suppose $E_1 \cdot E_2 \in N(\cS) \setminus \cS$.  This implies that there exists a measurement record $m$ for which the LUT decoder outputs a correction $C$ such that $E_1 \cdot E_2 = (E_1 \cdot C) \cdot (E_2 \cdot C)$ constitutes a logical operator. Suppose that both $\mathrm{wt}_{\mathrm{min}}(E_1 \cdot C)$ and $\mathrm{wt}_{\mathrm{min}}(E_2 \cdot C)$ are at most $t$. Then, their product would have a  $\mathrm{wt}_{\mathrm{min}}$ of at most $2t$. However, because $(E_1 \cdot C) \cdot (E_2 \cdot C)$ is a logical operator, $\mathrm{wt}_{\mathrm{min}}((E_1 \cdot C) \cdot (E_2 \cdot C))$ must be at least $d > 2t$, which yields a contradiction. Therefore, if $\mathrm{wt}_{\mathrm{min}}(E_1 \cdot C) \leq t$, then $\mathrm{wt}_{\mathrm{min}}(E_2 \cdot C)>t$ , and vice versa. It follows that either $(E_1 \cdot C)$ or $(E_2 \cdot C)$ must violate FTEC (2) of Def.~\ref{def:weak-FTEC}.
-
-\textbf{($\Leftarrow$) 
-Assume $\forall E_1 , E_2 \in \mathcal{E}_m,  E_1 \cdot E_2 \notin  N(\cS) \setminus \cS$. We must show the protocol achieves FTEC.}
-\paragraph{Termination Condition (1).}
-Let $m$ be the corresponding
-    measurement record, and let $C\in\mathcal{E}_m$ be the representative
-    correction chosen by the LUT decoder.
-    Since all residual errors in $\mathcal{E}_m$ have the same ideal syndrome,
-    for every $E\in\mathcal{E}_m$,
-    $\operatorname{syn}(E)=\operatorname{syn}(C)$.
-    Hence, $\operatorname{syn}(E\cdot C)=0,$ which implies $E\cdot C\in N(\mathcal{S}).$
-    On the other hand, both $E$ and $C$ belong to $\mathcal{E}_m$. By the
-    assumption of the theorem, $E \cdot C \notin N(\mathcal{S}) \setminus \mathcal{S}$. 
-    Therefore, $E \cdot C\in S$.
-    Thus, after applying the representative correction, every possible residual
-    error is equivalent to the identity up to a stabilizer. Hence the logical
-    state is preserved, and FTEC of Definition~\ref{def:weak-FTEC} is satisfied.
-        
-\paragraph{Termination Condition (2).}
-Let $w$ be the number of faults detected
-before the final repeated full-syndrome suffix.  By Condition~(2), this suffix
-consists of $t-w+1$ consecutive full syndrome extraction rounds whose measured
-syndrome outcomes are all equal to the same value $\sigma$, and no flag is
-raised during these rounds.
-
-Fix an execution with total fault number $s\le t$.  Since at least $w$ faults
-have already been detected before the suffix, at most $s-w\le t-w$ faults occur
-during the repeated full-syndrome suffix.  Hence, among the $t-w+1$ full
-syndrome extraction rounds in the suffix, at least one round is fault-free.
-Fix such a fault-free round $R$, and let $E^-$ be the data error immediately
-before $R$.
-Because $R$ is fault-free and the full syndrome extraction circuit is correct,
-the measured syndrome outcome of $R$ is exactly the ideal syndrome of $E^-$.
-Since all rounds in the repeated suffix report the same syndrome value
-$\sigma$, we have
-$\operatorname{syn}(E^-)=\sigma$.
-Moreover, by correctness of the fault-free syndrome extraction circuit, $R$
-introduces no additional data error, so the data error immediately after $R$ is
-still $E^-$.
-
-Now consider
-another execution that has the same faults as the original execution up to $R$,
-but has no faults after $R$.  Since $R$ is fault-free and the later full
-syndrome extraction rounds are also fault-free in this execution, the data
-error remains $E^-$ throughout the rest of the suffix.  Moreover, all later
-rounds report the same syndrome value $\sigma$ and raise no flag.  Hence this
-execution follows the same terminating path, has the same measurement record
-$m$, and has final residual data error $E^-$.  Therefore $E^-\in\mathcal E_m$.
-Thus all possible errors $E^-$ arising immediately before a fault-free round
-in the repeated suffix are equivalent up to stabilizers.  For the record $m$,
-choose the decoder output $C$ to be one representative of this equivalence
-class.  Then, for the prefix error $E^-$ in the actual execution,
-$C\cdot E^- \in \mathcal S$. This does not yet account for faults occurring after $R$; these faults are
-handled separately below.
-Let $E_{\mathrm{suf}}$ denote the data error induced by faults occurring after
-$R$ in the repeated full-syndrome suffix.  By Pauli propagation through Clifford
-circuits, the final data error before applying the decoder output can be written,
-up to global phase, as
-$E_{\mathrm{fin}} = E^- \cdot E_{\mathrm{suf}}$.
-Therefore, after applying the decoder output $C$, $C\cdot E_{\mathrm{fin}}
-    =
-    C\cdot E^- E_{\mathrm{suf}}
-    \sim
-    E_{\mathrm{suf}}$, because $C\cdot E^-\in\mathcal S$.
-
-It remains to bound $E_{\mathrm{suf}}$. The number of faults occurring after
-$R$ is at most $s-w$. Since no flag is raised during the repeated suffix and the
-full syndrome extraction circuit satisfies the required $(t-w)$-flag condition,
-these faults induce a data error satisfying
-$\mathrm{wt}_{\min}(E_{\mathrm{suf}})\le s-w\le s$.
-Hence
-$\mathrm{wt}_{\min}(C\cdot E_{\mathrm{fin}})
-    =
-    \mathrm{wt}_{\min}(E_{\mathrm{suf}})
-    \le s$.
-This proves FTEC~(2) of Def.~\ref{def:weak-FTEC}.
-
-For FTEC (1), observe that the error accumulated before $R$ is canceled
-up to stabilizer equivalence by the decoder output, since $C\cdot E^-\in\mathcal S$.
-Thus the output data block differs from the ideally decoded input only by the
-suffix error $E_{\mathrm{suf}}$, up to stabilizer equivalence. Since
-$\mathrm{wt}_{\min}(E_{\mathrm{suf}})\le s\le t$, ideal decoding removes this
-remaining error. Therefore, ideal decoding of the output data block gives the
-same logical state as ideal decoding of the input data block. This proves
-FTEC~(1) of Def.~\ref{def:weak-FTEC}.
-
-\paragraph{Termination Condition (3).}
-For any fault event of weight $w \leq t$, every resulting error $E \in \mathcal{E}_m$ has a  weight $\mathrm{wt}_{\min}(E) \leq t$, thereby satisfying FTEC (2) of Def~\ref{def:weak-FTEC}. Consequently, applying an ideal decoder to an input state---which contains an initial data error of weight $r \leq t$ and an accumulated output error $E$ with $\mathrm{wt}_{\min}(E) \leq t$---will successfully recover the original state. This holds because, for any quantum error-correcting code with distance $d$, every error $e$ with $\mathrm{wt}_{\min}(e) \leq t$ is perfectly correctable via ideal decoding, thus satisfying FTEC (1) of Def~\ref{def:weak-FTEC}.
-
-
-\end{proof}
-
-\section{section 3 appendix}
-\section{Proof of Theorem 3.11}
+\section{Proof of Theorem~\ref{thm:mains}}
 \label{app:proof}
 
 \begin{proof}[Proof of Theorem~\ref{thm:mains}]
 All Pauli products are considered up to global phase. Throughout the proof,
 $r$ denotes the input error weight and $s$ the number of circuit faults,
-with $r+s\le t$. The residual error sets $\mathcal E_m$ are understood to
-range over these admissible executions.
+with $r+s\le t$, as in Def.~\ref{def:measurement-record-and-residual-error}.
+For a fixed measurement record $m$, the decoder must use the same correction
+for every execution represented in $\mathcal E_m$.
 
 \paragraph{($\Rightarrow$).}
 Suppose there exists a lookup-table decoder $D$ such that $(\Pi,D)$
@@ -3328,11 +3212,16 @@ fault-free and reports the ideal syndrome of its input data error.
 
 Consider the execution obtained by keeping the same input error and all
 faults before this fault-free round, and removing all faults after it.
-Every subsequent round then preserves the data error up to stabilizers,
-reports the same syndrome, and raises no flag. Thus the modified execution
-has the same record $m$, remains within the fault budget, and leaves a
-residual error in $\mathcal E_m$ equivalent to the error at the fault-free
-round.
+The measurement outcomes through the fault-free round are unchanged.
+Every subsequent round is now fault-free, so circuit correctness gives
+the same ideal syndrome as the fault-free round, and the no-fault
+flag property ensures that no flags are raised even in the presence
+of the incoming data error. Since the original suffix also had this
+syndrome in every round and no raised flags, the modified execution
+follows the same terminating path and produces the same record $m$.
+Removing faults cannot increase the fault count, so its residual
+error, equivalent to the data error at the fault-free round, belongs
+to $\mathcal E_m$.
 
 For a fixed record $m$, all modified executions constructed this way
 leave errors with the same ideal syndrome. For any two such errors
@@ -3344,13 +3233,18 @@ the error at a fault-free suffix round in every compatible execution.
 
 Consequently, for an actual residual error $E\in\mathcal E_m$,
 $E\cdot C$ is equivalent up to stabilizers to the error induced by
-faults after that fault-free round. Apply the $(t-w)$-flag condition
-to each remaining round. The no-fault flag property holds for every
-input data error; by linearity of Pauli propagation, an existing data
-error cannot cancel flags caused by circuit faults. Each unflagged
-round therefore contributes an error of minimum weight at most its
-number of faults. Circuit correctness preserves incoming errors up to
-stabilizers, and minimum weight is subadditive. Adding these bounds gives
+faults after that fault-free round. To bound this error, apply the
+$(t-w)$-flag condition to each remaining round. By the no-fault
+flag requirement, the flag outcomes vanish for any input data error
+in the absence of circuit faults. Since Pauli propagation and the
+recorded flag bits are linear in the Pauli error representation,
+adding an incoming data error does not change the flag outcomes
+caused by the circuit faults. Hence each unflagged round with its
+incoming error removed is also unflagged, and its fault-induced data
+error has minimum weight at most the number of faults in that round.
+Circuit correctness preserves incoming data errors up to stabilizers.
+Minimum weight is subadditive, so summing the bounds for the rounds
+after the fault-free round gives
 \[
  \mathrm{wt}_{\min}(E\cdot C)\le s-w\le s.
 \]
@@ -3369,8 +3263,11 @@ This directly establishes FTEC~(2). Because $s\le t$, ideal decoding
 corrects this residual error and recovers the original logical state,
 establishing FTEC~(1).
 
-The decoder defined by these choices satisfies both FTEC requirements
-on every terminating path, completing the proof.
+If a terminating path satisfies more than one condition, any one of
+the corresponding constructions may be used: each produces a
+correction depending only on $m$ and satisfies both FTEC requirements
+for all executions with that record. Thus a single lookup-table
+decoder can be chosen for all reachable records, completing the proof.
 \end{proof}
 
 % ==========================================
