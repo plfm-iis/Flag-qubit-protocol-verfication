@@ -3287,6 +3287,42 @@ for all executions with that record. Thus a single lookup-table
 decoder can be chosen for all reachable records, completing the proof.
 \end{proof}
 
+\section{Proof of Theorem~\ref{thm:syndrome-extraction-valid}}
+\label{app:proof-syndrome-extraction}
+
+\begin{proof}
+Assume first that $U$ is valid. By
+Def.~\ref{def:syndrome-extraction-deterministic}, in the error-free
+execution the data remains in the codespace, each ancilla has its
+prescribed measurement outcome, and the encoded logical state is
+unchanged up to global phase. Since the ancilla observables $A_i$
+have definite outcomes, the joint state remains in the simultaneous
+$+1$ eigenspace of $\mathcal S_{\mathrm{joint}}$.
+Thus $U$ preserves this joint codespace, implying
+$U\mathcal S_{\mathrm{joint}}U^\dagger=\mathcal S_{\mathrm{joint}}$
+with Pauli signs retained. Preservation of the logical state also
+implies that $UL_iU^\dagger$ and $L_i$ act identically on the joint
+codespace, so $(UL_iU^\dagger)L_i\in\mathcal S_{\mathrm{joint}}$
+for each $i$. Correctness follows from validity by definition.
+
+Conversely, assume that $U$ is correct and satisfies the two
+preservation conditions. Signed equality of the joint stabilizer
+groups ensures that the error-free output remains in the joint
+codespace. In particular, all ancilla observables $A_i$ have
+deterministic $+1$ outcomes, and the output data remains in the
+data codespace. The logical-operator condition implies that $U$
+preserves the action of every logical Pauli generator on this
+codespace; since these generators act irreducibly on the encoded
+degrees of freedom, $U$ acts as the identity up to global phase.
+For any input data Pauli error $E$, Clifford conjugation gives
+a fixed propagated Pauli error, so the ancilla outcomes differ
+from their error-free values by fixed commutation signs,
+independently of the encoded state. Correctness additionally
+ensures the designated syndrome outcomes and preservation of
+the input data error up to stabilizers. Hence $U$ is
+deterministic and correct, and therefore valid.
+\end{proof}
+
 % ==========================================
 % TABLE: Stabilizer Evolution
 % ==========================================
