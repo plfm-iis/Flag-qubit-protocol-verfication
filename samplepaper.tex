@@ -132,8 +132,8 @@
 
 
 Fault-tolerant syndrome extraction with flag qubits provides a resource-efficient approach to quantum error correction by using measurement outcomes to adapt the subsequent error-correction procedure. This adaptive control flow, however, makes correctness difficult to verify: to guarantee correction of a specified set of faults, any two non-equivalent faults must be distinguishable by the resulting execution paths and measurement records, since they may require incompatible recoveries. 
-In this work, we establish a criterion for verifying a fault-tolerant lookup-table decoder without explicitly constructing the table: a valid decoder exists if and only if all residual errors consistent with each measurement record are jointly correctable. 
-We develop a formal verification framework that symbolically tracks Pauli faults, measurement outcomes, and adaptive control flow, and uses SAT solving to search for violations of this condition. 
+In this work, we establish a criterion for verifying a fault-tolerant lookup-table decoder without explicitly constructing the table: for a valid protocol, such a decoder exists if and only if the residual error set for every reachable measurement record is correctable. 
+We develop a formal verification framework that symbolically tracks Pauli faults, measurement outcomes, and adaptive control flow, and checks protocol validity and error-set correctability separately using SAT solving. 
 We evaluate the framework on representative flagged protocols from the literature, successfully validating known constructions and exposing errors in previously published protocols.
 
 
@@ -3073,10 +3073,8 @@ The complete evolution of these generators is detailed in Table~\ref{tab:stabili
 \section{Conclusion}
 
 In this paper, we presented a formal verification framework for fault-tolerant flagged error correction protocols. 
-Rather than explicitly constructing a decoder, we established a necessary and sufficient condition
-for FTEC in terms of the residual errors compatible with each measurement record. 
-Our SAT-based approach provides a systematic way to verify this
-condition and to identify concrete design flaws in flagged protocols.
+Rather than explicitly constructing a decoder, we established that, for a valid protocol, an FTEC decoder exists if and only if the residual error set for every reachable measurement record is correctable. 
+Our SAT-based approach checks protocol validity and error-set correctability independently, accepting a protocol as FTEC only when both checks pass, and identifies concrete design flaws in flagged protocols.
 In particular, it can help detect errors that are difficult to uncover by
 manual verification, especially in optimized protocols with reduced circuit
 depth, flag-qubit sharing, or adaptive control flow.
