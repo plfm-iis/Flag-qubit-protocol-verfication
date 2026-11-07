@@ -2119,6 +2119,8 @@ paths for which the decoder applies the trivial correction. Therefore, given an 
 fault event involving $r+ w\le t$ faults must already leave a residual data error
 whose $ \mathrm{wt}_{\mathrm{min}}$ is at most $w$.
 
+Here, $r$ denotes the input error weight of the fault assignment,
+while $w$ denotes the number of circuit faults.
 For each terminating path $\pi$ intended to satisfy Condition (3), and for each
 $w=0,\ldots,t$, the verifier searches for a fault assignment that violates this
 requirement:
@@ -2137,10 +2139,11 @@ requirement:
 &\land\ \mathrm{wt}_{\min}(E_\pi(\mathcal{F}))> w  .
 \end{aligned}
 \end{equation}
-The first line requires the fault assignment to produce an execution that
-follows the terminating path $\pi$. The second line fixes the number of faults
-to be $w$. The last line requires the residual data error to have minimum
-weight greater than $w$, even after multiplying by stabilizers.
+The constraints require the input error weight $r$ and the circuit fault
+count $w$ to satisfy $r+w\le t$, while the path condition requires the
+execution to follow $\pi$. The final conjunct searches for a residual
+data error whose minimum weight exceeds $w$, even after multiplying by
+stabilizers.
 
 
 Recall from Eq.~(\ref{eq:wt_min}) that 
