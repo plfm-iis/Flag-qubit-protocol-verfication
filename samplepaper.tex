@@ -2896,7 +2896,7 @@ Total CPU Time (s) & 1451.0 & 803.1 & 1183.0 & 39177.5 & 37422.7 & 60069.4 & 213
 
 
 
-Highlighting specific findings from Table~\ref{tab:combined-results}, the $[[5,1,3]]$ code with the $[2,2]$ and $[2,2]^T$ optimizations, as well as the $[[17,1,5]]$ code with the $[2,2,2,1,1]^T$ optimization, initially failed the Stim determinism check. However, the corrected $[[5,1,3]]$ version, denoted as $[2,2]^T$ fix$_2$, successfully satisfied all determinism requirements. For the low-depth optimizations applied to the $[[5,1,3]]$ and $[[7,1,3]]$ codes, protocol bugs primarily stemmed from violations of Condition (1) of Def~\ref{def:control-flow-validity}, as the resulting errors were not syndrome-consistent. Furthermore, the $[[17,1,5]]$ and $[[19,1,5]]$ protocols from~\cite{Du24} both failed the flag condition (Def~\ref{def:flag}).
+Highlighting specific findings from Table~\ref{tab:combined-results}, the $[[5,1,3]]$ code with the $[2,2]$ and $[2,2]^T$ optimizations, as well as the $[[17,1,5]]$ code with the $[2,2,2,1,1]^T$ optimization, initially failed the Stim determinism check. However, the corrected $[[5,1,3]]$ version, denoted as $[2,2]^T$ fix$_2$, successfully satisfied all determinism requirements. Furthermore, the $[[17,1,5]]$ and $[[19,1,5]]$ protocols from~\cite{Du24} both failed the flag condition (Def~\ref{def:flag}).
 
 The independent correctability checks found uncorrectable error sets
 on paths of the $[[5,1,3]]$ protocols with $[2,2]$ and $[2,2]^T$
@@ -3245,8 +3245,10 @@ the error at a fault-free suffix round in every compatible execution.
 
 Consequently, for an actual residual error $E\in\mathcal E_m$,
 $E\cdot C$ is equivalent up to stabilizers to the error induced by
-faults after that fault-free round. To bound this error, apply the
-$(t-w)$-flag condition to each remaining round. By the no-fault
+faults after that fault-free round. There are at most $s-w\le t-w$
+circuit faults in the entire suffix, so each remaining round contains
+at most $t-w$ faults and is covered by the $(t-w)$-flag condition.
+By the no-fault
 flag requirement, the flag outcomes vanish for any input data error
 in the absence of circuit faults. Since Pauli propagation and the
 recorded flag bits are linear in the Pauli error representation,
