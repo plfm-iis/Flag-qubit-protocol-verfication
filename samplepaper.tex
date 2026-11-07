@@ -2830,6 +2830,10 @@ Total SAT Time (s) & 5.020 & 0.937 & 0.911 & 1.034 & 0.990 & 2.001 & 2.243 & 8.9
 Total CPU Time (s) & 9.9 & 4.2 & 3.9 & 4.2 & 4.2 & 5.2 & 6.2 & 16.3 & 1434.4 \\
 \#Vars & 278--626 & 366--626 & 374--624 & 376--624 & 369--634 & 348--626 & 396--772 & 274--803 & 2373--8973 \\
 \#Clauses & 2010--4576 & 2670--4588 & 2714--4620 & 2724--4620 & 2712--4648 & 2458--4578 & 2824--5738 & 1974--6033 & 20085--66716 \\
+\midrule
+Protocol valid & No & Yes & No & No & Yes & Yes & No & No & No \\
+Correctable & Yes & Yes & No & No & No & Yes & No & Yes & Yes \\
+\textbf{FTEC accepted} & \textbf{No} & \textbf{Yes} & \textbf{No} & \textbf{No} & \textbf{No} & \textbf{Yes} & \textbf{No} & \textbf{No} & \textbf{No} \\
 \bottomrule
 \end{tabular}%
 }
@@ -2877,10 +2881,14 @@ Total SAT Time (s) & 1417.6 & 779.4 & 1157.5 & 38948.4 & 37119.7 & 59767.7 & 210
 Total CPU Time (s) & 1451.0 & 803.1 & 1183.0 & 39177.5 & 37422.7 & 60069.4 & 21352.3 \\
 \#Vars & 2362--8868 & 2045--7737 & 2041--7648 & 5466--11582 & 5494--11755 & 6586--14266 & 5372--11398 \\
 \#Clauses & 19960--66195 & 14394--57063 & 14304--56636 & 48370--122417 & 50906--120417 & 45341--119101 & 49264--123632 \\
+\midrule
+Protocol valid & Yes & Yes & Yes & No & Yes & No & Yes \\
+Correctable & Yes & Yes & Yes & No & Yes & Yes & Yes \\
+\textbf{FTEC accepted} & \textbf{Yes} & \textbf{Yes} & \textbf{Yes} & \textbf{No} & \textbf{Yes} & \textbf{No} & \textbf{Yes} \\
 \bottomrule
 \end{tabular}%
 }
-\caption{Experimental results of protocol-validity and correctability verification (Top: Part 1, Bottom: Part 2). Total CPU Time differs from Total SAT Time by including symbolic execution and DIMACS export .}
+\caption{Experimental results of protocol-validity and correctability verification (Top: Part 1, Bottom: Part 2). FTEC is accepted only when both protocol validity and correctability pass. Total CPU Time includes symbolic execution and DIMACS export in addition to SAT solving.}
 \label{tab:combined-results}
 
 \end{table}
@@ -2892,6 +2900,7 @@ Total CPU Time (s) & 1451.0 & 803.1 & 1183.0 & 39177.5 & 37422.7 & 60069.4 & 213
     \item \textbf{SAT Solver:} 
     \emph{Total runtime} reflects the end-to-end wall time, encompassing Z3 constraint export and parallel SAT solving. \emph{Total SAT time} aggregates the per-path solver durations; because paths are solved concurrently, this sum can exceed the total wall time (conversely, on smaller instances, Z3 export overhead may dominate). This section also reports peak memory, total SAT calls, and the range (min--max) of variables (\#\textsc{vars}) and clauses (\#\textsc{clauses}) across the evaluated paths.
     \item \textbf{Correctability Verification:} This block reports the number of paths with uncorrectable reachable error sets, independently of protocol validity, along with runtime, memory, SAT calls, and formula-size ranges.
+    \item \textbf{Overall result:} Protocol valid is Yes only if all three protocol-validity checks report no failures; Correctable is Yes only if no reachable path has a correctability failure. FTEC accepted is Yes only when both are Yes.
 \end{itemize}
 
 
