@@ -652,34 +652,36 @@ $ZZ$, which is invalid because the measurement outcomes are not deterministic.}
 
 \subsection{Equivalent circuit-level noise model}
 
-For verification purposes, we consider only the possible Pauli errors induced by faults in the circuit and do not consider their rates or probabilities.  Therefore, we have the following proposition to reduce the complexity for verification. In this work the although input data error and error induced by faults we introduced in ~\ref{sec:circuit-level-noise-model} can both be described by Pauli errors but we will formulate in as different thing. 
+For verification, we consider the possible Pauli errors induced by circuit faults, rather than their probabilities. The following reduction covers bounded-fault executions using only two-qubit gate fault locations. Input data errors are counted separately from circuit faults, as in Section~\ref{sec:circuit-level-noise-model}. 
 In the syndrome-extraction circuits considered, every single-qubit fault location is immediately adjacent along its wire to a two-qubit gate. A single-qubit Pauli fault therefore has a preceding or following two-qubit gate on the same qubit to which it can be moved.
 
 
 
 \begin{proposition}
 \label{prop}
-For the purpose of enumerating possible Pauli error patterns in Clifford syndrome extraction circuits, it is sufficient to introduce fault variables only at two-qubit gate locations. Faults occurring at state preparation, measurement, idle, and single-qubit gate locations can be equivalently represented by Pauli faults at neighboring two-qubit gate locations, without changing their effect on the final data error and measurement outcomes.
+For the Clifford syndrome extraction circuits considered here, it is sufficient for bounded-fault verification to introduce fault variables only at two-qubit gate locations. Every execution with at most $t$ circuit faults, including faults at state preparation, measurement, idle, and single-qubit gate locations, has a corresponding assignment with at most $t$ faulty two-qubit gate locations that produces the same final data error and measurement outcomes.
 \end{proposition}
 
 
 \begin{proof}
 
-Since Clifford gates map Pauli operators to Pauli operators under
-conjugation.
-Preparation, idle, measurement, and single-qubit gate faults
-can be propagated through adjacent Clifford operations and represented
-by equivalent Pauli faults at neighboring two-qubit gate locations.
-Figure~\ref{equivalence_of_fault} illustrates the basic equivalence: a Pauli error induced by a single-qubit fault can be equivalently represented by a fault at either the preceding or following two-qubit gate location. Similarly, a measurement fault can be represented as a Pauli error immediately before the measurement and absorbed into the preceding two-qubit gate fault. 
-
-
-Consequently, our verifier introduces fault variables only at two-qubit
-gate locations without changing the set of circuit-level Pauli error
-patterns that can arise during syndrome extraction.
+Clifford gates map Pauli operators to Pauli operators under conjugation.
+Under the stated adjacency assumption, each preparation, idle,
+measurement, or single-qubit gate fault can be propagated to a
+neighboring two-qubit gate location. Figure~\ref{equivalence_of_fault}
+illustrates the corresponding Pauli propagation, including a
+measurement fault represented immediately before measurement.
+If several original faults map to the same two-qubit gate location,
+their Pauli operators can be multiplied into a single fault at that
+location. Thus the resulting assignment has no more nontrivial faulty
+two-qubit gate locations than the original execution had faults,
+while preserving the final data error and measurement outcomes.
+This establishes the coverage needed for verification under the bound
+$t$; it does not require a one-to-one correspondence between fault events.
     
 \end{proof}
 
-Note that in this work we differentiate input error and errors induced by faults though they can be describe both in Puli errors. 
+Input data errors and circuit-induced errors are represented separately even though both are Pauli errors. 
 
 
 \begin{figure}[htbp]
@@ -844,10 +846,10 @@ Flag qubits signal such error amplification, providing additional
 information for recovery. The following condition formalizes when
 this signal is required.
 \begin{definition}[$\cS$-Flag condition] \label{def:flag}
-A syndrome extraction circuit satisfies the $\cS$-flag condition if the
-following hold:
+For a given fault bound $k$, a syndrome extraction circuit satisfies
+the $k$-flag condition if the following hold:
 \begin{enumerate}
-    \item With no input data error, whenever an event involving $w\le s$
+    \item With no input data error, whenever an event involving $1\le w\le k$
     circuit faults induces a data error $E_{\mathrm{data}}$ such that
     $\mathrm{wt}_{\min}(E_{\mathrm{data}})>w$, at least one flag
     measurement outcome is $1$.
@@ -2115,12 +2117,15 @@ for all executions on $\pi$ within the fault bound.
 
 We next describe the SAT check for Condition (3) of
 Def.~\ref{def:control-flow-validity}. This condition applies to terminating
-paths for which the decoder applies the trivial correction. Therefore, given an input error $E_{in}$ with $wt(E)=r  $ and  every
-fault event involving $r+ w\le t$ faults must already leave a residual data error
-whose $ \mathrm{wt}_{\mathrm{min}}$ is at most $w$.
+paths for which the decoder applies the trivial correction. For an input
+error of weight $r$ and $w$ circuit faults with $r+w\le t$, the residual
+data error must have minimum weight at most $w$.
 
-Here, $r$ denotes the input error weight of the fault assignment,
-while $w$ denotes the number of circuit faults.
+In the following query, $w$ is fixed, while
+$r$ abbreviates $\mathrm{wt}(\mathcal F_{\mathrm{in}})$ for the
+existentially chosen fault assignment $\mathcal F$; it is not
+an additional fixed parameter. Thus all input error weights satisfying
+$r+w\le t$ are considered.
 For each terminating path $\pi$ intended to satisfy Condition (3), and for each
 $w=0,\ldots,t$, the verifier searches for a fault assignment that violates this
 requirement:
