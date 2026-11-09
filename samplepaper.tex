@@ -298,9 +298,10 @@ We first review the binary representation of Pauli operators and the fundamental
 \subsection{Pauli operators and binary representation}
 \label{subsec:pauli-binary}
 
-We consider the Pauli operators $I$, $X$, $Y$, and $Z$ modulo
-global phases in $\{\pm1,\pm i\}$, which do not affect
-syndromes, measurement outcomes, or logical equivalence.
+We represent Pauli errors modulo global phases in $\{\pm1,\pm i\}$,
+which do not affect error propagation, syndromes, or logical equivalence.
+The signs of measured Pauli observables, however, are retained when
+interpreting measurement outcomes.
 We use the standard binary representation~\cite{NC00}:
 \begin{equation}
 I\mapsto(0,0),\quad X\mapsto(1,0),\quad
@@ -868,6 +869,11 @@ A \textit{flagged fault-tolerant error correction protocol} consists of flagged 
 
 The control flow is represented by a finite decision tree. It determines which syndrome extraction circuit is executed next based on the syndrome and flag outcomes obtained so far and determines when the protocol terminates.
 Its paths enumerate all terminating executions.
+
+\noindent\textbf{Note.}
+We ignore overall phases of Pauli errors but retain the signs of
+measured Pauli observables. In particular, measuring $-P$ instead
+of $P$ flips the corresponding outcome bit (XOR with $1$).
 
 \begin{definition}
 \label{def:measurement-record-and-residual-error}
