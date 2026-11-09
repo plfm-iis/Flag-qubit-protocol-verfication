@@ -2940,19 +2940,19 @@ Correctable & Yes & Yes & Yes & No & Yes & Yes & Yes \\
 \bottomrule
 \end{tabular}%
 }
-\caption{Experimental results of protocol-validity and symbolic correctability verification (Top: Part 1, Bottom: Part 2). FTEC is accepted only when both checks pass. Total CPU Time includes symbolic execution and DIMACS export in addition to SAT solving.}
+\caption{Experimental results of circuit-validity, protocol-validity, and correctability checks (Top: Part 1, Bottom: Part 2). The reported checks were evaluated independently for diagnostic purposes; the staged verifier rejects circuit-invalid protocols before subsequent checks. FTEC is accepted only if all three properties hold. Total CPU Time includes symbolic execution and DIMACS export in addition to SAT solving.}
 \label{tab:combined-results}
 
 \end{table}
 
 \begin{itemize}
 
-    \item \textbf{Protocol Verification:} This block reports the specific defect counts. \emph{Syndrome extraction bugs} denotes the ratio of failed circuits to the total QASM circuits evaluated via Stim that fail to satisfy Def~\ref{def:syndrome-extraction-valid}. \emph{Control-flow bugs} counts the number of paths that violate control-flow constraints relative to the total number of paths. \emph{Flag bugs} indicates the number of circuits that failed the flag condition (Def~\ref{def:flag}).
+    \item \textbf{Protocol Verification:} This block reports defect counts from the separate diagnostic checks. \emph{Syndrome extraction bugs} counts the circuits that fail circuit validity (Def.~\ref{def:syndrome-extraction-valid}) among the evaluated QASM circuits. \emph{Control-flow bugs} counts paths that fail the control-flow requirements. \emph{Flag bugs} counts circuits that fail the flag condition (Def.~\ref{def:flag}).
     \item \textbf{Stim:} These rows report the wall-clock runtime and peak memory required to run the complete Stim simulation for each setup.
     \item \textbf{SAT Solver:} 
     \emph{Total runtime} reflects the end-to-end wall time, encompassing Z3 constraint export and parallel SAT solving. \emph{Total SAT time} aggregates the per-path solver durations; because paths are solved concurrently, this sum can exceed the total wall time (conversely, on smaller instances, Z3 export overhead may dominate). This section also reports peak memory, total SAT calls, and the range (min--max) of variables (\#\textsc{vars}) and clauses (\#\textsc{clauses}) across the evaluated paths.
-    \item \textbf{Correctability Verification:} This block reports the number of paths with uncorrectable error sets in the symbolic model, independently of protocol validity, along with runtime, memory, SAT calls, and formula-size ranges.
-    \item \textbf{Overall result:} Protocol valid is Yes only if all three protocol-validity checks report no failures; Correctable is Yes only if no path has a symbolic correctability failure. For circuit-invalid protocols, this standalone result does not establish physical correctability. FTEC accepted is Yes only when both are Yes.
+    \item \textbf{Correctability Verification:} This block reports the number of paths with correctability counterexamples in the symbolic fault model, together with runtime, memory, SAT calls, and formula-size ranges. These diagnostic checks were also run on circuit-invalid protocols for the reported experiments; their results do not establish physical correctability in that case.
+    \item \textbf{Overall result:} The tabulated \emph{Protocol valid} result is Yes only if circuit validity, control-flow requirements, and the applicable flag conditions all pass. The tabulated \emph{Correctable} result is Yes only if the independent symbolic checks find no correctability counterexample. For circuit-invalid protocols, this diagnostic result does not establish physical correctability; the staged verifier rejects them without performing the subsequent checks. \emph{FTEC accepted} is Yes only when circuit validity, protocol validity, and correctability all hold.
 \end{itemize}
 
 
@@ -2963,17 +2963,19 @@ Correctable & Yes & Yes & Yes & No & Yes & Yes & Yes \\
 
 Highlighting specific findings from Table~\ref{tab:combined-results}, the $[[5,1,3]]$ code with the $[2,2]$ and $[2,2]^T$ optimizations failed the Stim determinism check. However, the corrected $[[5,1,3]]$ version, denoted as $[2,2]^T$ fix$_2$, satisfied all determinism requirements. Furthermore, the $[[17,1,5]]$ and $[[19,1,5]]$ protocols from~\cite{Du24} both failed the flag condition (Def.~\ref{def:flag}).
 
-The independent correctability checks found uncorrectable error sets
+The independent symbolic correctability diagnostics found counterexamples
 on paths of the $[[5,1,3]]$ protocols with $[2,2]$ and $[2,2]^T$
 optimizations, including the corrected syndrome-circuit variant
 ($[2,2]^T$ fix$_2$). They also found a correctability failure in the
 low-depth $[[7,1,3]]$ protocol and three such paths in the
-$[[17,1,5]]$ protocol from~\cite{Du24}. Both validity and
-correctability must pass for overall FTEC acceptance.
+$[[17,1,5]]$ protocol from~\cite{Du24}. For the circuit-invalid
+$[2,2]$ and $[2,2]^T$ variants, these are diagnostic findings rather
+than physical correctability conclusions. All three verification
+properties are required for FTEC acceptance.
  
  
-We illustrate failures of the two separate verification tasks.
-Example 1 demonstrates a protocol-validity failure: a syndrome extraction
+We illustrate two distinct failure modes.
+Example 1 demonstrates a circuit-validity failure: a syndrome extraction
 circuit violates Def.~\ref{def:syndrome-extraction-deterministic}.
 Example 2 demonstrates a correctability failure: two admissible
 executions with the same reachable measurement record leave residual
