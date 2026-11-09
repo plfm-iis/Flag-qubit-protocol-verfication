@@ -899,18 +899,11 @@ Each execution follows a control-flow path, executing syndrome extraction circui
 % \bw{add fault <t?}
 
 
-Following~\cite{CB18}, we define \textit{control-flow validity} as follows.
-\begin{definition}[\textbf{Validity of a control flow}]
-\label{def:control-flow-validity}
-Consider a control flow of a flagged error correction protocol. We say a control flow is valid if every path of the control flow satisfies one of the following conditions when there are at most $t $ faults :
-\begin{enumerate}
-   
-    \item \textbf{Condition 1:} The measurement  record indicates that $t$ faults have been detected and for the same measurement record the residual errors have the same ideal syndrome.
-    \item \textbf{Condition 2:} A number of faults $w < t$ has been detected, and the protocol subsequently yields an identical full syndrome for $t-w+1$ consecutive extraction rounds without any flag qubit raised.
-    \item  \textbf{Condition 3:} For every input error $E$ with $wt(E) =r$ and  $s$ faults involving such that $r + s \le t$ , the induced data error has a $\mathrm{wt}_{\mathrm{min}}$ at most $s$.
-\end{enumerate}
-\end{definition}
-Condition 3 corresponds to the case where no additional syndrome information is required, since the residual error is already guaranteed to be correctable.
+Following~\cite{CB18}, the protocol-level termination requirements
+are stated as Conditions (1)--(3) in
+Def.~\ref{def:protocol-validity}. Condition (3) covers the case where
+no additional syndrome information is required because the residual
+error is already bounded by the number of circuit faults.
 
 Fig.~\ref{fig:five-qubit-flagged-protocol} illustrates a control flow  of  flagged protocol on the $[[5,1,3]]$ code where $d=3$, $t= \lfloor \frac{3-1}{2 } \rfloor$. 
 
@@ -985,7 +978,7 @@ Fig.~\ref{fig:five-qubit-flagged-protocol} illustrates a control flow  of  flagg
     \end{tikzpicture}
     \end{adjustbox}
 
-    \caption{A flagged error correction protocol for the $[[5,1,3]]$ code where $t = 1$, adapted from~\cite{Chao18}. A label $(P)_f$ denotes the flagged syndrome extraction circuit for stabilizer $P$, while $(P)_b$ denotes the corresponding basic syndrome extraction circuit. Each path from the $\mathrm{Start}$ to the $\mathrm{Decoder}$ satisfies Condition (1) in Def~\ref{def:control-flow-validity}. This is because, along each such path, at least one of the outcomes ($m_i$ or $f_i$) is $1$, indicating the presence of at least one fault or input error, and the four syndrome extractions are sufficient to ensure all resulting errors are syndrome-consistent. The path from $\mathrm{Start}$ to $\mathrm{End }$ will satisfies  Condition (3) in Def~\ref{def:control-flow-validity}   since non of the flag raised.}
+    \caption{A flagged error correction protocol for the $[[5,1,3]]$ code where $t = 1$, adapted from~\cite{Chao18}. A label $(P)_f$ denotes the flagged syndrome extraction circuit for stabilizer $P$, while $(P)_b$ denotes the corresponding basic syndrome extraction circuit. Each path from the $\mathrm{Start}$ to the $\mathrm{Decoder}$ satisfies Condition (1) in Def~\ref{def:protocol-validity}. This is because, along each such path, at least one of the outcomes ($m_i$ or $f_i$) is $1$, indicating the presence of at least one fault or input error, and the four syndrome extractions are sufficient to ensure all resulting errors are syndrome-consistent. The path from $\mathrm{Start}$ to $\mathrm{End }$ will satisfies  Condition (3) in Def~\ref{def:protocol-validity}   since non of the flag raised.}
     \label{fig:five-qubit-flagged-protocol}
 \end{figure}
 
@@ -993,7 +986,7 @@ Since the purpose of flag qubits is to signal high-weight error propagation even
 
 
 
-% We emphasize that a flagged error correction protocol for a distance $d$ QECC does not strictly require its circuits to satisfy the full $t$-flag condition where $t = \lfloor \frac{d-1}{2} \rfloor$. Depending on the design of the control flow, a weaker condition may suffice. Specifically, paths terminating via Condition 2 of Definition~\ref{def:control-flow-validity} only need to satisfy a reduced $(t-w)$-flag condition (Definition~\ref{def:flag}). For example, in the $[[19,1,5]]$ protocol presented in~\cite{Liou25}, the control flow guarantees that any path satisfying Condition 2 will have already detected at least one fault ($w \geq 1$). Consequently, for $t=2$, the constituent circuits only need to satisfy a $1$-flag condition.
+% We emphasize that a flagged error correction protocol for a distance $d$ QECC does not strictly require its circuits to satisfy the full $t$-flag condition where $t = \lfloor \frac{d-1}{2} \rfloor$. Depending on the design of the control flow, a weaker condition may suffice. Specifically, paths terminating via Condition 2 of Definition~\ref{def:protocol-validity} only need to satisfy a reduced $(t-w)$-flag condition (Definition~\ref{def:flag}). For example, in the $[[19,1,5]]$ protocol presented in~\cite{Liou25}, the control flow guarantees that any path satisfying Condition 2 will have already detected at least one fault ($w \geq 1$). Consequently, for $t=2$, the constituent circuits only need to satisfy a $1$-flag condition.
 
 
 
@@ -1008,7 +1001,7 @@ Since the purpose of flag qubits is to signal high-weight error propagation even
 %     For each path and every measurement record $m$ from a fault event with at most $t$ faults, we define $\mathcal{E}_m$ as the error set containing all possible remaining data errors. 
 % \end{definition}
 
-% To establish that a path of the control flow satisfies Condition (1) of Def~\ref{def:control-flow-validity}, we must verify that for every measurement record $m$ along that path, the error set $\mathcal{E}_m$ is syndrome-consistent—meaning that all errors within the set share the same ideal syndrome.
+% To establish that a path of the control flow satisfies Condition (1) of Def~\ref{def:protocol-validity}, we must verify that for every measurement record $m$ along that path, the error set $\mathcal{E}_m$ is syndrome-consistent—meaning that all errors within the set share the same ideal syndrome.
 
 % To establish that a path satisfies Condition (2), we only need to verify that at least $w$ faults have occurred , followed by $t-w+1$ consecutive full syndrome extraction rounds yielding identical results without any flag raised. %In this scenario, we do not rely on the error set $\mathcal{E}_m$.
 
@@ -1019,37 +1012,54 @@ Since the purpose of flag qubits is to signal high-weight error propagation even
 
 
 % \begin{definition}
-%     For a flagged error correction protocol, a \textit{suitable decoder} is one that, for each path satisfying Condition (1) or (2) in Def~\ref{def:control-flow-validity} with measurement record $m$, outputs a correction $C \in \mathcal{E}_m$. For any path satisfying Condition (3) in Def~\ref{def:control-flow-validity}, the decoder outputs a trivial correction (i.e., applying the identity operator to all data qubits).
+%     For a flagged error correction protocol, a \textit{suitable decoder} is one that, for each path satisfying Condition (1) or (2) in Def~\ref{def:protocol-validity} with measurement record $m$, outputs a correction $C \in \mathcal{E}_m$. For any path satisfying Condition (3) in Def~\ref{def:protocol-validity}, the decoder outputs a trivial correction (i.e., applying the identity operator to all data qubits).
 % \end{definition}\label{def:decoder}
 
 % The definition only specifies the required behavior of the decoder in each
 % termination case. The next lemma shows that, if the control flow is valid 
-% (Def.~\ref{def:control-flow-validity}), such a decoder is well defined.
+% (Def.~\ref{def:protocol-validity}), such a decoder is well defined.
 
 
 
 % \begin{lemma}
-%     For any flagged error correction protocol whose control flow satisfies Definition~\ref{def:control-flow-validity}, a suitable decoder always exists.
+%     For any flagged error correction protocol whose control flow satisfies Definition~\ref{def:protocol-validity}, a suitable decoder always exists.
 % \end{lemma}
 
 % \begin{proof}
-%     For any fault event of weight $\leq t$, consider any path in the control flow that satisfies either Condition (1) or (2) of Definition~\ref{def:control-flow-validity}. Because these conditions are met, the corresponding error set $\mathcal{E}_m$ associated with the measurement record $m$ is guaranteed to be non-empty. Consequently, there always exists at least one valid correction operator $C \in \mathcal{E}_m$. For any path satisfying Condition (3), we can unconditionally assign a trivial correction (the identity operator). Thus, a suitable decoder can always be constructed for the protocol. 
+%     For any fault event of weight $\leq t$, consider any path in the control flow that satisfies either Condition (1) or (2) of Definition~\ref{def:protocol-validity}. Because these conditions are met, the corresponding error set $\mathcal{E}_m$ associated with the measurement record $m$ is guaranteed to be non-empty. Consequently, there always exists at least one valid correction operator $C \in \mathcal{E}_m$. For any path satisfying Condition (3), we can unconditionally assign a trivial correction (the identity operator). Thus, a suitable decoder can always be constructed for the protocol. 
 % \end{proof}
 
-The preceding definitions specify when a flagged error correction protocol is
-well formed for the purpose of fault-tolerant recovery: the extraction circuits must provide valid measurement records, the control flow must terminate in one of the intended cases, and the flag condition must hold whenever the argument relies on unflagged full syndrome extraction rounds (Condition 2). We collect these requirements into a single protocol-level validity condition.
+The following definition collects the circuit, control-flow, and
+flag requirements needed for fault-tolerant recovery.
 
-\begin{definition}
+\begin{definition}[Protocol validity]
 \label{def:protocol-validity}
-A flagged error correction protocol is valid if all the following condition satisfies:
+A flagged error correction protocol is \emph{valid} if:
 \begin{enumerate}
-    \item All syndrome extraction circuits used in this protocol are valid (Def \ref{def:syndrome-extraction-valid}).
-    \item The control flow of the protocol is valid (Def \ref{def:control-flow-validity}).
-    \item For each terminating path satisfying Condition (2) of Def.~\ref{def:control-flow-validity} with $w$ detected faults, the full syndrome extraction circuit $C$ used in the repeated-syndrome suffix must satisfy the $(t-w)$-flag condition (Def.~\ref{def:flag}). 
+    \item All its syndrome extraction circuits are valid
+    (Def.~\ref{def:syndrome-extraction-valid}).
+    \item Every terminating path satisfies at least one of the following
+    conditions under the fault bound $t$:
+    \begin{enumerate}
+        \item \textbf{Condition (1):} The measurement record indicates
+        that $t$ faults have been detected, and all residual errors
+        associated with the same record have the same ideal syndrome.
+        \item \textbf{Condition (2):} At least $w<t$ circuit faults
+        have been detected, followed by $t-w+1$ consecutive full
+        syndrome extraction rounds with identical syndrome outcomes
+        and no raised flags.
+        \item \textbf{Condition (3):} For every input data error of
+        weight $r$ and every execution with $s$ circuit faults
+        satisfying $r+s\le t$, the residual data error has
+        minimum weight $\mathrm{wt}_{\min}$ at most $s$.
+    \end{enumerate}
+    \item For every terminating path satisfying Condition (2) with
+    detected-fault lower bound $w$, the full syndrome extraction
+    circuit used in its repeated-syndrome suffix satisfies the
+    $(t-w)$-flag condition (Def.~\ref{def:flag}).
 \end{enumerate}
-The flag-condition requirement applies to every terminating path satisfying
-Condition (2), regardless of whether the path also satisfies Condition (1)
-or Condition (3).
+The flag requirement applies whenever Condition (2) holds, even
+if the same path also satisfies Condition (1) or Condition (3).
 \end{definition}
 
 
@@ -1491,7 +1501,7 @@ Fault bound $t$
 \node[box, below=of input] (circuit) {
 \textbf{Protocol Validity (Def.~\ref{def:protocol-validity})}\\
 Circuit Validity Check (Def.~\ref{def:syndrome-extraction-valid})\\
-Control Flow Validity Check (Def.~\ref{def:control-flow-validity})\\
+Control Flow Validity Check (Def.~\ref{def:protocol-validity})\\
 Flag Condition Check (Def.~\ref{def:flag})
 };
 
@@ -2087,10 +2097,10 @@ Thm.~\ref{thm:mains} on the path $\pi$.
 
 
 
-\subsubsection{Check for Condition~(1) of Def.~\ref{def:control-flow-validity} used in Thm.~\ref{thm:mains}}
+\subsubsection{Check for Condition~(1) of Def.~\ref{def:protocol-validity} used in Thm.~\ref{thm:mains}}
 \label{subsec:cf-validity-condition1}
 
-We next describe the SAT check for the assumption of Condition~(1) in Def.~\ref{def:control-flow-validity}, as required by Thm.~\ref{thm:mains}. We must check that if a path satisfies Condition~(1), any executions that produce the same measurement record leave residual data errors with the same ideal syndrome. Therefore, the verifier searches for a counterexample: two executions that follow the same terminating path and produce the same measurement record, but whose residual data errors have different ideal syndromes.
+We next describe the SAT check for the assumption of Condition~(1) in Def.~\ref{def:protocol-validity}, as required by Thm.~\ref{thm:mains}. We must check that if a path satisfies Condition~(1), any executions that produce the same measurement record leave residual data errors with the same ideal syndrome. Therefore, the verifier searches for a counterexample: two executions that follow the same terminating path and produce the same measurement record, but whose residual data errors have different ideal syndromes.
 
 For each terminating path $\pi$ intended to satisfy Condition (1), the verifier
 checks satisfiability of the formula
@@ -2149,7 +2159,7 @@ is encoded as
 
 If $\Psi^{\mathrm{CF1}}_\pi$ is satisfiable, then the same measurement record
 can correspond to two different ideal syndromes, so Condition (1) of
-Def.~\ref{def:control-flow-validity} fails on $\pi$. If the formula is
+Def.~\ref{def:protocol-validity} fails on $\pi$. If the formula is
 unsatisfiable, the record uniquely determines the ideal syndrome
 for all executions on $\pi$ within the fault bound.
 
@@ -2158,7 +2168,7 @@ for all executions on $\pi$ within the fault bound.
 
 
 We next describe the SAT check for Condition (3) of
-Def.~\ref{def:control-flow-validity}. This condition applies to terminating
+Def.~\ref{def:protocol-validity}. This condition applies to terminating
 paths for which the decoder applies the trivial correction. For an input
 error of weight $r$ and $w$ circuit faults with $r+w\le t$, the residual
 data error must have minimum weight at most $w$.
@@ -2307,7 +2317,7 @@ To encode the condition $\mathrm{wt}_{\min}(E_\pi(\mathcal{F})) > w$, we must as
 
 If $\Psi^{\mathrm{CF3}}_{\pi,w}$ is satisfiable for some $w$, then there is a
 $w$-fault execution on $\pi$ whose residual data error has minimum  weight larger
-than $w$, so Condition (3) of Def.~\ref{def:control-flow-validity} fails on
+than $w$, so Condition (3) of Def.~\ref{def:protocol-validity} fails on
 $\pi$. If the formula is unsatisfiable for every $w=0,\ldots,t$, then
 Condition (3) holds on $\pi$.
 
@@ -2316,7 +2326,7 @@ Condition (3) holds on $\pi$.
 
 We check the flag-condition requirement in Def.~\ref{def:protocol-validity}
 only for terminating paths satisfying Condition (2) of
-Def.~\ref{def:control-flow-validity}. For
+Def.~\ref{def:protocol-validity}. For
 such a path, the direct inspection used in the control-flow validity check
 determines the number $w$ of detected faults on the path. The protocol validity
 condition then requires the full syndrome extraction circuit used in the
@@ -2447,7 +2457,7 @@ The remaining checks use different mechanisms.
 The second part of circuit validity verification
 uses fault-free stabilizer-tableau simulation,
 while Condition (2) of
-Def.~\ref{def:control-flow-validity}
+Def.~\ref{def:protocol-validity}
 is checked directly from the structure of
 the terminating path.
 
@@ -2503,7 +2513,7 @@ and is rejected by the verifier.
 \subsubsection{Control-Flow Validity: Condition (2)}
 \label{subsec:cf-validity-condition2}
 
-Condition (2) of Def.~\ref{def:control-flow-validity} is checked by direct
+Condition (2) of Def.~\ref{def:protocol-validity} is checked by direct
 inspection of terminating paths. This condition applies to paths that terminate
 after a repeated full-syndrome suffix. For each such path $\pi$, the verifier
 infers a detected-fault lower bound $w$ from the preceding measurement
@@ -2565,7 +2575,7 @@ Def.~\ref{def:syndrome-extraction-valid} by stabilizer-tableau simulation and SA
 
 
 \textsc{ControlFlowValidity} checks whether at least one of the three
-conditions in Def.~\ref{def:control-flow-validity} holds for the path $\pi$.
+conditions in Def.~\ref{def:protocol-validity} holds for the path $\pi$.
 It returns success if any condition is satisfied, and failure otherwise.
 For Condition (1), it checks that the record indicates $t$ detected
 faults and that $\Psi^{\mathrm{CF1}}_\pi$ is unsatisfiable.
