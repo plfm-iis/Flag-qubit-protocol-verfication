@@ -1548,7 +1548,7 @@ below, followed by their staged execution in the overall algorithm.
 We first define the symbolic objects used by the SAT-based checks.
 The verifier analyzes each terminating path of the protocol separately.
 Let $\pi$ be a terminating path, and let $\mathcal{L}_\pi$ denote the set of
-fault locations along $\pi$.A \emph{fault assignment} is defined as a tuple $\mathcal{F} = (\mathcal{F}_{\text{in}}, \mathcal{F}_{\text{circ}})$, where $\mathcal{F}_{\text{in}}$ denotes the input data error and $\mathcal{F}_{\text{circ}}$ assigns a Pauli fault to each location in $\mathcal{L}_\pi$.
+fault locations along $\pi$. A \emph{fault assignment} is defined as a tuple $\mathcal{F} = (\mathcal{F}_{\text{in}}, \mathcal{F}_{\text{circ}})$, where $\mathcal{F}_{\text{in}}$ denotes the input data error and $\mathcal{F}_{\text{circ}}$ assigns a Pauli fault to each location in $\mathcal{L}_\pi$.
 
 For a data qubit $q_i$, the input is represented by two variables $(q_{i,x}, q_{i,z})$. We introduce an activity variable $a_{i} \in \{0,1\}$ to indicate whether the qubit has an input error:
 \begin{equation}
@@ -1571,7 +1571,7 @@ x_{\ell,q_2}\vee z_{\ell,q_2}.
 \end{equation}
 
 Thus, $a_\ell=1$ exactly when the fault assigned to $\ell$ is not the
-identity. The input error weight of $\mathcal{F_{in}}$ and fault weight of $\mathcal{F}_{circ}$ is then
+identity. The input error weight of $\mathcal{F}_{\mathrm{in}}$ and the circuit fault count of $\mathcal{F}_{\mathrm{circ}}$ are then
 \[
 \mathrm{wt}(\mathcal{F}_{in})
 =
@@ -2310,9 +2310,9 @@ Condition (3) holds on $\pi$.
 We check the flag-condition requirement in Def.~\ref{def:protocol-validity}
 only for terminating paths satisfying Condition (2) of
 Def.~\ref{def:protocol-validity}. For
-such a path, the direct inspection used in the control-flow validity check
-determines the number $w$ of detected faults on the path. The protocol validity
-condition then requires the full syndrome extraction circuit used in the
+such a path, the structural check for Condition (2)
+determines the detected-fault lower bound $w$ on the path. Protocol validity
+then requires the full syndrome extraction circuit used in the
 repeated-syndrome suffix to satisfy the $(t-w)$-flag condition.
 
 
