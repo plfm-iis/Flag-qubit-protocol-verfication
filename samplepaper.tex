@@ -3140,8 +3140,8 @@ The complete evolution of these generators is detailed in Table~\ref{tab:stabili
 \section{Conclusion}
 
 In this paper, we presented a formal verification framework for fault-tolerant flagged error correction protocols. 
-Rather than explicitly constructing a decoder, we established that, for a valid protocol, an FTEC decoder exists if and only if the residual error set for every reachable measurement record is correctable. 
-Our SAT-based approach checks protocol validity and error-set correctability independently, accepting a protocol as FTEC only when both checks pass, and identifies concrete design flaws in flagged protocols.
+Rather than explicitly constructing a decoder, we established that, when the extraction circuits and protocol are valid, an FTEC decoder exists if and only if the residual error set for every reachable measurement record is correctable.
+Our framework first checks circuit validity and then separately verifies protocol validity and error-set correctability using SAT-based and structural checks. A protocol is accepted as FTEC only when all three properties hold. The verifier also identifies concrete design flaws in flagged protocols.
 In particular, it can help detect errors that are difficult to uncover by
 manual verification, especially in optimized protocols with reduced circuit
 depth, flag-qubit sharing, or adaptive control flow.
@@ -3233,6 +3233,9 @@ measurement-based quantum computation.
 All Pauli products are considered up to global phase. Throughout the proof,
 $r$ denotes the input error weight and $s$ the number of circuit faults,
 with $r+s\le t$, as in Def.~\ref{def:measurement-record-and-residual-error}.
+Since every extraction circuit is valid by the theorem's premise,
+the measurement records and residual errors in $\mathcal E_m$
+correspond to the executions under the assumed fault model.
 For a fixed measurement record $m$, the decoder must use the same correction
 for every execution represented in $\mathcal E_m$.
 
@@ -3271,7 +3274,7 @@ We choose a correction for each reachable record according to the
 termination condition of its path and prove the two FTEC requirements.
 
 \paragraph{Termination Condition (1).}
-By control-flow validity, all errors in $\mathcal E_m$ have the same
+By protocol validity, all errors in $\mathcal E_m$ have the same
 ideal syndrome. Choose any representative $C\in\mathcal E_m$ as the
 decoder output. For every $E\in\mathcal E_m$, equal syndromes imply
 $E\cdot C\in N(\cS)$. The assumed pairwise condition then gives
@@ -3333,7 +3336,7 @@ ideal decoding removes it, proving FTEC~(1).
 
 \paragraph{Termination Condition (3).}
 Choose the identity correction, $D(m)=I$.
-By Condition~(3) of control-flow validity, every execution with
+By Condition~(3) of protocol validity, every execution with
 $r+s\le t$ producing $m$ has residual error $E\in\mathcal E_m$ satisfying
 \[
  \mathrm{wt}_{\min}(E)\le s.
