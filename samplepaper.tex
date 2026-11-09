@@ -132,8 +132,8 @@
 
 
 Fault-tolerant syndrome extraction with flag qubits provides a resource-efficient approach to quantum error correction by using measurement outcomes to adapt the subsequent error-correction procedure. This adaptive control flow, however, makes correctness difficult to verify: to guarantee correction of a specified set of faults, any two non-equivalent faults must be distinguishable by the resulting execution paths and measurement records, since they may require incompatible recoveries. 
-In this work, we establish a criterion for verifying a fault-tolerant lookup-table decoder without explicitly constructing the table: for a valid protocol, such a decoder exists if and only if the residual error set for every reachable measurement record is correctable. 
-We develop a formal verification framework that symbolically tracks Pauli faults, measurement outcomes, and adaptive control flow, and checks protocol validity and error-set correctability separately using SAT solving. 
+In this work, we establish a criterion for verifying a fault-tolerant lookup-table decoder without explicitly constructing the table: when the syndrome extraction circuits and the protocol are valid, such a decoder exists if and only if the residual error set for every reachable measurement record is correctable.
+We develop a formal verification framework that first checks circuit validity, then uses symbolic Pauli fault propagation and SAT solving to verify error-set correctability and protocol validity, including control-flow and flag requirements. 
 We evaluate the framework on representative flagged protocols from the literature, successfully validating known constructions and exposing errors in previously published protocols.
 
 
@@ -244,9 +244,10 @@ verification condition directly in terms of the residual-error sets associated
 with measurement records, rather than a preselected decoder.
 
 
-Our main characterization shows that, for a valid flagged fault-tolerant error
-correction protocol, FTEC is achieved if and only if no two residual errors
-associated with the same measurement record differ by a
+Our main characterization shows that, when the syndrome extraction circuits
+and the flagged error correction protocol are valid, an FTEC lookup-table
+decoder exists if and only if no two residual errors associated with the
+same measurement record differ by a
 \emph{nontrivial logical operator}~\cite{KL97,Got97}.
 When this condition holds, each measurement record can be assigned a recovery that corrects
 all compatible residual errors. When it fails, the same measurement record is
@@ -254,17 +255,17 @@ compatible with two logically inequivalent residual errors, and no recovery
 depending only on that record can correctly handle both cases.
 
 
-Based on this characterization, we develop a SAT-based verification framework.
-We formulate the syndrome extraction circuits and fault events as SAT
-constraints and search for pairs of fault events that produce the same
-measurement record but leave residual errors whose product is a nontrivial
-logical operator. A satisfying assignment provides an explicit counterexample
-to FTEC, while the absence of such an assignment establishes that a suitable
-lookup-table decoder exists. 
-We symbolically execute each protocol path, tracking Pauli errors
-and measurement outcomes as Boolean formulas over fault variables.
-The resulting path conditions and residual errors define the SAT
-queries used to check protocol validity and decoder existence.
+Based on this characterization, we develop a staged verification framework.
+We first verify the correctness and determinism of the syndrome extraction
+circuits. Only if circuit validity passes do we check error-set correctability
+and protocol validity, which includes control-flow termination and flag
+requirements. We symbolically execute protocol paths, tracking Pauli errors
+and measurement outcomes as Boolean formulas over fault variables, and use
+SAT queries to search for incompatible residual errors with the same
+measurement record. A satisfying assignment gives a correctability
+counterexample; when all such queries are unsatisfiable and protocol
+validity holds, our characterization establishes the existence of
+an FTEC lookup-table decoder.
 
 
 
