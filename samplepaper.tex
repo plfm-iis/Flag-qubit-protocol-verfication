@@ -3293,11 +3293,13 @@ fault-free and reports the ideal syndrome of its input data error.
 Consider the execution obtained by keeping the same input error and all
 faults before this fault-free round, and removing all faults after it.
 The measurement outcomes through the fault-free round are unchanged.
-Every subsequent round is now fault-free, so circuit correctness gives
+Every subsequent round is now fault-free, so circuit validity gives
 the same ideal syndrome as the fault-free round, and the no-fault
 flag property ensures that no flags are raised even in the presence
 of the incoming data error. Since the original suffix also had this
-syndrome in every round and no raised flags, the modified execution
+syndrome in every round and no raised flags, the outcomes of each
+subsequent round agree with the original execution. Inductively, all
+later branch guards select the same branches, so the modified execution
 follows the same terminating path and produces the same record $m$.
 Removing faults cannot increase the fault count, so its residual
 error, equivalent to the data error at the fault-free round, belongs
