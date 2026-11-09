@@ -10,6 +10,7 @@ on:
       - '!AGENTS.md'
       - '!PAPER_CONTEXT.md'
       - '!CLAIMS.md'
+      - '.github/overleaf-reconcile-request.json'
   schedule:
     - cron: '*/5 * * * *'
   workflow_dispatch:
