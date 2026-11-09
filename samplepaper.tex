@@ -1029,15 +1029,15 @@ Since the purpose of flag qubits is to signal high-weight error propagation even
 %     For any fault event of weight $\leq t$, consider any path in the control flow that satisfies either Condition (1) or (2) of Definition~\ref{def:protocol-validity}. Because these conditions are met, the corresponding error set $\mathcal{E}_m$ associated with the measurement record $m$ is guaranteed to be non-empty. Consequently, there always exists at least one valid correction operator $C \in \mathcal{E}_m$. For any path satisfying Condition (3), we can unconditionally assign a trivial correction (the identity operator). Thus, a suitable decoder can always be constructed for the protocol. 
 % \end{proof}
 
-The following definition collects the circuit, control-flow, and
-flag requirements needed for fault-tolerant recovery.
+Circuit validity is defined separately in
+Def.~\ref{def:syndrome-extraction-valid}. The following protocol-validity
+definition combines the control-flow termination requirements with the
+required flag conditions.
 
 \begin{definition}[Protocol validity]
 \label{def:protocol-validity}
-A flagged error correction protocol is \emph{valid} if:
+A flagged error correction protocol satisfies \emph{protocol validity} if:
 \begin{enumerate}
-    \item All its syndrome extraction circuits are valid
-    (Def.~\ref{def:syndrome-extraction-valid}).
     \item Every terminating path satisfies at least one of the following
     conditions under the fault bound $t$:
     \begin{enumerate}
@@ -1067,8 +1067,8 @@ if the same path also satisfies Condition (1) or Condition (3).
 % Each internal node represents a syndrome extraction circuit, and each outgoing edge is labeled by a branch condition on the syndrome and flag outcomes. A terminating path determines the corresponding measurement record. In this example,
 % The paths ending at Decoder 1--4 satisfy termination condition (2). The branch condition $m_i=1 \vee f_i=1$ indicates that at least one fault has been detected, so $w=1$. Since $t-w+1=1$, condition (2) requires only one full syndrome extraction circuit in the terminating suffix; this is the blue node immediately before the decoder. The path ending at the End node satisfies
 % termination condition (3).
-Protocol validity and error-set correctability are verified separately;
-both must pass for the verifier to accept the protocol as FTEC.
+Circuit validity, protocol validity, and error-set correctability
+must all hold for the verifier to accept a protocol as FTEC.
 For protocol validity, every terminating path must satisfy at least
 one of the following termination conditions.
 Condition (1) requires the measurement record to determine the
@@ -1085,8 +1085,11 @@ in Section~\ref{sec:FTEC-verification}.
 \label{thm:mains}
 Consider a flagged error-correction protocol $\Pi$ for a stabilizer
 code with stabilizer group $\cS$, distance $d$, and
-$t=\lfloor (d-1)/2 \rfloor$. Assume that $\Pi$ is valid in the sense of
-Def.~\ref{def:protocol-validity}. For each record $m$, let $\mathcal E_m$ be the residual error set
+$t=\lfloor (d-1)/2 \rfloor$. Assume that every syndrome extraction
+circuit used in $\Pi$ is valid according to
+Def.~\ref{def:syndrome-extraction-valid}, and that $\Pi$ satisfies
+protocol validity (Def.~\ref{def:protocol-validity}).
+For each record $m$, let $\mathcal E_m$ be the residual error set
 from Def.~\ref{def:measurement-record-and-residual-error}.
 Then there exists a lookup-table decoder $D$ such that $(\Pi,D)$
 satisfies FTEC if and only if, for every measurement record $m$,
@@ -2591,8 +2594,10 @@ path satisfying Condition (2), even if another termination condition also holds.
 \begin{theorem}[Verification correctness]
 \label{thm:verification-correctness}
 Algorithm~\ref{alg:ftec-verification} returns $(v,c)$, where
-$v=\mathrm{true}$ if and only if $\Pi$ satisfies
-Def.~\ref{def:protocol-validity}, and $c=\mathrm{true}$ if and
+$v=\mathrm{true}$ if and only if every extraction circuit is valid
+(Def.~\ref{def:syndrome-extraction-valid}) and $\Pi$ satisfies
+protocol validity (Def.~\ref{def:protocol-validity}), and
+$c=\mathrm{true}$ if and
 only if $\mathcal E_m^{\mathrm{sym}}$ is correctable for every
 complete measurement record $m$. If the constituent syndrome
 extraction circuits are valid, then, under the assumed Pauli fault
@@ -2604,9 +2609,10 @@ such that $(\Pi,D)$ satisfies FTEC.
 \end{theorem}
 
 \begin{proof}
-The circuit-validity, control-flow-validity, and flag-condition checks
-are precisely the requirements of Def.~\ref{def:protocol-validity};
-hence $v$ remains true exactly when the protocol is valid.
+The circuit-validity check establishes
+Def.~\ref{def:syndrome-extraction-valid}, while the control-flow and
+flag-condition checks establish Def.~\ref{def:protocol-validity}.
+Hence $v$ remains true exactly when both validity requirements hold.
 By construction, $\Psi^{\mathrm{Corr}}_\pi$ is satisfiable exactly
 when two admissible symbolic fault assignments on $\pi$ produce
 the same symbolic record but leave errors whose product lies in
