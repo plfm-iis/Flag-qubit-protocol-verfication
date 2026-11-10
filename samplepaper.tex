@@ -26,6 +26,7 @@
 %% Packages
 \usepackage{multirow}
 \usepackage{booktabs} % For formal tables
+\usepackage{enumitem}
 \usepackage{stmaryrd}
 \usepackage{adjustbox}
 \usepackage{subcaption}
@@ -799,8 +800,9 @@ Condition~(1) of Definition~\ref{def:weak-FTEC} guarantees that the output state
 \label{subsec:flagged-protocols}
 
 
-\begin{wrapfigure}{r}{0.4\textwidth}
+\begin{wrapfigure}[13]{r}{0.35\textwidth}
 \centering
+\vspace{-4mm}
 \begin{adjustbox}{max width=\textwidth,valign=t}
 \scriptsize
 \begin{tikzpicture}[
@@ -898,7 +900,6 @@ are stated as Conditions (1)--(3) in
 Def.~\ref{def:protocol-validity}. Condition (3) covers the case where
 no additional syndrome information is required because the residual
 error is already bounded by the number of circuit faults.
-
 Fig.~\ref{fig:five-qubit-flagged-protocol} illustrates a control flow  of  flagged protocol on the $[[5,1,3]]$ code where $d=3$, $t= \lfloor \frac{3-1}{2 } \rfloor$. 
 
 % For protocols with small code distance, the completeness of such a decision tree can be verified by
@@ -1031,9 +1032,9 @@ required flag conditions.
 \begin{definition}[Protocol validity]
 \label{def:protocol-validity}
 A flagged error correction protocol satisfies \emph{protocol validity} if:
-\begin{enumerate}
+\begin{enumerate}[leftmargin=*]
     \item Every terminating path satisfies at least one of the following
-    conditions under the fault bound $t$:
+    conditions under fault bound~$t$:
     \begin{enumerate}
         \item \textbf{Condition (1):} The measurement record indicates
         that $t$ faults have been detected, and all residual errors
@@ -2527,18 +2528,18 @@ by Thm.~\ref{thm:mains}.
 \ForEach{syndrome extraction circuit $C$ used in $\Pi$}{
     \lIf{\textsc{CircuitValidity}$(C)$ fails}{\Return $(\mathrm{false},\bot,\bot)$}
 }
-$v_{\mathrm{circ}}\gets\mathrm{true}$\;
-
-$c\gets\mathrm{true}$\;
+$v_{\mathrm{circ}}\gets\mathrm{true}$; 
+$c\gets\mathrm{true}$;
+$v_{\mathrm{prot}}\gets\mathrm{true}$\;
 \ForEach{terminating path $\pi\in\Pi$}{
     \lIf{$\Psi^{\mathrm{Corr}}_\pi$ is SAT}{$c\gets\mathrm{false}$}
 }
 
-$v_{\mathrm{prot}}\gets\mathrm{true}$\;
+
 \ForEach{terminating path $\pi\in\Pi$}{
     \lIf{\textsc{ControlFlowValidity}$(\pi,t)$ fails}{$v_{\mathrm{prot}}\gets\mathrm{false}$}
-    \If{$\pi$ satisfies the termination requirements of Condition (2) with detected-fault lower bound $w$}{
-        Let $C$ be the full syndrome extraction circuit used in the repeated-syndrome suffix of $\pi$\;
+    \If{$\pi$ satisfies the termination condition (2) with detected-fault lower bound $w$}{
+        Let $C$ be the full syndrome extraction circuit used in $\pi$'s repeated-syndrome suffix\;
         \lIf{\textsc{FlagCondition}$(C,t-w)$ fails}{$v_{\mathrm{prot}}\gets\mathrm{false}$}
     }
 }
@@ -2597,30 +2598,6 @@ three properties. If all three hold,
 Thm.~\ref{thm:mains} guarantees the existence
 of an FTEC lookup-table decoder.
 \end{proof}
-
-\section{Related Work}
-
-Recent works have made significant progress in verifying quantum error correction circuits using SAT solvers. For example, Chen et al.~\cite{chen2025verifying} employ symbolic execution to check if injected faults in quantum gadgets violate fault-tolerance conditions. Similarly, Huang et al.~\cite{10.1145/3729293} introduce Veri-QEC, a formal verification framework that translates Pauli errors into classical assertions solved by SAT solvers. 
-
-However, applying these general methods to flagged syndrome extraction circuits creates a major bottleneck if an explicit decoder is not provided. In these frameworks, two distinct faults might produce the exact same syndrome. Without a predefined decoder to resolve this ambiguity, their tools cannot determine whether the post-recovery state will actually cause a logical error. 
-Furthermore, weight greater than $t$ does not imply uncorrectability:
-an error may be stabilizer-equivalent to one of lower weight.
-This occurs naturally when a fault propagates to multiple data qubits
-in a flagged protocol.
-
-Our work bypasses these limitations by adopting a specialized approach. By focusing strictly on flagged fault-tolerant error correction protocols, we completely eliminate the need for an explicit decoder during the verification process.
-Rather than constructing a decoder and evaluating its performance, we establish a theorem that characterizes FTEC directly in terms of the residual-error sets associated with measurement records.
-Beyond these theoretical guarantees, our framework demonstrates clear practical utility: by applying our method, we successfully identified previously unknown design flaws in published flagged error correction protocols.
-\paragraph{Other automatic approaches for quantum circuit verification.}
-
-Beyond quantum error correction, a variety of automated techniques have been developed for quantum circuit and program verification. Symbolic-execution-based approaches, such as SymQV~\cite{BauerMarquartLS23}, encode circuit semantics and verification conditions as SMT queries. Other works use automata-based representations of quantum states and symbolic gate execution~\cite{ChenCLLTY23,ChenCLLT23,abdulla2025verifying,autoq2,abdulla2026parameterized}, SMT array theories~\cite{chen2023theory}, or abstract interpretation~\cite{yu2021quantum,perdrix2008quantum} to reason about quantum programs.
-
-These techniques have primarily been evaluated on functional correctness properties of quantum circuits and programs rather than fault-tolerance properties of quantum error-correction protocols. Nevertheless, many of the underlying ideas, such as symbolic execution, symbolic state representations, and automated constraint solving, appear potentially applicable to QECC verification as well. 
-These techniques provide useful foundations for automated QECC verification, but their application to fault-tolerance properties involving fault propagation, stabilizer degeneracy, and recovery correctness requires additional structure.
-
-
-
-Our work represents one step in this direction. By exploiting the structure of flagged syndrome-extraction protocols, we obtain a SAT-based verification procedure that avoids explicit decoder construction while still providing a complete correctness guarantee.
 
 
 \section{Results}
@@ -3135,6 +3112,30 @@ The complete evolution of these generators is detailed in Table~\ref{tab:stabili
     \end{minipage}
 \end{figure}
 
+
+\section{Related Work}
+
+Recent works have made significant progress in verifying quantum error correction circuits using SAT solvers. For example, Chen et al.~\cite{chen2025verifying} employ symbolic execution to check if injected faults in quantum gadgets violate fault-tolerance conditions. Similarly, Huang et al.~\cite{10.1145/3729293} introduce Veri-QEC, a formal verification framework that translates Pauli errors into classical assertions solved by SAT solvers. 
+
+However, applying these general methods to flagged syndrome extraction circuits creates a major bottleneck if an explicit decoder is not provided. In these frameworks, two distinct faults might produce the exact same syndrome. Without a predefined decoder to resolve this ambiguity, their tools cannot determine whether the post-recovery state will actually cause a logical error. 
+Furthermore, weight greater than $t$ does not imply uncorrectability:
+an error may be stabilizer-equivalent to one of lower weight.
+This occurs naturally when a fault propagates to multiple data qubits
+in a flagged protocol.
+
+Our work bypasses these limitations by adopting a specialized approach. By focusing strictly on flagged fault-tolerant error correction protocols, we completely eliminate the need for an explicit decoder during the verification process.
+Rather than constructing a decoder and evaluating its performance, we establish a theorem that characterizes FTEC directly in terms of the residual-error sets associated with measurement records.
+Beyond these theoretical guarantees, our framework demonstrates clear practical utility: by applying our method, we successfully identified previously unknown design flaws in published flagged error correction protocols.
+\paragraph{Other automatic approaches for quantum circuit verification.}
+
+Beyond quantum error correction, a variety of automated techniques have been developed for quantum circuit and program verification. Symbolic-execution-based approaches, such as SymQV~\cite{BauerMarquartLS23}, encode circuit semantics and verification conditions as SMT queries. Other works use automata-based representations of quantum states and symbolic gate execution~\cite{ChenCLLTY23,ChenCLLT23,abdulla2025verifying,autoq2,abdulla2026parameterized}, SMT array theories~\cite{chen2023theory}, or abstract interpretation~\cite{yu2021quantum,perdrix2008quantum} to reason about quantum programs.
+
+These techniques have primarily been evaluated on functional correctness properties of quantum circuits and programs rather than fault-tolerance properties of quantum error-correction protocols. Nevertheless, many of the underlying ideas, such as symbolic execution, symbolic state representations, and automated constraint solving, appear potentially applicable to QECC verification as well. 
+These techniques provide useful foundations for automated QECC verification, but their application to fault-tolerance properties involving fault propagation, stabilizer degeneracy, and recovery correctness requires additional structure.
+
+
+
+Our work represents one step in this direction. By exploiting the structure of flagged syndrome-extraction protocols, we obtain a SAT-based verification procedure that avoids explicit decoder construction while still providing a complete correctness guarantee.
 
 
 
