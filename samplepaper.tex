@@ -1517,18 +1517,16 @@ Same-record SAT check
 Control flow and flag conditions
 };
 
-\node[box, below=0.8cm of circuit, yshift=-1.5cm] (result) {
+\node[box, below=0.75cm of corr, xshift=0.105\textwidth] (result) {
 \textbf{Overall FTEC Verification}\\
 Accept iff both checks pass
 };
 
-\coordinate (split) [below=0.27cm of circuit];
-\draw[arrow] (input) -- (circuit);
-\draw (circuit.south) -- (split);
-\draw[arrow] (split) -| (corr.north);
-\draw[arrow] (split) -| (prot.north);
-\draw[arrow] (corr.south) -- (result.north);
-\draw[arrow] (prot.south) -- (result.north);
+\draw[arrow] (input.south) -- (circuit.north);
+\draw[arrow] ([xshift=-0.065\textwidth]circuit.south) -- (corr.north);
+\draw[arrow] ([xshift= 0.065\textwidth]circuit.south) -- (prot.north);
+\draw[arrow] (corr.south) -- ([xshift=-0.065\textwidth]result.north);
+\draw[arrow] (prot.south) -- ([xshift= 0.065\textwidth]result.north);
 
 \end{tikzpicture}
 \caption{SAT-based verification pipeline. After circuit validity passes, correctability and protocol validity are checked independently.}
