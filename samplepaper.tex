@@ -689,9 +689,9 @@ Input data errors and circuit-induced errors are represented separately even tho
   \centering
   
   % --- First Subfigure: Stacked to full width ---
-  \begin{subfigure}{\textwidth}
+  \begin{subfigure}[t]{0.49\textwidth}
     \centering
-    \begin{adjustbox}{max width=\textwidth}
+    \begin{adjustbox}{max width=\linewidth}
     \begin{quantikz}[column sep=0.3cm]
         \lstick{$Q_1$} & \gate[2]{U} & \gate[, style={draw=red}]{E} \gategroup[1, steps=1, style={dashed, rounded corners, fill=red!20, inner xsep=2pt}, background]{fault} & \gate[2]{V} & \qw \\
         \lstick{$Q_2$} &                           & \qw                                                         &                           & \qw 
@@ -708,16 +708,16 @@ Input data errors and circuit-induced errors are represented separately even tho
         \lstick{$Q_2$} &                           & \qw &                           & \qw     
     \end{quantikz}
     \end{adjustbox}
-    \subcaption{Equivalence between errors induced by a single-qubit fault and a 2-qubit gate fault.}
+    \subcaption{Single-qubit fault equivalence.}
     \label{fig:idle-2q-error-equivalence}
   \end{subfigure}
   
-  \vspace{0.6cm} % Adds breathing room between the stacked subfigures
+  \hfill
   
   % --- Second Subfigure: Stacked to full width ---
-  \begin{subfigure}{\textwidth}
+  \begin{subfigure}[t]{0.49\textwidth}
     \centering
-    \begin{adjustbox}{max width=0.8\textwidth}
+    \begin{adjustbox}{max width=\linewidth}
     \begin{quantikz}[column sep=0.5cm]
     \lstick{$Q_1$} & \gate[2]{U} & \qw & \qw \\
     \lstick{$Q_2$} &                           & \gate[, style={draw=red}]{E} \gategroup[1, steps=2, style={dashed, rounded corners, fill=red!20, inner xsep=8pt}, background, label style={xshift=0.2cm}]{measurement fault} & \meter{}
@@ -728,7 +728,7 @@ Input data errors and circuit-induced errors are represented separately even tho
         \lstick{$Q_2$} &                           & \gate[, style={draw=blue}]{E} & \meter{}
     \end{quantikz}
     \end{adjustbox}
-    \subcaption{Equivalence between errors induced by a measurement fault and a 2-qubit gate fault.}
+    \subcaption{Measurement fault equivalence.}
     \label{fig:meas-2q-error-equivalence}
   \end{subfigure}
 
