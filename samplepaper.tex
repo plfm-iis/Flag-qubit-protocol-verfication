@@ -2327,20 +2327,17 @@ Let $C$ be this full syndrome extraction circuit, and let $F_C$ be the
 set of flag qubits in $C$. For a fault assignment $\mathcal{F}$ on $C$,
 symbolic Pauli propagation produces a residual data error
 $E_C(\mathcal{F})$ and, for each flag qubit $q\in F_C$, a recorded flag
-outcome $f_q(\mathcal{F})$. Let $k=t-w$. We encode both violations of the
+outcome $f_q(\mathcal{F})$. Let $k=t-w$, and abbreviate
+$s=\mathrm{wt}(\mathcal{F}_{\mathrm{circ}})$. We encode both violations of the
 $k$-flag condition in a single SAT query:
 \begin{equation}
 \label{eq:flag-check}
 \begin{aligned}
 \Psi^{\mathrm{flag}}_{C,k}:=\exists\mathcal{F}.\quad
-&\bigl(\mathrm{wt}(\mathcal{F}_{\mathrm{circ}})=0
-\land \bigvee_{q\in F_C} f_q(\mathcal{F})\bigr)\\
-&\lor\Bigl(\mathcal{F}_{\mathrm{in}}=I
-\land \bigvee_{s=1}^{k}\bigl[
-\mathrm{wt}(\mathcal{F}_{\mathrm{circ}})=s\\
-&\qquad\land \bigwedge_{q\in F_C}\neg f_q(\mathcal{F})\\
-&\qquad\land \mathrm{wt}_{\min}(E_C(\mathcal{F}))>s
-\bigr]\Bigr).
+&\bigl(s=0\land\bigvee_{q\in F_C}f_q(\mathcal{F})\bigr)\\
+&\lor\bigl(\mathcal{F}_{\mathrm{in}}=I\land 1\le s\le k
+\land\neg\bigvee_{q\in F_C}f_q(\mathcal{F})
+\land\mathrm{wt}_{\min}(E_C(\mathcal{F}))>s\bigr).
 \end{aligned}
 \end{equation}
 
