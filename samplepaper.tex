@@ -2847,15 +2847,18 @@ Protocol & [Bha23] & [LL25] & [LL25]  & [LL25]  & [LL25] & [RC18]  & [Bha23] & [
 Total circuits & 14 & 2 & 2 & 2 & 2 & 6 & 4 & 14 & 2 \\
 Total paths & 13 & 2 & 2 & 2 & 2 & 5 & 4 & 19 & 4 \\
 \midrule
-\multicolumn{10}{c}{\textbf{Protocol Verification}} \\
+\multicolumn{10}{c}{\textbf{Circuit Validity Diagnostics}} \\
 \midrule
 Syndrome extraction bugs (circuit) & 0 & 0 & 2 & 2 & 0 & 0 & 0 & 0 & 0 \\
-Control flow bugs (path) & 4 & 0 & 0 & 0 & 0 & 0 & 0 & 6 & 1 \\
-Flag bugs (circuit) & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
 \midrule
 \multicolumn{10}{l}{\textit{Stim}} \\
 Stim Runtime (s) & 0.677 & 0.086 & 0.085 & 0.083 & 0.088 & 0.203 & 0.202 & 0.382 & 0.152 \\
 Stim Peak Mem (MB) & 216.8 & 223.8 & 197.4 & 215.0 & 203.3 & 199.3 & 220.9 & 204.4 & 198.8 \\
+\midrule
+\multicolumn{10}{c}{\textbf{Protocol Validity Diagnostics}} \\
+\midrule
+Control flow bugs (path) & 4 & 0 & 0 & 0 & 0 & 0 & 0 & 6 & 1 \\
+Flag bugs (circuit) & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
 \midrule
 \multicolumn{10}{l}{\textit{SAT Solver}} \\
 Peak Memory (MB) & 90.4 & 98.5 & 91.6 & 100.0 & 99.7 & 99.9 & 101.0 & 90.7 & 101.4 \\
@@ -2875,8 +2878,11 @@ Total CPU Time (s) & 10.7 & 4.2 & 3.9 & 4.2 & 4.2 & 5.2 & 6.1 & 16.3 & 1434.4 \\
 \#Vars & 279--626 & 366--626 & 374--624 & 376--624 & 369--634 & 348--626 & 396--770 & 274--803 & 2373--8973 \\
 \#Clauses & 2020--4576 & 2670--4588 & 2714--4620 & 2724--4620 & 2712--4648 & 2458--4578 & 2834--5738 & 1974--6033 & 20085--66716 \\
 \midrule
-Protocol valid & No & Yes & No & No & Yes & Yes & Yes & No & No \\
-Correctable & Yes & Yes & No & No & No & Yes & No & Yes & Yes \\
+\multicolumn{10}{c}{\textbf{Staged Verification Result}} \\
+\midrule
+Circuit valid & Yes & Yes & No & No & Yes & Yes & Yes & Yes & Yes \\
+Protocol valid & No & Yes & $\bot$ & $\bot$ & Yes & Yes & Yes & No & No \\
+Correctable & Yes & Yes & $\bot$ & $\bot$ & No & Yes & No & Yes & Yes \\
 \textbf{FTEC accepted} & \textbf{No} & \textbf{Yes} & \textbf{No} & \textbf{No} & \textbf{No} & \textbf{Yes} & \textbf{No} & \textbf{No} & \textbf{No} \\
 \bottomrule
 \end{tabular}%
@@ -2898,15 +2904,18 @@ Protocol & [LL25]  & [LL25]  & [LL25]  & [Du24]  & [CB18]  & [Du24]  & [CB18]  \
 Total circuits & 2 & 2 & 2 & 2 & 2 & 2 & 2 \\
 Total paths & 4 & 4 & 4 & 21 & 21 & 21 & 21 \\
 \midrule
-\multicolumn{8}{c}{\textbf{Protocol Verification}} \\
+\multicolumn{8}{c}{\textbf{Circuit Validity Diagnostics}} \\
 \midrule
 Syndrome extraction bugs (circuit) & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-Control flow bugs (path) & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-Flag bugs (circuit) & 0 & 0 & 0 & 1 & 0 & 1 & 0 \\
 \midrule
 \multicolumn{8}{l}{\textit{Stim}} \\
 Stim Runtime (s) & 0.156 & 0.146 & 0.140 & 0.135 & 0.143 & 0.154 & 0.150 \\
 Stim Peak Mem (MB) & 201.7 & 235.8 & 199.1 & 215.9 & 199.4 & 221.6 & 199.6 \\
+\midrule
+\multicolumn{8}{c}{\textbf{Protocol Validity Diagnostics}} \\
+\midrule
+Control flow bugs (path) & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+Flag bugs (circuit) & 0 & 0 & 0 & 1 & 0 & 1 & 0 \\
 \midrule
 \multicolumn{8}{l}{\textit{SAT Solver}} \\
 Peak Memory (MB) & 103.6 & 101.8 & 99.2 & 275.8 & 120.9 & 209.4 & 116.9 \\
@@ -2926,25 +2935,29 @@ Total CPU Time (s) & 1451.0 & 803.1 & 1183.0 & 39177.5 & 37422.7 & 60069.4 & 213
 \#Vars & 2362--8868 & 2045--7737 & 2041--7648 & 5466--11582 & 5494--11755 & 6586--14266 & 5372--11398 \\
 \#Clauses & 19960--66195 & 14394--57063 & 14304--56636 & 48370--122417 & 50906--120417 & 45341--119101 & 49264--123632 \\
 \midrule
+\multicolumn{8}{c}{\textbf{Staged Verification Result}} \\
+\midrule
+Circuit valid & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\
 Protocol valid & Yes & Yes & Yes & No & Yes & No & Yes \\
 Correctable & Yes & Yes & Yes & No & Yes & Yes & Yes \\
 \textbf{FTEC accepted} & \textbf{Yes} & \textbf{Yes} & \textbf{Yes} & \textbf{No} & \textbf{Yes} & \textbf{No} & \textbf{Yes} \\
 \bottomrule
 \end{tabular}%
 }
-\caption{Experimental results of circuit-validity, protocol-validity, and correctability checks (Top: Part 1, Bottom: Part 2). The reported checks were evaluated independently for diagnostic purposes; the staged verifier rejects circuit-invalid protocols before subsequent checks. FTEC is accepted only if all three properties hold. Total CPU Time includes symbolic execution and DIMACS export in addition to SAT solving.}
+\caption{Experimental results of circuit-validity, protocol-validity, and correctability checks (Top: Part 1, Bottom: Part 2). Diagnostic defect counts and performance measurements were collected independently, including for circuit-invalid protocols. The staged results follow Algorithm~\ref{alg:ftec-verification}: $\bot$ denotes a skipped check after circuit-validity failure, and FTEC is accepted only when all three checks pass. Total CPU Time includes symbolic execution and DIMACS export in addition to SAT solving.}
 \label{tab:combined-results}
 
 \end{table}
 
 \begin{itemize}
 
-    \item \textbf{Protocol Verification:} This block reports defect counts from the separate diagnostic checks. \emph{Syndrome extraction bugs} counts the circuits that fail circuit validity (Def.~\ref{def:syndrome-extraction-valid}) among the evaluated QASM circuits. \emph{Control-flow bugs} counts paths that fail the control-flow requirements. \emph{Flag bugs} counts circuits that fail the flag condition (Def.~\ref{def:flag}).
+    \item \textbf{Circuit Validity Diagnostics:} \emph{Syndrome extraction bugs} counts the evaluated QASM circuits that fail circuit validity (Def.~\ref{def:syndrome-extraction-valid}). The Stim rows report simulation costs for these diagnostic runs.
+    \item \textbf{Protocol Validity Diagnostics:} \emph{Control-flow bugs} counts paths that fail the termination requirements of Def.~\ref{def:protocol-validity}; \emph{flag bugs} counts circuits that fail the applicable flag condition (Def.~\ref{def:flag}). These independently collected diagnostic counts do not imply that the staged algorithm proceeded past an invalid circuit.
     \item \textbf{Stim:} These rows report the wall-clock runtime and peak memory required to run the complete Stim simulation for each setup.
     \item \textbf{SAT Solver:} 
     \emph{Total runtime} reflects the end-to-end wall time, encompassing Z3 constraint export and parallel SAT solving. \emph{Total SAT time} aggregates the per-path solver durations; because paths are solved concurrently, this sum can exceed the total wall time (conversely, on smaller instances, Z3 export overhead may dominate). This section also reports peak memory, total SAT calls, and the range (min--max) of variables (\#\textsc{vars}) and clauses (\#\textsc{clauses}) across the evaluated paths.
     \item \textbf{Correctability Verification:} This block reports the number of paths with correctability counterexamples in the symbolic fault model, together with runtime, memory, SAT calls, and formula-size ranges. These diagnostic checks were also run on circuit-invalid protocols for the reported experiments; their results do not establish physical correctability in that case.
-    \item \textbf{Overall result:} The tabulated \emph{Protocol valid} result is Yes only if circuit validity, control-flow requirements, and the applicable flag conditions all pass. The tabulated \emph{Correctable} result is Yes only if the independent symbolic checks find no correctability counterexample. For circuit-invalid protocols, this diagnostic result does not establish physical correctability; the staged verifier rejects them without performing the subsequent checks. \emph{FTEC accepted} is Yes only when circuit validity, protocol validity, and correctability all hold.
+    \item \textbf{Staged Verification Result:} \emph{Circuit valid}, \emph{Protocol valid}, and \emph{Correctable} correspond to $(v_{\mathrm{circ}},v_{\mathrm{prot}},c)$ in Algorithm~\ref{alg:ftec-verification}. If circuit validity fails, the latter two entries are $\bot$ (not evaluated), even though separate diagnostic measurements are reported above. \emph{FTEC accepted} is Yes exactly when all three checks pass.
 \end{itemize}
 
 
