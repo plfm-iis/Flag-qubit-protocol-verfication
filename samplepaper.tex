@@ -870,10 +870,6 @@ A \textit{flagged fault-tolerant error correction protocol} consists of flagged 
 The control flow is represented by a finite decision tree. It determines which syndrome extraction circuit is executed next based on the syndrome and flag outcomes obtained so far and determines when the protocol terminates.
 Its paths enumerate all terminating executions.
 
-\noindent\textbf{Note.}
-We ignore overall phases of Pauli errors but retain the signs of
-measured Pauli observables. In particular, measuring $-P$ instead
-of $P$ flips the corresponding outcome bit (XOR with $1$).
 
 \begin{definition}
 \label{def:measurement-record-and-residual-error}
