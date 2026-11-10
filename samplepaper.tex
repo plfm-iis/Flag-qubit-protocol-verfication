@@ -974,11 +974,11 @@ Fig.~\ref{fig:five-qubit-flagged-protocol} illustrates a control flow  of  flagg
     \end{tikzpicture}
     \end{adjustbox}
 
-    \caption{A flagged error correction protocol for the $[[5,1,3]]$ code where $t = 1$, adapted from~\cite{Chao18}. A label $(P)_f$ denotes the flagged syndrome extraction circuit for stabilizer $P$, while $(P)_b$ denotes the corresponding basic syndrome extraction circuit. Each path from the $\mathrm{Start}$ to the $\mathrm{Decoder}$ satisfies Condition (1) in Def~\ref{def:protocol-validity}. This is because, along each such path, at least one of the outcomes ($m_i$ or $f_i$) is $1$, indicating the presence of at least one fault or input error, and the four syndrome extractions are sufficient to ensure all resulting errors are syndrome-consistent. The path from $\mathrm{Start}$ to $\mathrm{End }$ will satisfies  Condition (3) in Def~\ref{def:protocol-validity}   since non of the flag raised.}
+    \caption{A flagged error correction protocol for the $[[5,1,3]]$ code with $t=1$, adapted from~\cite{Chao18}. A label $(P)_f$ denotes a flagged syndrome extraction circuit for stabilizer $P$, while $(P)_b$ denotes the corresponding basic syndrome extraction circuit. If $m_i=1$ or $f_i=1$ in a flagged extraction, the protocol proceeds to a full syndrome extraction and then a decoder. If $m_i=f_i=0$, it proceeds to the next flagged extraction, or terminates at $\mathrm{End}$ after the last one. The formal termination requirements are given in Def.~\ref{def:protocol-validity}.}
     \label{fig:five-qubit-flagged-protocol}
 \end{figure}
 
-Since the purpose of flag qubits is to signal high-weight error propagation events, we introduce the flag condition in the following.
+This example illustrates how measurement outcomes determine different terminating paths in an adaptive protocol. We next formalize the conditions required for such a protocol to support fault-tolerant error correction.
 
 
 
