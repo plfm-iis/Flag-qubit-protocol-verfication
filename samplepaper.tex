@@ -1468,8 +1468,7 @@ correction depends only on $m$. This completes the sketch.
 \section{FTEC Verification Algorithm}
 \label{sec:FTEC-verification}
 
-\begin{wrapfigure}[19]{r}{0.45\textwidth}
-% \vspace{-1.2em}
+\begin{figure}[!tbp]
 \centering
 \begin{tikzpicture}[
   node distance=0.45cm,
@@ -1528,8 +1527,7 @@ Accept iff both checks pass
 \end{tikzpicture}
 \caption{SAT-based verification pipeline. After circuit validity passes, correctability and protocol validity are checked independently.}
 \label{fig:verification-pipeline}
-\vspace{-1.0em}
-\end{wrapfigure}
+\end{figure}
 
 The verifier first checks the validity of all syndrome extraction
 circuits (Def.~\ref{def:syndrome-extraction-valid}). Only after
