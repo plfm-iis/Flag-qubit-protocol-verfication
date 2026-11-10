@@ -1471,18 +1471,23 @@ correction depends only on $m$. This completes the sketch.
 \section{FTEC Verification Algorithm}
 \label{sec:FTEC-verification}
 
-\begin{wrapfigure}[20]{r}{0.45\textwidth}
+\begin{wrapfigure}[23]{r}{0.45\textwidth}
 \vspace{-1.2em}
 \centering
 \begin{tikzpicture}[
-  node distance=0.35cm,
+  node distance=0.45cm,
   every node/.style={font=\scriptsize},
   box/.style={
     draw,
     rounded corners,
-    align=left,
+    align=center,
     inner sep=3.5pt,
     minimum width=0.41\textwidth
+  },
+  branch/.style={
+    box,
+    minimum width=0.19\textwidth,
+    text width=0.17\textwidth
   },
   arrow/.style={
     -{Latex[length=1.8mm]},
@@ -1492,9 +1497,8 @@ correction depends only on $m$. This completes the sketch.
 
 \node[box] (input) {
 \textbf{Input}\\
-Stabilizer code $\mathcal{Q}$, \\
-Flagged protocol $\Pi$, and\\
-Fault bound $t$
+Stabilizer code $\mathcal{Q}$, flagged protocol $\Pi$,\\
+and fault bound $t$
 };
 
 \node[box, below=of input] (circuit) {
@@ -1503,22 +1507,31 @@ Correctness and determinism\\
 Reject immediately if any circuit fails
 };
 
-\node[box, below=of circuit] (checks) {
-\textbf{Stage 2: After Circuit Validity Passes}\\
-Correctability: same-record SAT check\\
-Protocol Validity: control flow and flag conditions
+\node[branch, below=0.65cm of circuit, xshift=-0.105\textwidth] (corr) {
+\textbf{Correctability}\\
+Same-record SAT check
 };
 
-\node[box, below=of checks] (result) {
-\textbf{Overall FTEC Verification}\\
-Accept iff both Stage 2 checks pass
+\node[branch, below=0.65cm of circuit, xshift=0.105\textwidth] (prot) {
+\textbf{Protocol Validity}\\
+Control flow and flag conditions
 };
+
+\node[box, below=0.8cm of circuit, yshift=-1.5cm] (result) {
+\textbf{Overall FTEC Verification}\\
+Accept iff both checks pass
+};
+
+\coordinate (split) [below=0.27cm of circuit];
 \draw[arrow] (input) -- (circuit);
-\draw[arrow] (circuit) -- (checks);
-\draw[arrow] (checks) -- (result);
+\draw (circuit.south) -- (split);
+\draw[arrow] (split) -| (corr.north);
+\draw[arrow] (split) -| (prot.north);
+\draw[arrow] (corr.south) -- (result.north);
+\draw[arrow] (prot.south) -- (result.north);
 
 \end{tikzpicture}
-\caption{SAT-based verification pipeline.}
+\caption{SAT-based verification pipeline. After circuit validity passes, correctability and protocol validity are checked independently.}
 \label{fig:verification-pipeline}
 \vspace{-1.0em}
 \end{wrapfigure}
