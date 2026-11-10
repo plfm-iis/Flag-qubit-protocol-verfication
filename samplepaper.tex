@@ -2571,39 +2571,35 @@ path satisfying Condition (2), even if another termination condition also holds.
 
 \begin{theorem}[Verification correctness]
 \label{thm:verification-correctness}
-Algorithm~\ref{alg:ftec-verification} returns
-$(v_{\mathrm{circ}},v_{\mathrm{prot}},c)$.
-If any extraction circuit fails validity
-(Def.~\ref{def:syndrome-extraction-valid}), then
-$v_{\mathrm{circ}}=\mathrm{false}$ and
-$v_{\mathrm{prot}}=c=\bot$.
-Otherwise $v_{\mathrm{circ}}=\mathrm{true}$,
-$v_{\mathrm{prot}}=\mathrm{true}$ if and only if $\Pi$
-satisfies protocol validity (Def.~\ref{def:protocol-validity}),
-and $c=\mathrm{true}$ if and only if $\mathcal E_m$
-is correctable for every reachable measurement record $m$,
-under the assumed Pauli fault model.
-When all three results are true, there exists a lookup-table
-decoder $D$ such that $(\Pi,D)$ satisfies FTEC.
+Under the assumed Pauli fault model,
+Algorithm~\ref{alg:ftec-verification} correctly verifies
+circuit validity, protocol validity, and correctability
+of the residual error sets.
+
+If circuit validity fails, the remaining checks are
+not performed. Otherwise, the algorithm returns
+$(v_{\mathrm{circ}},v_{\mathrm{prot}},c)$,
+where each Boolean result indicates whether the
+corresponding property holds.
+
+If all three properties hold, there exists a
+lookup-table decoder $D$ such that $(\Pi,D)$
+satisfies FTEC.
 \end{theorem}
 
 \begin{proof}
-The initial circuit-validity checks either reject the protocol
-or establish Def.~\ref{def:syndrome-extraction-valid} for every
-constituent circuit. In the latter case, deterministic Clifford
-measurements and Pauli fault propagation characterize the
-reachable measurement records and residual errors within the
-assumed fault model. By construction,
-$\Psi^{\mathrm{Corr}}_\pi$ is satisfiable exactly when two
-bounded-fault assignments following the same path produce the
-same record but leave errors whose product lies in
-$N(\mathcal S)\setminus\mathcal S$.
-A complete record determines its terminating path, so these
-queries establish $c$ by Eq.~\ref{eq:QECC_condition}.
-The control-flow and flag-condition checks establish
-$v_{\mathrm{prot}}$ by Def.~\ref{def:protocol-validity}.
-When all three checks pass, Thm.~\ref{thm:mains}
-establishes the claimed decoder.
+The circuit-validity check establishes
+Def.~\ref{def:syndrome-extraction-valid}.
+Once circuit validity holds, the SAT queries
+$\Psi^{\mathrm{Corr}}_\pi$ characterize violations
+of correctability for each terminating path,
+while the control-flow and flag-condition checks
+establish protocol validity.
+
+Thus the algorithm correctly determines the
+three properties. If all three hold,
+Thm.~\ref{thm:mains} guarantees the existence
+of an FTEC lookup-table decoder.
 \end{proof}
 
 \section{Related Work}
