@@ -319,6 +319,11 @@ class Bridge:
         require(manifest(self.repo, approved) == gh_files, "GitHub paper changed since approval.")
         require(gh_files.get("samplepaper.tex", {}).get("oid") == expected_oid,
                 "Manuscript differs from approved GitHub version.")
+        expected_overleaf_oid = request.get("expected_overleaf_samplepaper_oid")
+        require(isinstance(expected_overleaf_oid, str) and SHA.fullmatch(expected_overleaf_oid),
+                "Explicit reviewed Overleaf manuscript blob is required.")
+        require(ol_files.get("samplepaper.tex", {}).get("oid") == expected_overleaf_oid,
+                "Overleaf manuscript changed since comparison; refusing overwrite.")
         baseline = state["paper_manifest"]
         require(ancestor(overleaf, state["overleaf_revision"], revision),
                 "Overleaf history rewritten since baseline.")
