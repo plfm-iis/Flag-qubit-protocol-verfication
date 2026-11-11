@@ -1,8 +1,0 @@
-{
-  "schema": 1,
-  "project_id": "6adb7e8c4019793a7dcea09f",
-  "approved_github_commit": "59e2b39bc30e3e8619823db66c4feec123892360",
-  "approved_github_samplepaper_oid": "3efe0f4f09f58d33439c4baa5ffe6cb33b494246",
-  "expected_overleaf_samplepaper_oid": "a6009070e96fd35703c0efadc290e78fe6ab255f",
-  "retry_reason": "Use preserved Overleaf Git ancestry instead of GitHub foreign-history backup branch"
-}
