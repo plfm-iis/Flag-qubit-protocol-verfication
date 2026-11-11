@@ -11,6 +11,7 @@ on:
       - '!PAPER_CONTEXT.md'
       - '!CLAIMS.md'
       - '.github/overleaf-reconcile-request.json'
+      - '.github/overleaf-github-authority-request.json'
   schedule:
     - cron: '*/5 * * * *'
   workflow_dispatch:
