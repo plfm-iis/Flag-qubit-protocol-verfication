@@ -1940,20 +1940,12 @@ formula is
 \end{aligned}
 \end{equation}
 
-The first line requires both fault assignments to produce executions that
-follow the terminating path $\pi$. The second line enforces the fault bound.
-The third line requires the two executions to have the same measurement record.
-The last line requires the two residual data errors to violate the quantum
-error correction condition, since their product is a nontrivial logical
-operator.
-
-Thus, if $\Psi^{\mathrm{Corr}}_\pi$ is satisfiable, it witnesses a
-reachable record $m$ for which $\mathcal E_m$ is not correctable.
-If the query is unsatisfiable for all terminating paths, every
-reachable $\mathcal E_m$ is correctable: each complete record determines
-its terminating path, so the per-path queries cover all pairs of
-errors associated with the same record. If protocol validity also
-holds, Thm.~\ref{thm:mains} yields an FTEC decoder.
+A satisfying assignment witnesses two admissible executions with the
+same record but residual errors differing by a nontrivial logical operator.
+If the query is unsatisfiable for every terminating path, all reachable
+$\mathcal E_m$ are correctable, since each complete record determines its
+path. Together with protocol validity, Thm.~\ref{thm:mains} then
+guarantees an FTEC decoder.
 
 It remains to encode the last conjunct of $\Psi^{\mathrm{Corr}}_\pi$. Let
 
@@ -2023,14 +2015,8 @@ Q_{i,z} \land L_{h,i,x}
 
 
 
-Together, the normalizer-membership constraint and the logical-anticommutation
-constraint encode
-$
-Q\in N(\mathcal S)\setminus\mathcal S.
-$
-Therefore $\Psi^{\mathrm{Corr}}_\pi$ is a SAT query whose satisfying
-assignments are exactly the counterexamples to the condition in
-Thm.~\ref{thm:mains} on the path $\pi$.
+Together, these constraints encode $Q\in N(\cS)\setminus\cS$,
+completing the SAT counterexample query.
 
 
 
