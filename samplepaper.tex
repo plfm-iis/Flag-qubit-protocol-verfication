@@ -1811,14 +1811,10 @@ outcomes, a complete measurement record determines its terminating path.
 % \]
 
 
-Figure~\ref{fig:fault-propagation-circuit} illustrates symbolic syndrome and flag outcomes for the flagged $XZZXI$ extraction circuit, with initial Pauli error $(False,False)$ on every qubit. We propagate symbolic states gate-by-gate using Figure~\ref{fig:two-qubit-pauli-rules}.
-
-\begin{figure}[!tbp]
+\begin{wrapfigure}[18]{l}{0.54\textwidth}
 \centering
-\begin{minipage}[t]{0.65\textwidth}
-\vspace{0pt}
-\centering
-\begin{adjustbox}{max width=\linewidth}
+\vspace{-0.7\baselineskip}
+\begin{adjustbox}{max width=0.98\linewidth}
 \scriptsize
 \begin{quantikz}[
 row sep=0.22cm,
@@ -1834,23 +1830,21 @@ wire types={q,q,q,q,q,q,q}
 \lstick{$Q_{f}$}   & \qw              & \qw                   & \targ{} & \qw & \qw & \targ{} & \qw & \meter{$Z$}
 \end{quantikz}
 \end{adjustbox}
-\end{minipage}\hfill
-\begin{minipage}[t]{0.33\textwidth}
-\vspace{0pt}
-\raggedright\footnotesize
-\textit{Initially, all $Q_q=(False,False)$.}
-\par\smallskip
-\textbf{$S_1$:} After the fault at $\ell_1$ ($CX(a,d_1)$).
-
-\par\smallskip
-\textbf{$S_2$:} After $CX(a,f)$ and an optional second fault at $\ell_2$.
-
-\par\smallskip
-\textbf{$S_3$:} Immediately before measurement.
-\end{minipage}
-\caption{Symbolic fault propagation on the flagged $XZZXI$ extraction circuit. The slices $S_1,S_2,S_3$ indicate intermediate symbolic states.}
+\caption{Symbolic propagation in the flagged $XZZXI$ circuit; $S_1,S_2,S_3$ mark intermediate states.}
 \label{fig:fault-propagation-circuit}
-\end{figure}
+\vspace{-0.6\baselineskip}
+\end{wrapfigure}
+
+Figure~\ref{fig:fault-propagation-circuit} illustrates symbolic syndrome and flag outcomes for the flagged $XZZXI$ extraction circuit, with initial Pauli error $(False,False)$ on every qubit. We propagate symbolic states gate-by-gate using Figure~\ref{fig:two-qubit-pauli-rules}.
+
+The slices indicate successive symbolic states: $S_1$ is after
+the fault at $\ell_1$ on $CX(a,d_1)$; $S_2$ is after $CX(a,f)$
+and a possible second fault at $\ell_2$; and $S_3$ is immediately
+before measurement. All qubits initially have
+$Q_q=(False,False)$.
+
+
+
 
 At $S_1$, a fault at location $\ell_1$ (the first $CX$ gate) inserts Boolean fault variables $(x_{\ell_1,a}, z_{\ell_1,a}, x_{\ell_1,d_1}, z_{\ell_1,d_1})$ into the affected qubits:
 \[
