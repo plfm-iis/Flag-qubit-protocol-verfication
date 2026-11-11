@@ -275,10 +275,20 @@ class Bridge:
         paths = sorted(set(gh_files) | set(ol_files))
         differences = [path for path in paths if gh_files.get(path) != ol_files.get(path)]
         if differences:
+            import difflib
             for path in differences:
                 github_oid = gh_files.get(path, {}).get("oid", "<absent>")
                 overleaf_oid = ol_files.get(path, {}).get("oid", "<absent>")
                 print(f"DIFFERENCE {path}: GitHub={github_oid}; Overleaf={overleaf_oid}", file=sys.stderr)
+                if path.endswith(".tex") and path in gh_files and path in ol_files:
+                    a = git(self.repo, "show", "HEAD:" + path).stdout.decode("utf-8").splitlines()
+                    b = git(overleaf, "show", "HEAD:" + path).stdout.decode("utf-8").splitlines()
+                    diff = list(difflib.unified_diff(a, b, fromfile="GitHub/" + path,
+                                                     tofile="Overleaf/" + path, n=3))
+                    for line in diff[:120]:
+                        print(line, file=sys.stderr)
+                    if len(diff) > 120:
+                        print(f"[DIFF TRUNCATED: {len(diff)} lines]", file=sys.stderr)
             raise Refused("Paper snapshots differ; no contents or baseline were changed.")
         require(ancestor(overleaf, state["overleaf_revision"], revision),
                 "Overleaf history no longer descends from recorded baseline.")
