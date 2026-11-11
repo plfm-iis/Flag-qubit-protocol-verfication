@@ -800,7 +800,7 @@ Condition~(1) of Definition~\ref{def:weak-FTEC} guarantees that the output state
 \label{subsec:flagged-protocols}
 
 
-\begin{wrapfigure}[13]{r}{0.35\textwidth}
+\begin{wrapfigure}[12]{r}{0.35\textwidth}
 \centering
 \vspace{-4mm}
 \begin{adjustbox}{max width=\textwidth,valign=t}
@@ -1468,7 +1468,7 @@ correction depends only on $m$. This completes the sketch.
 
 
 % Keep the section heading and wrapped pipeline on the same page.
-\Needspace{27\baselineskip}
+\Needspace{20\baselineskip}
 \section{FTEC Verification Algorithm}
 \label{sec:FTEC-verification}
 
@@ -2803,8 +2803,10 @@ AMD EPYC 7742 64-core processor (1.5\,GHz), 2\,TiB of RAM, and a 1\,TB SSD. We i
 
 % \end{table}
 
-\begin{table}[!htbp]
+\begin{table}[!tbp]
 \centering
+\begingroup
+\renewcommand{\arraystretch}{0.94}
 
 % ==================== PART 1 ====================
 \scalebox{0.85}{% Applies the exact same scaling factor to both tables
@@ -2861,7 +2863,7 @@ Correctable & Yes & Yes & $\bot$ & $\bot$ & No & Yes & No & Yes & Yes \\
 \end{tabular}%
 }
 
-\vspace*{1.5em} % Adds a nice visual break between the two tables
+\vspace*{0.5em} % Modest separation between the two parts
 
 % ==================== PART 2 ====================
 \scalebox{0.85}{% Exactly the same scaling factor as Part 1
@@ -2919,7 +2921,7 @@ Correctable & Yes & Yes & Yes & No & Yes & Yes & Yes \\
 }
 \caption{Verification results and performance for the evaluated protocols (top: Part 1; bottom: Part 2). Diagnostic checks were performed independently; $\bot$ denotes a check skipped when circuit validity fails.}
 \label{tab:combined-results}
-
+\endgroup
 \end{table}
 
 \begin{itemize}
@@ -2965,13 +2967,13 @@ $\mathcal{S}_{\mathrm{joint}} = \langle g_0, \dots, g_9 \rangle$ be the initial 
 group of the joint data-ancilla system, and $\mathcal{S}'_{\mathrm{joint}} = \langle g'_0, \dots, g'_9 \rangle$ be the stabilizer
 group after $U$ is applied.
 
-The complete evolution of these generators is detailed in Table~\ref{tab:stabilizer-evolution-exmple}. As shown in the table, the transformed generator $g'_4 = +X_{D_1} Z_{D_2} Z_{D_3} X_{D_4}X_{A_{x,1}} Z_{A_{x,2}} Z_{A_{x,3}} Z_{A_{x,4}}$ anticommutes with the initial generator $g_7= +X_{A_{x,4}}$. Because all elements within a stabilizer group must mutually commute, $g'_4$ cannot belong to $\mathcal{S}_{\mathrm{joint}}$, establishing that $\mathcal{S}_{\mathrm{joint}} \neq \mathcal{S}'_{\mathrm{joint}}$. Consequently, the measurement outcome of the ancilla qubit $A_{x,4}$ becomes non-deterministic. This directly violates Definition~\ref{def:syndrome-extraction-deterministic}, demonstrating that this protocol is not a valid syndrome extraction circuit.\\
+The complete evolution of these generators is detailed in Table~\ref{tab:stabilizer-evolution-exmple}. As shown in the table, the transformed generator $g'_4 = +X_{D_1} Z_{D_2} Z_{D_3} X_{D_4}X_{A_{x,1}} Z_{A_{x,2}} Z_{A_{x,3}} Z_{A_{x,4}}$ anticommutes with the initial generator $g_7= +X_{A_{x,4}}$. Because all elements within a stabilizer group must mutually commute, $g'_4$ cannot belong to $\mathcal{S}_{\mathrm{joint}}$, establishing that $\mathcal{S}_{\mathrm{joint}} \neq \mathcal{S}'_{\mathrm{joint}}$. Consequently, the measurement outcome of the ancilla qubit $A_{x,4}$ becomes non-deterministic. This directly violates Definition~\ref{def:syndrome-extraction-deterministic}, demonstrating that this protocol is not a valid syndrome extraction circuit.
 
 % Ensure you have these in your preamble:
 % \usepackage{caption}
 % \usepackage{graphicx}
 
-\begin{figure}[h]
+\begin{figure}[!htbp]
     \centering
     % ---------- CIRCUIT MINIPAGE (55% Width) ----------
     \begin{minipage}[t]{0.45\textwidth}
@@ -3029,7 +3031,7 @@ The complete evolution of these generators is detailed in Table~\ref{tab:stabili
 
 \textbf{Example 2}: A terminating path of the low-depth optimized protocol for the $[[7,1,3]]$ code from~\cite{low-depth} is shown in Figure~\ref{fig:protocol-step-1}. Suppose there is no fault in the $(IZZXXYY)_f$ circuit, and the measurement outcomes $m_1$ and $f_1$ are both zero. During the last two syndrome extraction circuits, $(IZZIIZZ)_b$ and $(ZIZIZIZ)_b$, two different fault events can occur, as illustrated in Figures~\ref{fig:example_2_case_1} and \ref{fig:example_2_case_2}. In both scenarios, the measurement records are identical, but the resulting data qubit errors are $IIIIIZZ$ and $ZIIIIII$. Their product, $ZIIIIZZ = ZZZZZZZ \cdot (IIIZZZZ) \cdot (IZZIIZZ)$, forms a logical operator.
 
-\begin{figure}[h]
+\begin{figure}[!htbp]
     \centering
     \begin{adjustbox}{max width=\textwidth,valign=t}
     \begin{tikzpicture}[node distance=1.5cm, font=\small] 
@@ -3064,7 +3066,7 @@ The complete evolution of these generators is detailed in Table~\ref{tab:stabili
     \label{fig:protocol-step-1}
 \end{figure}
 
-\begin{figure}[htbp]
+\begin{figure}[!htbp]
     \centering
     % --- First Circuit ---
     \begin{minipage}{0.48\textwidth}
