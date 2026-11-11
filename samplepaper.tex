@@ -1811,10 +1811,11 @@ outcomes, a complete measurement record determines its terminating path.
 % \]
 
 
-\begin{wrapfigure}[18]{l}{0.54\textwidth}
+Figure~\ref{fig:fault-propagation-circuit} illustrates symbolic syndrome and flag outcomes for the flagged $XZZXI$ extraction circuit, with initial Pauli error $(False,False)$ on every qubit. We propagate symbolic states gate-by-gate using Figure~\ref{fig:two-qubit-pauli-rules}.
+
+\begin{figure}[!htbp]
 \centering
-\vspace{-0.7\baselineskip}
-\begin{adjustbox}{max width=0.98\linewidth}
+\begin{adjustbox}{max width=0.82\textwidth}
 \scriptsize
 \begin{quantikz}[
 row sep=0.22cm,
@@ -1830,18 +1831,16 @@ wire types={q,q,q,q,q,q,q}
 \lstick{$Q_{f}$}   & \qw              & \qw                   & \targ{} & \qw & \qw & \targ{} & \qw & \meter{$Z$}
 \end{quantikz}
 \end{adjustbox}
-\caption{Symbolic propagation in the flagged $XZZXI$ circuit; $S_1,S_2,S_3$ mark intermediate states.}
+\caption{Symbolic fault propagation in the flagged $XZZXI$ circuit (initially $Q_q=(False,False)$).
+$S_1$: after the fault at $\ell_1$ on $CX(a,d_1)$;
+$S_2$: after $CX(a,f)$ and a possible fault at $\ell_2$;
+$S_3$: immediately before measurement.}
 \label{fig:fault-propagation-circuit}
-\vspace{-0.6\baselineskip}
-\end{wrapfigure}
+\end{figure}
 
-Figure~\ref{fig:fault-propagation-circuit} illustrates symbolic syndrome and flag outcomes for the flagged $XZZXI$ extraction circuit, with initial Pauli error $(False,False)$ on every qubit. We propagate symbolic states gate-by-gate using Figure~\ref{fig:two-qubit-pauli-rules}.
 
-The slices indicate successive symbolic states: $S_1$ is after
-the fault at $\ell_1$ on $CX(a,d_1)$; $S_2$ is after $CX(a,f)$
-and a possible second fault at $\ell_2$; and $S_3$ is immediately
-before measurement. All qubits initially have
-$Q_q=(False,False)$.
+
+
 
 
 
