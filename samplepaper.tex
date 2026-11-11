@@ -1937,21 +1937,12 @@ formula is
 \begin{equation}
 \begin{aligned}
 \Psi^{\mathrm{Corr}}_\pi
-:=
-\exists \mathcal{F}_1,\mathcal{F}_2.\quad
-&
-\Phi_\pi(\mathcal{F}_1)
-\land
-\Phi_\pi(\mathcal{F}_2)
-\\
-&\land\ \mathrm{wt}(\mathcal{F}_1)\le t
-\land
-\mathrm{wt}(\mathcal{F}_2)\le t
-\\
-&\land\ m_\pi(\mathcal{F}_1)=m_\pi(\mathcal{F}_2)
-\\
-&\land\ E_\pi(\mathcal{F}_1)\cdot E_\pi(\mathcal{F}_2)
-\in N(\cS)\setminus\mathcal S .
+:=\exists \mathcal F_1,\mathcal F_2.\quad
+&\bigwedge_{i=1}^{2}\bigl(
+  \Phi_\pi(\mathcal F_i)\land\mathrm{wt}(\mathcal F_i)\le t\bigr)\\
+&\land m_\pi(\mathcal F_1)=m_\pi(\mathcal F_2)\\
+&\land E_\pi(\mathcal F_1)E_\pi(\mathcal F_2)
+  \in N(\cS)\setminus\cS.
 \end{aligned}
 \end{equation}
 
@@ -2060,22 +2051,12 @@ checks satisfiability of the formula
 \begin{equation}
 \begin{aligned}
 \Psi^{\mathrm{CF1}}_\pi
-:=
-\exists \mathcal{F}_1,\mathcal{F}_2.\quad
-&
-\Phi_\pi(\mathcal{F}_1)
-\land
-\Phi_\pi(\mathcal{F}_2)
-\\
-&\land\ \mathrm{wt}(\mathcal{F}_1)\le t
-\land
-\mathrm{wt}(\mathcal{F}_2)\le t
-\\
-&\land\ m_\pi(\mathcal{F}_1)=m_\pi(\mathcal{F}_2)
-\\
-&\land\ \mathrm{syn}(E_\pi(\mathcal{F}_1))
-\ne
-\mathrm{syn}(E_\pi(\mathcal{F}_2)).
+:=\exists \mathcal F_1,\mathcal F_2.\quad
+&\bigwedge_{i=1}^{2}\bigl(
+  \Phi_\pi(\mathcal F_i)\land\mathrm{wt}(\mathcal F_i)\le t\bigr)\\
+&\land m_\pi(\mathcal F_1)=m_\pi(\mathcal F_2)\\
+&\land \mathrm{syn}(E_\pi(\mathcal F_1))
+ \ne \mathrm{syn}(E_\pi(\mathcal F_2)).
 \end{aligned}
 \end{equation}
 
