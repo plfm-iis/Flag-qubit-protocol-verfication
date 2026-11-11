@@ -1,4 +1,0 @@
-{
-  "schema": 1,
-  "purpose": "Compare current GitHub and Overleaf paper blobs; update baseline ONLY if identical."
-}
