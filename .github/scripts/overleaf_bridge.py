@@ -15,6 +15,7 @@ REMOTE = f"https://git@git.overleaf.com/{PROJECT}"
 STATE = ".github/overleaf-state.json"
 RECONCILE_REQUEST = ".github/overleaf-reconcile-request.json"
 GITHUB_AUTHORITY_REQUEST = ".github/overleaf-github-authority-request.json"
+BASELINE_CHECK_REQUEST = ".github/overleaf-baseline-check-request.json"
 REQUEST = ".github/overleaf-sync-request.json"
 METADATA_FILES = {"AGENTS.md", "PAPER_CONTEXT.md", "CLAIMS.md"}
 SHA = re.compile(r"[0-9a-f]{40}\Z")
@@ -216,6 +217,10 @@ class Bridge:
 
     def auto(self, overleaf, revision, ol_files, gh_files, state):
         """Push one-sided changes only; reject concurrent independent edits."""
+        baseline_check = read_json(self.repo, self.start, BASELINE_CHECK_REQUEST)
+        if baseline_check is not None:
+            self.check_and_rebase_baseline(overleaf, revision, ol_files, gh_files, state)
+            return
         authority = read_json(self.repo, self.start, GITHUB_AUTHORITY_REQUEST)
         if authority is not None:
             self.github_authoritative(overleaf, revision, ol_files, gh_files, state, authority)
@@ -263,6 +268,34 @@ class Bridge:
             raise Refused(f"PARTIAL SUCCESS: Overleaf accepted {new_revision}, "
                           f"but baseline update failed: {error}") from error
         print(f"Automatic sync confirmed: {new_revision}.")
+
+    def check_and_rebase_baseline(self, overleaf, revision, ol_files, gh_files, state):
+        """Compare exact paper blobs; refresh metadata only if already identical."""
+        require(state is not None, "Missing confirmed Overleaf baseline.")
+        paths = sorted(set(gh_files) | set(ol_files))
+        differences = [path for path in paths if gh_files.get(path) != ol_files.get(path)]
+        if differences:
+            for path in differences:
+                github_oid = gh_files.get(path, {}).get("oid", "<absent>")
+                overleaf_oid = ol_files.get(path, {}).get("oid", "<absent>")
+                print(f"DIFFERENCE {path}: GitHub={github_oid}; Overleaf={overleaf_oid}", file=sys.stderr)
+            raise Refused("Paper snapshots differ; no contents or baseline were changed.")
+        require(ancestor(overleaf, state["overleaf_revision"], revision),
+                "Overleaf history no longer descends from recorded baseline.")
+        require(manifest(overleaf, state["overleaf_revision"]) == state["paper_manifest"],
+                "Recorded baseline does not match Overleaf history.")
+        self.check_github()
+        require(remote_head(overleaf) == revision, "Overleaf changed before state refresh.")
+        self.save_state(revision, gh_files)
+        (self.repo / BASELINE_CHECK_REQUEST).unlink()
+        require(commit(self.repo, "[overleaf-sync] Confirm identical paper snapshots and refresh baseline",
+                       {STATE, BASELINE_CHECK_REQUEST}),
+                "Expected a pending request to clear.")
+        require(remote_head(overleaf) == revision, "Overleaf changed before GitHub push.")
+        self.check_github()
+        git(self.repo, "push", "origin", "HEAD:refs/heads/main")
+        require(remote_head(overleaf) == revision, "Overleaf changed after baseline update.")
+        print(f"VERIFIED: all {len(paths)} paper files identical; baseline set to {revision}.")
 
     def github_authoritative(self, overleaf, revision, ol_files, gh_files, state, request):
         """One-time approved GitHub-authoritative sync, backing up Overleaf first."""
