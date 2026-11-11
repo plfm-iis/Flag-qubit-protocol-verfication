@@ -1099,35 +1099,32 @@ that $\mathcal E_m$ is correctable for every reachable measurement
 record $m$, i.e., every record with $\mathcal E_m\neq\varnothing$.
 
 \begin{proof}[Proof sketch]
-The full proof appears in Appendix~\ref{app:proof}; Pauli products are
-considered up to global phase.
+The complete proof is in Appendix~\ref{app:proof}; Pauli products are
+understood up to global phase.
 
 \textbf{($\Rightarrow$)}
-If $E_1,E_2\in\mathcal E_m$ differ by a nontrivial logical
-operator, the common correction $C=D(m)$ would, by FTEC, satisfy
-$\mathrm{wt}_{\min}(E_iC)\le t$ for $i=1,2$. Hence
+If $E_1,E_2\in\mathcal E_m$ differ by a nontrivial logical operator,
+the same correction $D(m)$ must work for both. By FTEC,
 \[
 d\le\mathrm{wt}_{\min}(E_1E_2)
-\le\mathrm{wt}_{\min}(E_1C)+\mathrm{wt}_{\min}(E_2C)
+\le\mathrm{wt}_{\min}(E_1D(m))
+ +\mathrm{wt}_{\min}(E_2D(m))
 \le 2t,
 \]
-a contradiction.
+contradicting the code distance.
 
 \textbf{($\Leftarrow$)}
-Assume the pairwise condition. For each reachable record $m$,
-construct $D(m)$ using a termination condition of its path.
-Under Condition~(1), equal ideal syndromes and the pairwise
-condition make all errors in $\mathcal E_m$ stabilizer-equivalent;
-any representative gives a correction. Under Condition~(2), the
-$t-w+1$ identical unflagged rounds contain a fault-free round.
-Removing subsequent faults preserves the record, yielding
-stabilizer-equivalent reference errors by the pairwise condition.
-A correction for this class leaves only the subsequent fault-induced
-error, whose minimum weight is at most $s-w\le s$ by the
-$(t-w)$-flag condition. Under Condition~(3), the identity
-correction suffices because the residual minimum weight is at most
-$s$. In every case the correction depends only on $m$, satisfies
-FTEC~(2), and permits ideal decoding for FTEC~(1).
+Assume the pairwise condition. Under Condition~(1), errors with
+the same record have the same ideal syndrome and are therefore
+stabilizer-equivalent; a representative determines the correction.
+Under Condition~(2), the repeated unflagged rounds contain a
+fault-free round. Removing later faults preserves the record,
+and the pairwise condition makes the resulting reference errors
+stabilizer-equivalent. Correcting their common class leaves only
+faults after that round, bounded by the required flag condition.
+Under Condition~(3), no correction is needed before ideal decoding.
+Each construction depends only on the measurement record and
+satisfies both FTEC requirements.
 \end{proof}
 
 
