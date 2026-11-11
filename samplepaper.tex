@@ -1815,33 +1815,37 @@ Figure~\ref{fig:fault-propagation-circuit} illustrates symbolic syndrome and fla
 
 \begin{figure}[!tbp]
 \centering
-\begin{minipage}[c]{0.77\textwidth}
+\begin{minipage}[t]{0.65\textwidth}
+\vspace{0pt}
 \centering
 \begin{adjustbox}{max width=\linewidth}
 \scriptsize
 \begin{quantikz}[
-row sep=0.34cm,
-column sep=0.35cm,
+row sep=0.22cm,
+column sep=0.25cm,
 wire types={q,q,q,q,q,q,q}
 ]
-\lstick{$Q_{d_1}= (False,False)$} & \qw  & \targ{} \slice{$S_1$} & \qw \slice{$S_2$}& \qw & \qw & \qw & \qw \slice{$S_3$} & \qw \\
-\lstick{$Q_{d_2}= (False,False)$} & \qw              & \qw                   & \qw & \ctrl{4} & \qw & \qw & \qw & \qw \\
-\lstick{$Q_{d_3}= (False,False)$} & \qw              & \qw                   & \qw & \qw & \ctrl{3} & \qw & \qw & \qw \\
-\lstick{$Q_{d_4}= (False,False)$} & \qw              & \qw                   & \qw & \qw & \qw & \qw & \targ{} & \qw \\
-\lstick{$Q_{d_5}= (False,False)$} & \qw              & \qw                   & \qw & \qw & \qw & \qw & \qw & \qw \\
-\lstick{$Q_{a}= (False,False)$}   & \qw              & \ctrl{-5}             & \ctrl{1} & \control{} & \control{} & \ctrl{1} & \ctrl{-2} & \meter{$X$} \\
-\lstick{$Q_{f}= (False,False)$}   & \qw              & \qw                   & \targ{} & \qw & \qw & \targ{} & \qw & \meter{$Z$}
+\lstick{$Q_{d_1}$} & \qw  & \targ{} \slice{$S_1$} & \qw \slice{$S_2$}& \qw & \qw & \qw & \qw \slice{$S_3$} & \qw \\
+\lstick{$Q_{d_2}$} & \qw              & \qw                   & \qw & \ctrl{4} & \qw & \qw & \qw & \qw \\
+\lstick{$Q_{d_3}$} & \qw              & \qw                   & \qw & \qw & \ctrl{3} & \qw & \qw & \qw \\
+\lstick{$Q_{d_4}$} & \qw              & \qw                   & \qw & \qw & \qw & \qw & \targ{} & \qw \\
+\lstick{$Q_{d_5}$} & \qw              & \qw                   & \qw & \qw & \qw & \qw & \qw & \qw \\
+\lstick{$Q_{a}$}   & \qw              & \ctrl{-5}             & \ctrl{1} & \control{} & \control{} & \ctrl{1} & \ctrl{-2} & \meter{$X$} \\
+\lstick{$Q_{f}$}   & \qw              & \qw                   & \targ{} & \qw & \qw & \targ{} & \qw & \meter{$Z$}
 \end{quantikz}
 \end{adjustbox}
 \end{minipage}\hfill
-\begin{minipage}[c]{0.21\textwidth}
+\begin{minipage}[t]{0.33\textwidth}
+\vspace{0pt}
 \raggedright\footnotesize
+\textit{Initially, all $Q_q=(False,False)$.}
+\par\smallskip
 \textbf{$S_1$:} After the fault at $\ell_1$ ($CX(a,d_1)$).
 
-\medskip
+\par\smallskip
 \textbf{$S_2$:} After $CX(a,f)$ and an optional second fault at $\ell_2$.
 
-\medskip
+\par\smallskip
 \textbf{$S_3$:} Immediately before measurement.
 \end{minipage}
 \caption{Symbolic fault propagation on the flagged $XZZXI$ extraction circuit. The slices $S_1,S_2,S_3$ indicate intermediate symbolic states.}
