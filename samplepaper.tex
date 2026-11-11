@@ -26,6 +26,7 @@
 %% Packages
 \usepackage{multirow}
 \usepackage{booktabs} % For formal tables
+\usepackage{enumitem}
 \usepackage{stmaryrd}
 \usepackage{adjustbox}
 \usepackage{subcaption}
@@ -43,6 +44,7 @@
 
 
 \usepackage{wrapfig}
+\usepackage{needspace}
 \usepackage{graphicx}
 
 \newcommand{\showcomment}[1]{#1}
@@ -132,8 +134,8 @@
 
 
 Fault-tolerant syndrome extraction with flag qubits provides a resource-efficient approach to quantum error correction by using measurement outcomes to adapt the subsequent error-correction procedure. This adaptive control flow, however, makes correctness difficult to verify: to guarantee correction of a specified set of faults, any two non-equivalent faults must be distinguishable by the resulting execution paths and measurement records, since they may require incompatible recoveries. 
-In this work, we establish a criterion for verifying a fault-tolerant lookup-table decoder without explicitly constructing the table: a valid decoder exists if and only if all residual errors consistent with each measurement record are jointly correctable. 
-We develop a formal verification framework that symbolically tracks Pauli faults, measurement outcomes, and adaptive control flow, and uses SAT solving to search for violations of this condition. 
+In this work, we establish a criterion for verifying a fault-tolerant lookup-table decoder without explicitly constructing the table: when the syndrome extraction circuits and the protocol are valid, such a decoder exists if and only if the residual error set for every reachable measurement record is correctable.
+We develop a formal verification framework that first checks circuit validity, then uses symbolic Pauli fault propagation and SAT solving to verify error-set correctability and protocol validity, including control-flow and flag requirements. 
 We evaluate the framework on representative flagged protocols from the literature, successfully validating known constructions and exposing errors in previously published protocols.
 
 
@@ -244,9 +246,10 @@ verification condition directly in terms of the residual-error sets associated
 with measurement records, rather than a preselected decoder.
 
 
-Our main characterization shows that, for a valid flagged fault-tolerant error
-correction protocol, FTEC is achieved if and only if no two residual errors
-associated with the same measurement record differ by a
+Our main characterization shows that, when the syndrome extraction circuits
+and the flagged error correction protocol are valid, an FTEC lookup-table
+decoder exists if and only if no two residual errors associated with the
+same measurement record differ by a
 \emph{nontrivial logical operator}~\cite{KL97,Got97}.
 When this condition holds, each measurement record can be assigned a recovery that corrects
 all compatible residual errors. When it fails, the same measurement record is
@@ -254,17 +257,17 @@ compatible with two logically inequivalent residual errors, and no recovery
 depending only on that record can correctly handle both cases.
 
 
-Based on this characterization, we develop a SAT-based verification framework.
-We formulate the syndrome extraction circuits and fault events as SAT
-constraints and search for pairs of fault events that produce the same
-measurement record but leave residual errors whose product is a nontrivial
-logical operator. A satisfying assignment provides an explicit counterexample
-to FTEC, while the absence of such an assignment establishes that a suitable
-lookup-table decoder exists. 
-We symbolically execute each protocol path, tracking Pauli errors
-and measurement outcomes as Boolean formulas over fault variables.
-The resulting path conditions and residual errors define the SAT
-queries used to check protocol validity and decoder existence.
+Based on this characterization, we develop a staged verification framework.
+We first verify the correctness and determinism of the syndrome extraction
+circuits. Only if circuit validity passes do we check error-set correctability
+and protocol validity, which includes control-flow termination and flag
+requirements. We symbolically execute protocol paths, tracking Pauli errors
+and measurement outcomes as Boolean formulas over fault variables, and use
+SAT queries to search for incompatible residual errors with the same
+measurement record. A satisfying assignment gives a correctability
+counterexample; when all such queries are unsatisfiable and protocol
+validity holds, our characterization establishes the existence of
+an FTEC lookup-table decoder.
 
 
 
@@ -298,9 +301,10 @@ We first review the binary representation of Pauli operators and the fundamental
 \subsection{Pauli operators and binary representation}
 \label{subsec:pauli-binary}
 
-We consider the Pauli operators $I$, $X$, $Y$, and $Z$ modulo
-global phases in $\{\pm1,\pm i\}$, which do not affect
-syndromes, measurement outcomes, or logical equivalence.
+We represent Pauli errors modulo global phases in $\{\pm1,\pm i\}$,
+which do not affect error propagation, syndromes, or logical equivalence.
+The signs of measured Pauli observables, however, are retained when
+interpreting measurement outcomes.
 We use the standard binary representation~\cite{NC00}:
 \begin{equation}
 I\mapsto(0,0),\quad X\mapsto(1,0),\quad
@@ -563,9 +567,8 @@ $A_i$ are the single-qubit ancilla preparation
 and measurement observables. Among the $r$ ancillas,
 the first $m$ extract the designated Pauli checks
 $\{P_i\}_{i=1}^{m}\subseteq\mathcal{S}_{\mathrm{data}}$.
-Let $L_1,\ldots,L_{2k}$ be Hermitian representatives
-of a complete set of logical Pauli generators,
-extended by identities on the ancillas.
+Let $L_1,\ldots,L_{2k}$ be a complete set of logical
+Pauli generators, extended by identities on the ancillas.
 
 Then $U$ is valid if and only if it is correct and
 \[
@@ -652,43 +655,45 @@ $ZZ$, which is invalid because the measurement outcomes are not deterministic.}
 
 \subsection{Equivalent circuit-level noise model}
 
-For verification purposes, we consider only the possible Pauli errors induced by faults in the circuit and do not consider their rates or probabilities.  Therefore, we have the following proposition to reduce the complexity for verification. In this work the although input data error and error induced by faults we introduced in ~\ref{sec:circuit-level-noise-model} can both be described by Pauli errors but we will formulate in as different thing. 
+For verification, we consider the possible Pauli errors induced by circuit faults, rather than their probabilities. The following reduction covers bounded-fault executions using only two-qubit gate fault locations. Input data errors are counted separately from circuit faults, as in Section~\ref{sec:circuit-level-noise-model}. 
 In the syndrome-extraction circuits considered, every single-qubit fault location is immediately adjacent along its wire to a two-qubit gate. A single-qubit Pauli fault therefore has a preceding or following two-qubit gate on the same qubit to which it can be moved.
 
 
 
 \begin{proposition}
 \label{prop}
-For the purpose of enumerating possible Pauli error patterns in Clifford syndrome extraction circuits, it is sufficient to introduce fault variables only at two-qubit gate locations. Faults occurring at state preparation, measurement, idle, and single-qubit gate locations can be equivalently represented by Pauli faults at neighboring two-qubit gate locations, without changing their effect on the final data error and measurement outcomes.
+For the Clifford syndrome extraction circuits considered here, it is sufficient for bounded-fault verification to introduce fault variables only at two-qubit gate locations. Every execution with at most $t$ circuit faults, including faults at state preparation, measurement, idle, and single-qubit gate locations, has a corresponding assignment with at most $t$ faulty two-qubit gate locations that produces the same final data error and measurement outcomes.
 \end{proposition}
 
 
 \begin{proof}
 
-Since Clifford gates map Pauli operators to Pauli operators under
-conjugation.
-Preparation, idle, measurement, and single-qubit gate faults
-can be propagated through adjacent Clifford operations and represented
-by equivalent Pauli faults at neighboring two-qubit gate locations.
-Figure~\ref{equivalence_of_fault} illustrates the basic equivalence: a Pauli error induced by a single-qubit fault can be equivalently represented by a fault at either the preceding or following two-qubit gate location. Similarly, a measurement fault can be represented as a Pauli error immediately before the measurement and absorbed into the preceding two-qubit gate fault. 
-
-
-Consequently, our verifier introduces fault variables only at two-qubit
-gate locations without changing the set of circuit-level Pauli error
-patterns that can arise during syndrome extraction.
+Clifford gates map Pauli operators to Pauli operators under conjugation.
+Under the stated adjacency assumption, each preparation, idle,
+measurement, or single-qubit gate fault can be propagated to a
+neighboring two-qubit gate location. Figure~\ref{equivalence_of_fault}
+illustrates the corresponding Pauli propagation, including a
+measurement fault represented immediately before measurement.
+If several original faults map to the same two-qubit gate location,
+their Pauli operators can be multiplied into a single fault at that
+location. Thus the resulting assignment has no more nontrivial faulty
+two-qubit gate locations than the original execution had faults,
+while preserving the final data error and measurement outcomes.
+This establishes the coverage needed for verification under the bound
+$t$; it does not require a one-to-one correspondence between fault events.
     
 \end{proof}
 
-Note that in this work we differentiate input error and errors induced by faults though they can be describe both in Puli errors. 
+Input data errors and circuit-induced errors are represented separately even though both are Pauli errors. 
 
 
 \begin{figure}[htbp]
   \centering
   
-  % --- First Subfigure: Stacked to full width ---
-  \begin{subfigure}{\textwidth}
+  % --- Left subfigure ---
+  \begin{subfigure}[t]{0.49\textwidth}
     \centering
-    \begin{adjustbox}{max width=\textwidth}
+    \begin{adjustbox}{max width=\linewidth}
     \begin{quantikz}[column sep=0.3cm]
         \lstick{$Q_1$} & \gate[2]{U} & \gate[, style={draw=red}]{E} \gategroup[1, steps=1, style={dashed, rounded corners, fill=red!20, inner xsep=2pt}, background]{fault} & \gate[2]{V} & \qw \\
         \lstick{$Q_2$} &                           & \qw                                                         &                           & \qw 
@@ -705,16 +710,13 @@ Note that in this work we differentiate input error and errors induced by faults
         \lstick{$Q_2$} &                           & \qw &                           & \qw     
     \end{quantikz}
     \end{adjustbox}
-    \subcaption{Equivalence between errors induced by a single-qubit fault and a 2-qubit gate fault.}
+    \subcaption{Single-qubit fault equivalence.}
     \label{fig:idle-2q-error-equivalence}
-  \end{subfigure}
-  
-  \vspace{0.6cm} % Adds breathing room between the stacked subfigures
-  
-  % --- Second Subfigure: Stacked to full width ---
-  \begin{subfigure}{\textwidth}
+  \end{subfigure}%
+  \hfill%
+  \begin{subfigure}[t]{0.49\textwidth}
     \centering
-    \begin{adjustbox}{max width=0.8\textwidth}
+    \begin{adjustbox}{max width=\linewidth}
     \begin{quantikz}[column sep=0.5cm]
     \lstick{$Q_1$} & \gate[2]{U} & \qw & \qw \\
     \lstick{$Q_2$} &                           & \gate[, style={draw=red}]{E} \gategroup[1, steps=2, style={dashed, rounded corners, fill=red!20, inner xsep=8pt}, background, label style={xshift=0.2cm}]{measurement fault} & \meter{}
@@ -725,7 +727,7 @@ Note that in this work we differentiate input error and errors induced by faults
         \lstick{$Q_2$} &                           & \gate[, style={draw=blue}]{E} & \meter{}
     \end{quantikz}
     \end{adjustbox}
-    \subcaption{Equivalence between errors induced by a measurement fault and a 2-qubit gate fault.}
+    \subcaption{Measurement fault equivalence.}
     \label{fig:meas-2q-error-equivalence}
   \end{subfigure}
 
@@ -798,8 +800,9 @@ Condition~(1) of Definition~\ref{def:weak-FTEC} guarantees that the output state
 \label{subsec:flagged-protocols}
 
 
-\begin{wrapfigure}{r}{0.4\textwidth}
+\begin{wrapfigure}[13]{r}{0.35\textwidth}
 \centering
+\vspace{-4mm}
 \begin{adjustbox}{max width=\textwidth,valign=t}
 \scriptsize
 \begin{tikzpicture}[
@@ -844,7 +847,15 @@ Flag qubits signal such error amplification, providing additional
 information for recovery. The following condition formalizes when
 this signal is required.
 \begin{definition}[$\cS$-Flag condition] \label{def:flag}
-A syndrome extraction circuit satisfies the $\cS$-flag condition if, whenever  an event involving $w \le s$ faults induce a data error $E_{\mathrm{data}}$ such that $\mathrm{wt}_{\min} (E_{\mathrm{data}}) > w$, at least one flag measurement outcome is $1$, and when there is no fault in circuit, there is no flag raised. 
+For a given fault bound $k$, a syndrome extraction circuit satisfies
+the $k$-flag condition if the following hold:
+\begin{enumerate}
+    \item With no input data error, whenever an event involving $1\le w\le k$
+    circuit faults induces a data error $E_{\mathrm{data}}$ such that
+    $\mathrm{wt}_{\min}(E_{\mathrm{data}})>w$, at least one flag
+    measurement outcome is $1$.
+    \item With no circuit faults, no flag is raised for any input data error.
+\end{enumerate}
 \end{definition}
 
 
@@ -859,10 +870,14 @@ A \textit{flagged fault-tolerant error correction protocol} consists of flagged 
 The control flow is represented by a finite decision tree. It determines which syndrome extraction circuit is executed next based on the syndrome and flag outcomes obtained so far and determines when the protocol terminates.
 Its paths enumerate all terminating executions.
 
+
 \begin{definition}
 \label{def:measurement-record-and-residual-error}
 For a given execution path, a \emph{measurement record} $m$ is the bit string consisting of all syndrome and flag outcomes observed along that path.
-The corresponding residual error set $\mathcal E_m$ consists of all data Pauli errors consistent with $m$ that can arise from fault events involving at most $t$ faults, prior to decoding.
+The corresponding residual error set $\mathcal E_m$ consists of all data
+Pauli errors before decoding that can arise from executions producing $m$
+with input data error of weight $r$ and $s$ circuit faults satisfying
+$r+s\le t$.
 \end{definition}
 
 
@@ -880,19 +895,11 @@ Each execution follows a control-flow path, executing syndrome extraction circui
 % \bw{add fault <t?}
 
 
-Following~\cite{CB18}, we define \textit{control-flow validity} as follows.
-\begin{definition}[\textbf{Validity of a control flow}]
-\label{def:control-flow-validity}
-Consider a control flow of a flagged error correction protocol. We say a control flow is valid if every path of the control flow satisfies one of the following conditions when there are at most $t $ faults :
-\begin{enumerate}
-   
-    \item \textbf{Condition 1:} The measurement  record indicates that $t$ faults have been detected and for the same measurement record the residual errors have the same ideal syndrome.
-    \item \textbf{Condition 2:} A number of faults $w < t$ has been detected, and the protocol subsequently yields an identical full syndrome for $t-w+1$ consecutive extraction rounds without any flag qubit raised.
-    \item  \textbf{Condition 3:} For every input error $E$ with $wt(E) =r$ and  $s$ faults involving such that $r + s \le t$ , the induced data error has a $\mathrm{wt}_{\mathrm{min}}$ at most $s$.
-\end{enumerate}
-\end{definition}
-Condition 3 corresponds to the case where no additional syndrome information is required, since the residual error is already guaranteed to be correctable.
-
+Following~\cite{CB18}, the protocol-level termination requirements
+are stated as Conditions (1)--(3) in
+Def.~\ref{def:protocol-validity}. Condition (3) covers the case where
+no additional syndrome information is required because the residual
+error is already bounded by the number of circuit faults.
 Fig.~\ref{fig:five-qubit-flagged-protocol} illustrates a control flow  of  flagged protocol on the $[[5,1,3]]$ code where $d=3$, $t= \lfloor \frac{3-1}{2 } \rfloor$. 
 
 % For protocols with small code distance, the completeness of such a decision tree can be verified by
@@ -966,15 +973,15 @@ Fig.~\ref{fig:five-qubit-flagged-protocol} illustrates a control flow  of  flagg
     \end{tikzpicture}
     \end{adjustbox}
 
-    \caption{A flagged error correction protocol for the $[[5,1,3]]$ code where $t = 1$, adapted from~\cite{Chao18}. A label $(P)_f$ denotes the flagged syndrome extraction circuit for stabilizer $P$, while $(P)_b$ denotes the corresponding basic syndrome extraction circuit. Each path from the $\mathrm{Start}$ to the $\mathrm{Decoder}$ satisfies Condition (1) in Def~\ref{def:control-flow-validity}. This is because, along each such path, at least one of the outcomes ($m_i$ or $f_i$) is $1$, indicating the presence of at least one fault or input error, and the four syndrome extractions are sufficient to ensure all resulting errors are syndrome-consistent. The path from $\mathrm{Start}$ to $\mathrm{End }$ will satisfies  Condition (3) in Def~\ref{def:control-flow-validity}   since non of the flag raised.}
+    \caption{A flagged error correction protocol for the $[[5,1,3]]$ code with $t=1$, adapted from~\cite{Chao18}. A label $(P)_f$ denotes a flagged syndrome extraction circuit for stabilizer $P$, while $(P)_b$ denotes the corresponding basic syndrome extraction circuit. If $m_i=1$ or $f_i=1$ in a flagged extraction, the protocol proceeds to a full syndrome extraction and then a decoder. If $m_i=f_i=0$, it proceeds to the next flagged extraction, or terminates at $\mathrm{End}$ after the last one. The formal termination requirements are given in Def.~\ref{def:protocol-validity}.}
     \label{fig:five-qubit-flagged-protocol}
 \end{figure}
 
-Since the purpose of flag qubits is to signal high-weight error propagation events, we introduce the flag condition in the following.
+This example illustrates how measurement outcomes determine different terminating paths in an adaptive protocol. We next formalize the conditions required for such a protocol to support fault-tolerant error correction.
 
 
 
-% We emphasize that a flagged error correction protocol for a distance $d$ QECC does not strictly require its circuits to satisfy the full $t$-flag condition where $t = \lfloor \frac{d-1}{2} \rfloor$. Depending on the design of the control flow, a weaker condition may suffice. Specifically, paths terminating via Condition 2 of Definition~\ref{def:control-flow-validity} only need to satisfy a reduced $(t-w)$-flag condition (Definition~\ref{def:flag}). For example, in the $[[19,1,5]]$ protocol presented in~\cite{Liou25}, the control flow guarantees that any path satisfying Condition 2 will have already detected at least one fault ($w \geq 1$). Consequently, for $t=2$, the constituent circuits only need to satisfy a $1$-flag condition.
+% We emphasize that a flagged error correction protocol for a distance $d$ QECC does not strictly require its circuits to satisfy the full $t$-flag condition where $t = \lfloor \frac{d-1}{2} \rfloor$. Depending on the design of the control flow, a weaker condition may suffice. Specifically, paths terminating via Condition 2 of Definition~\ref{def:protocol-validity} only need to satisfy a reduced $(t-w)$-flag condition (Definition~\ref{def:flag}). For example, in the $[[19,1,5]]$ protocol presented in~\cite{Liou25}, the control flow guarantees that any path satisfying Condition 2 will have already detected at least one fault ($w \geq 1$). Consequently, for $t=2$, the constituent circuits only need to satisfy a $1$-flag condition.
 
 
 
@@ -989,7 +996,7 @@ Since the purpose of flag qubits is to signal high-weight error propagation even
 %     For each path and every measurement record $m$ from a fault event with at most $t$ faults, we define $\mathcal{E}_m$ as the error set containing all possible remaining data errors. 
 % \end{definition}
 
-% To establish that a path of the control flow satisfies Condition (1) of Def~\ref{def:control-flow-validity}, we must verify that for every measurement record $m$ along that path, the error set $\mathcal{E}_m$ is syndrome-consistent—meaning that all errors within the set share the same ideal syndrome.
+% To establish that a path of the control flow satisfies Condition (1) of Def~\ref{def:protocol-validity}, we must verify that for every measurement record $m$ along that path, the error set $\mathcal{E}_m$ is syndrome-consistent—meaning that all errors within the set share the same ideal syndrome.
 
 % To establish that a path satisfies Condition (2), we only need to verify that at least $w$ faults have occurred , followed by $t-w+1$ consecutive full syndrome extraction rounds yielding identical results without any flag raised. %In this scenario, we do not rely on the error set $\mathcal{E}_m$.
 
@@ -1000,34 +1007,54 @@ Since the purpose of flag qubits is to signal high-weight error propagation even
 
 
 % \begin{definition}
-%     For a flagged error correction protocol, a \textit{suitable decoder} is one that, for each path satisfying Condition (1) or (2) in Def~\ref{def:control-flow-validity} with measurement record $m$, outputs a correction $C \in \mathcal{E}_m$. For any path satisfying Condition (3) in Def~\ref{def:control-flow-validity}, the decoder outputs a trivial correction (i.e., applying the identity operator to all data qubits).
+%     For a flagged error correction protocol, a \textit{suitable decoder} is one that, for each path satisfying Condition (1) or (2) in Def~\ref{def:protocol-validity} with measurement record $m$, outputs a correction $C \in \mathcal{E}_m$. For any path satisfying Condition (3) in Def~\ref{def:protocol-validity}, the decoder outputs a trivial correction (i.e., applying the identity operator to all data qubits).
 % \end{definition}\label{def:decoder}
 
 % The definition only specifies the required behavior of the decoder in each
 % termination case. The next lemma shows that, if the control flow is valid 
-% (Def.~\ref{def:control-flow-validity}), such a decoder is well defined.
+% (Def.~\ref{def:protocol-validity}), such a decoder is well defined.
 
 
 
 % \begin{lemma}
-%     For any flagged error correction protocol whose control flow satisfies Definition~\ref{def:control-flow-validity}, a suitable decoder always exists.
+%     For any flagged error correction protocol whose control flow satisfies Definition~\ref{def:protocol-validity}, a suitable decoder always exists.
 % \end{lemma}
 
 % \begin{proof}
-%     For any fault event of weight $\leq t$, consider any path in the control flow that satisfies either Condition (1) or (2) of Definition~\ref{def:control-flow-validity}. Because these conditions are met, the corresponding error set $\mathcal{E}_m$ associated with the measurement record $m$ is guaranteed to be non-empty. Consequently, there always exists at least one valid correction operator $C \in \mathcal{E}_m$. For any path satisfying Condition (3), we can unconditionally assign a trivial correction (the identity operator). Thus, a suitable decoder can always be constructed for the protocol. 
+%     For any fault event of weight $\leq t$, consider any path in the control flow that satisfies either Condition (1) or (2) of Definition~\ref{def:protocol-validity}. Because these conditions are met, the corresponding error set $\mathcal{E}_m$ associated with the measurement record $m$ is guaranteed to be non-empty. Consequently, there always exists at least one valid correction operator $C \in \mathcal{E}_m$. For any path satisfying Condition (3), we can unconditionally assign a trivial correction (the identity operator). Thus, a suitable decoder can always be constructed for the protocol. 
 % \end{proof}
 
-The preceding definitions specify when a flagged error correction protocol is
-well formed for the purpose of fault-tolerant recovery: the extraction circuits must provide valid measurement records, the control flow must terminate in one of the intended cases, and the flag condition must hold whenever the argument relies on unflagged full syndrome extraction rounds (Condition 2). We collect these requirements into a single protocol-level validity condition.
+Circuit validity is defined separately in
+Def.~\ref{def:syndrome-extraction-valid}. The following protocol-validity
+definition combines the control-flow termination requirements with the
+required flag conditions.
 
-\begin{definition}
+\begin{definition}[Protocol validity]
 \label{def:protocol-validity}
-A flagged error correction protocol is valid if all the following condition satisfies:
-\begin{enumerate}
-    \item All syndrome extraction circuits used in this protocol are valid (Def \ref{def:syndrome-extraction-valid}).
-    \item The control flow of the protocol is valid (Def \ref{def:control-flow-validity}).
-    \item For each path of the control flow satisfying the Condition (2) of Def~\ref{def:control-flow-validity} and has detected $w$ faults, the full syndrome extraction circuit needs to satisfies $(t-w)$-flag condition (Def.~\ref{def:flag}). 
+A flagged error correction protocol satisfies \emph{protocol validity} if:
+\begin{enumerate}[leftmargin=*]
+    \item Every terminating path satisfies at least one of the following
+    conditions under fault bound~$t$:
+    \begin{enumerate}
+        \item \textbf{Condition (1):} The measurement record indicates
+        that $t$ faults have been detected, and all residual errors
+        associated with the same record have the same ideal syndrome.
+        \item \textbf{Condition (2):} At least $w<t$ circuit faults
+        have been detected, followed by $t-w+1$ consecutive full
+        syndrome extraction rounds with identical syndrome outcomes
+        and no raised flags.
+        \item \textbf{Condition (3):} For every input data error of
+        weight $r$ and every execution with $s$ circuit faults
+        satisfying $r+s\le t$, the residual data error has
+        minimum weight $\mathrm{wt}_{\min}$ at most $s$.
+    \end{enumerate}
+    \item For every terminating path satisfying Condition (2) with
+    detected-fault lower bound $w$, the full syndrome extraction
+    circuit used in its repeated-syndrome suffix satisfies the
+    $(t-w)$-flag condition (Def.~\ref{def:flag}).
 \end{enumerate}
+The flag requirement applies whenever Condition (2) holds, even
+if the same path also satisfies Condition (1) or Condition (3).
 \end{definition}
 
 
@@ -1035,10 +1062,10 @@ A flagged error correction protocol is valid if all the following condition sati
 % Each internal node represents a syndrome extraction circuit, and each outgoing edge is labeled by a branch condition on the syndrome and flag outcomes. A terminating path determines the corresponding measurement record. In this example,
 % The paths ending at Decoder 1--4 satisfy termination condition (2). The branch condition $m_i=1 \vee f_i=1$ indicates that at least one fault has been detected, so $w=1$. Since $t-w+1=1$, condition (2) requires only one full syndrome extraction circuit in the terminating suffix; this is the blue node immediately before the decoder. The path ending at the End node satisfies
 % termination condition (3).
-Protocol validity establishes the prerequisites for verification;
-weak FTEC must still be checked.
-For each terminating path, we first establish which termination
-condition it satisfies and then apply the corresponding FTEC checks.
+Circuit validity, protocol validity, and error-set correctability
+must all hold for the verifier to accept a protocol as FTEC.
+For protocol validity, every terminating path must satisfy at least
+one of the following termination conditions.
 Condition (1) requires the measurement record to determine the
 ideal syndrome. Condition (2) requires repeated identical syndromes
 without flags. Condition (3) requires the residual error weight
@@ -1053,8 +1080,11 @@ in Section~\ref{sec:FTEC-verification}.
 \label{thm:mains}
 Consider a flagged error-correction protocol $\Pi$ for a stabilizer
 code with stabilizer group $\cS$, distance $d$, and
-$t=\lfloor (d-1)/2 \rfloor$. Assume that $\Pi$ is valid in the sense of
-Def.~\ref{def:protocol-validity}.For each record $m$, let $\mathcal E_m$ be the residual error set
+$t=\lfloor (d-1)/2 \rfloor$. Assume that every syndrome extraction
+circuit used in $\Pi$ is valid according to
+Def.~\ref{def:syndrome-extraction-valid}, and that $\Pi$ satisfies
+protocol validity (Def.~\ref{def:protocol-validity}).
+For each record $m$, let $\mathcal E_m$ be the residual error set
 from Def.~\ref{def:measurement-record-and-residual-error}.
 Then there exists a lookup-table decoder $D$ such that $(\Pi,D)$
 satisfies FTEC if and only if, for every measurement record $m$,
@@ -1064,47 +1094,74 @@ satisfies FTEC if and only if, for every measurement record $m$,
 \end{align}
 \end{theorem}
 
-
-
-
+By Eq.~\ref{eq:QECC_condition}, the condition in this theorem states
+that $\mathcal E_m$ is correctable for every reachable measurement
+record $m$, i.e., every record with $\mathcal E_m\neq\varnothing$.
 
 \begin{proof}[Proof sketch]
-The full proof of this theorem is in Appendix~\ref{app:proof} of the supplementary material. \\
-
+The full proof is given in Appendix~\ref{app:proof}.
+All Pauli products are considered up to global phase.
 
 \textbf{($\Rightarrow$)}
-Suppose, by contradiction, that there exist two residual errors
-$E_1,E_2\in\mathcal{E}_m$ such that
-$E_1\cdot E_2$ is a non-trivial logical operator, i.e.,
-$E_1\cdot E_2\in N(\cS)\setminus \cS$.
-If the decoder applies a correction $C$, then the product of the
-two corrected errors is $(E_1\cdot C)\cdot (E_2\cdot C)=E_1\cdot E_2.$
-Since $E_1\cdot E_2$ is a non-trivial logical operator,
-$\mathrm{wt}_{\min}(E_1\cdot E_2)\ge d>2t. $
-On the other hand, if both corrected errors satisfied the FTEC
-weight requirement, then
-$\mathrm{wt}_{\min}(E_1\cdot C)\le t$ and $ \mathrm{wt}_{\min}(E_2\cdot C)\le t,$
-which would imply
-$\mathrm{wt}_{\min}(E_1\cdot E_2) =\mathrm{wt}_{\min}\bigl((E_1\cdot C)\cdot (E_2\cdot C)\bigr)
-\le \mathrm{wt}_{\min}(E_1\cdot C)
-+\mathrm{wt}_{\min}(E_2\cdot C)
-\le 2t,$
-a contradiction. Therefore, at least one of the two corrected errors
-violates the FTEC weight requirement, and the protocol cannot achieve
-FTEC.
+Suppose that two errors $E_1,E_2\in\mathcal E_m$ satisfy
+$E_1\cdot E_2\in N(\cS)\setminus\cS$.
+A decoder assigns the same correction $C$ to their common record $m$.
+If FTEC holds, the two corrected errors have minimum weight at most
+their respective numbers of circuit faults, and hence at most $t$.
+By subadditivity,
+\[
+d\le\mathrm{wt}_{\min}(E_1\cdot E_2)
+=\mathrm{wt}_{\min}\bigl((E_1\cdot C)(E_2\cdot C)\bigr)
+\le 2t,
+\]
+contradicting $d>2t$.
 
-
-
-\textbf{($\Leftarrow$)} Assuming $\forall E_1, E_2 \in \mathcal{E}_m, E_1 \cdot E_2 \notin N(\cS) \setminus \cS$, we show the protocol satisfies FTEC across the three termination conditions of a valid protocol (Def.~\ref{def:protocol-validity}):
+\textbf{($\Leftarrow$)}
+Assume the pairwise condition in the theorem. For each reachable
+record $m$, choose a correction according to a termination condition
+satisfied by its path:
 \begin{itemize}
-    \item \textbf{Condition (1):} All residual errors in $\mathcal{E}_m$ share the same ideal  syndrome, so for any decoder choice $C \in \mathcal{E}_m$, $E \cdot C$ commutes with the stabilizers. By our assumption, $E \cdot C \in S$, meaning the logical state is preserved.
-    \item \textbf{Condition (2):} After $w$ flags raised, the protocol terminates after $t-w+1$ repeated full-syndrome rounds without flags. With at most $t-w$ faults remaining, at least one round $R$ must be fault-free. The data error $E^-$ before $R$ produces the syndrome precisely and will belong to the equivalence class represented by the decoder choice $C$. The final error is $C \cdot E^- \cdot E_{\mathrm{suf}} \sim E_{\mathrm{suf}}$. Because no flags were raised and at most $s-w$ faults occurred after $R$, the  $\mathrm{wt}_{\mathrm{min}}$ of final error is bounded by $  s \le t $ where $s$ is the total number of faults, satisfying FTEC.
-   
+    \item \textbf{Condition (1):}
+    All errors in $\mathcal E_m$ have the same ideal syndrome.
+    Choose $C\in\mathcal E_m$. For every $E\in\mathcal E_m$,
+    $E\cdot C\in N(\cS)$, and the pairwise condition implies
+    $E\cdot C\in\cS$. Thus the corrected error is trivial up to
+    stabilizers, satisfying both FTEC requirements.
 
-    \item \textbf{Condition (3):} Given an input error $E_{in}$ with $\mathrm{wt}(E_{in}) = r$ and $s$ faults in the path such that $r+s \le t$, if the protocol stops, the resulting output error $E_{out} \in \mathcal{E}_m$ by ~\ref{def:control-flow-validity} condition (3) satisfies $\mathrm{wt}_{min}(E_{out}) \le s  \le t$. Furthermore, because $r \le t$, an ideal decoder will yield the same decoding result for both $E_{in}$ and $E_{out}$, satisfying the FTEC requirements.
+    \item \textbf{Condition (2):}
+    Suppose $w$ faults have been detected before $t-w+1$
+    consecutive full syndrome extraction rounds with identical
+    syndromes and no raised flags. For an execution with $s\le t$
+    circuit faults, at most $s-w$ faults occur in these rounds, so
+    at least one round $R$ is fault-free. Let $E^-$ be the data error
+    before $R$. The fault-free round reports its ideal syndrome.
+    If faults after $R$ are removed, the remaining rounds are
+    fault-free, report the same syndrome, and raise no flags;
+    hence this modified execution has the same record $m$ and
+    residual error $E^-\in\mathcal E_m$.
+    These errors $E^-$ have the same ideal syndrome for a fixed $m$,
+    so the pairwise condition makes them stabilizer-equivalent.
+    Choose $C$ from this equivalence class, giving
+    $C\cdot E^-\in\cS$ for every compatible execution.
+    The actual corrected error is therefore equivalent to the
+    error induced by faults after $R$. Since these rounds raise no
+    flags, the required $(t-w)$-flag condition bounds the minimum
+    weight of their combined fault-induced error by at most
+    $s-w\le s$. Ideal decoding then removes this remaining
+    correctable error, satisfying both FTEC requirements.
 
-
+    \item \textbf{Condition (3):}
+    Choose the identity correction. For an input error of weight
+    $r$ and $s$ circuit faults with $r+s\le t$,
+    Condition (3) of protocol validity bounds the final data error by
+    $\mathrm{wt}_{\min}(E_{\mathrm{out}})\le s$.
+    This establishes FTEC (2), and ideal decoding of the
+    correctable residual error preserves the original logical
+    state, establishing FTEC (1).
 \end{itemize}
+If a path satisfies more than one termination condition, any
+applicable construction above may be used; in each case the
+correction depends only on $m$. This completes the sketch.
 \end{proof}
 
 
@@ -1410,21 +1467,27 @@ FTEC.
 
 
 
+% Keep the section heading and wrapped pipeline on the same page.
+\Needspace{27\baselineskip}
 \section{FTEC Verification Algorithm}
 \label{sec:FTEC-verification}
 
-\begin{wrapfigure}[14]{r}{0.45\textwidth}
-\vspace{-1.2em}
+\begin{wrapfigure}[19]{r}{0.45\textwidth}
 \centering
 \begin{tikzpicture}[
-  node distance=0.35cm,
+  node distance=0.45cm,
   every node/.style={font=\scriptsize},
   box/.style={
     draw,
     rounded corners,
-    align=left,
+    align=center,
     inner sep=3.5pt,
     minimum width=0.41\textwidth
+  },
+  branch/.style={
+    box,
+    minimum width=0.19\textwidth,
+    text width=0.17\textwidth
   },
   arrow/.style={
     -{Latex[length=1.8mm]},
@@ -1434,41 +1497,55 @@ FTEC.
 
 \node[box] (input) {
 \textbf{Input}\\
-Stabilizer code $\mathcal{Q}$, \\
-Flagged protocol $\Pi$, and\\
-Fault bound $t$
+Stabilizer code $\mathcal{Q}$, flagged protocol $\Pi$,\\
+and fault bound $t$
 };
 
 \node[box, below=of input] (circuit) {
-\textbf{Protocol Validity (Def.~\ref{def:protocol-validity}})\\
-Circuit Validity Check (Def.~\ref{def:syndrome-extraction-valid})\\
-Control Flow Validity Check (Def.~\ref{def:control-flow-validity})\\
-Flag Condition Check (Def.~\ref{def:flag})
+\textbf{Stage 1: Circuit Validity}\\
+Correctness and determinism\\
+Reject immediately if any circuit fails
 };
 
-\node[box, below=of circuit] (protocol) {
-\textbf{FTEC Check for a Valid Protocol}\\
-Same-record counterexample search\\
-SAT $\Leftrightarrow$ counterexample to FTEC\\
-UNSAT $\Leftrightarrow$ $\Pi$ satisfies FTEC by Thm.~\ref{thm:mains}
+\node[branch, below=0.65cm of circuit, xshift=-0.105\textwidth] (corr) {
+\textbf{Correctability}\\
+Same-record SAT check
 };
 
-\draw[arrow] (input) -- (circuit);
-\draw[arrow] (circuit) -- node[right] {validity passed} (protocol);
+\node[branch, below=0.65cm of circuit, xshift=0.105\textwidth] (prot) {
+\textbf{Protocol Validity}\\
+Control flow and flag conditions
+};
+
+\node[box, below=0.75cm of corr, xshift=0.105\textwidth] (result) {
+\textbf{Overall FTEC Verification}\\
+Accept iff both checks pass
+};
+
+\draw[arrow] (input.south) -- (circuit.north);
+\draw[arrow] ([xshift=-0.065\textwidth]circuit.south) -- (corr.north);
+\draw[arrow] ([xshift= 0.065\textwidth]circuit.south) -- (prot.north);
+\draw[arrow] (corr.south) -- ([xshift=-0.065\textwidth]result.north);
+\draw[arrow] (prot.south) -- ([xshift= 0.065\textwidth]result.north);
 
 \end{tikzpicture}
-\caption{SAT-based verification pipeline.}
+\caption{SAT-based verification pipeline. After circuit validity passes, correctability and protocol validity are checked independently.}
 \label{fig:verification-pipeline}
 \vspace{-1.0em}
 \end{wrapfigure}
 
-This section presents the verification algorithm for checking whether a flagged error correction protocol $\Pi$ satisfies FTEC. The algorithm is based on Thm.~\ref{thm:mains}. It first checks that $\Pi$ is a valid protocol in the sense of Def.~\ref{def:protocol-validity}. It then checks the condition in Thm.~\ref{thm:mains}: no two executions within the fault
-bound may produce the same measurement record while leaving residual data errors whose relative error is a nontrivial logical operator.
+The verifier first checks the validity of all syndrome extraction
+circuits (Def.~\ref{def:syndrome-extraction-valid}). Only after
+this check passes does it perform the correctability check
+(Eq.~\ref{eq:QECC_condition}) and protocol-validity check
+(Def.~\ref{def:protocol-validity}). Under circuit validity and the
+assumed Pauli fault model, symbolic fault propagation represents
+the reachable measurement records and residual data errors.
+The protocol is accepted as FTEC only if both subsequent checks pass,
+by Thm.~\ref{thm:mains}.
 
-
-We organize the presentation by the analysis method used by the verifier. We first present the SAT-based checks, including the SAT formula for the FTEC condition in Thm.~\ref{thm:mains}, circuit correctness check, flag condition, and the control flow validity conditions that are reduced to SAT queries. We then describe the remaining validity checks: circuit determinism is checked by stabilizer simulation, and Condition (2) of Def.~\ref{def:control-flow-validity} is checked by direct inspection of terminating paths. The overall algorithm first establishes protocol validity and then applies the FTEC check.
-
-
+We describe the SAT-based, simulation-based, and structural checks
+below, followed by their staged execution in the overall algorithm.
 
 \subsection{SAT-Based Checks}
 \label{subsec:sat-based-checks}
@@ -1477,7 +1554,7 @@ We organize the presentation by the analysis method used by the verifier. We fir
 We first define the symbolic objects used by the SAT-based checks.
 The verifier analyzes each terminating path of the protocol separately.
 Let $\pi$ be a terminating path, and let $\mathcal{L}_\pi$ denote the set of
-fault locations along $\pi$.A \emph{fault assignment} is defined as a tuple $\mathcal{F} = (\mathcal{F}_{\text{in}}, \mathcal{F}_{\text{circ}})$, where $\mathcal{F}_{\text{in}}$ denotes the input data error and $\mathcal{F}_{\text{circ}}$ assigns a Pauli fault to each location in $\mathcal{L}_\pi$.
+fault locations along $\pi$. A \emph{fault assignment} is defined as a tuple $\mathcal{F} = (\mathcal{F}_{\text{in}}, \mathcal{F}_{\text{circ}})$, where $\mathcal{F}_{\text{in}}$ denotes the input data error and $\mathcal{F}_{\text{circ}}$ assigns a Pauli fault to each location in $\mathcal{L}_\pi$.
 
 For a data qubit $q_i$, the input is represented by two variables $(q_{i,x}, q_{i,z})$. We introduce an activity variable $a_{i} \in \{0,1\}$ to indicate whether the qubit has an input error:
 \begin{equation}
@@ -1500,7 +1577,7 @@ x_{\ell,q_2}\vee z_{\ell,q_2}.
 \end{equation}
 
 Thus, $a_\ell=1$ exactly when the fault assigned to $\ell$ is not the
-identity. The input error weight of $\mathcal{F_{in}}$ and fault weight of $\mathcal{F}_{circ}$ is then
+identity. The input error weight of $\mathcal{F}_{\mathrm{in}}$ and the circuit fault count of $\mathcal{F}_{\mathrm{circ}}$ are then
 \[
 \mathrm{wt}(\mathcal{F}_{in})
 =
@@ -1509,6 +1586,10 @@ identity. The input error weight of $\mathcal{F_{in}}$ and fault weight of $\mat
 =
 \sum_{\ell\in\mathcal{L}_\pi} a_\ell.
 \]
+The total fault-assignment weight is defined as
+$\mathrm{wt}(\mathcal F)=\mathrm{wt}(\mathcal F_{\mathrm{in}})
++\mathrm{wt}(\mathcal F_{\mathrm{circ}})$,
+accounting for both input data errors and circuit faults.
 We encode $\mathrm{wt}(\mathcal{F})\le t$ and
 $\mathrm{wt}(\mathcal{F}_{circ})=w$ with cardinality
 constraints~\cite{sinz2005towards}.
@@ -1571,8 +1652,16 @@ m_\pi(\mathcal{F})
 \]
 
 This notation makes the dependence of the symbolic quantities on the Boolean
-fault variables explicit; it therefore differs slightly from the notation
-used in Figure~\ref{fig:syndrome extraction-circuits-2}.
+fault variables explicit.
+
+After the circuit-validity stage has passed, these symbolic quantities
+describe the physical executions within the assumed Pauli fault model.
+In particular, assignments satisfying $\Phi_\pi(\mathcal F)$ and
+$\mathrm{wt}(\mathcal F)\le t$ generate the residual errors in
+$\mathcal E_m$ when $m_\pi(\mathcal F)=m$
+(Def.~\ref{def:measurement-record-and-residual-error}).
+Because the control flow is a decision tree determined by recorded
+outcomes, a complete measurement record determines its terminating path.
 
 % We first define the symbolic objects used by the SAT-based checks. The verifier
 % analyzes each terminating path of the protocol separately. Let $\pi$ be a
@@ -1827,7 +1916,13 @@ Thus, the recorded outcomes for syndrome qubit $a$ ($X$-basis) and flag qubit $f
 \[
 m_1(\mathcal{F}) = Q_{a,z}(\mathcal{F}), \qquad f_1(\mathcal{F}) = Q_{f,x}(\mathcal{F}).
 \]
-Each recorded outcome is a Boolean formula over the fault variables.
+These expressions represent flips relative to the fault-free
+measurement outcomes, taken to be zero in the encoding. They represent
+the physical measurement bits when the fault-free outcomes are
+deterministic and have those reference values, as ensured by circuit
+validity. If a circuit has intrinsically nondeterministic fault-free
+outcomes, Pauli fault labels alone need not represent every possible
+physical measurement record.
 
 The full measurement record $m_\pi(\mathcal{F}) = \bigl(R_1(\mathcal{F}), \ldots, R_r(\mathcal{F})\bigr)$ collects all $r$ syndrome and flag outcomes along path $\pi$ (where $R_j$ denotes the $j$-th recorded bit, e.g., $R_1 = m_1, R_2 = f_1$). Bitwise equality between two records is encoded as:
 \[
@@ -1860,25 +1955,25 @@ have Boolean encodings of the three quantities used by the verification
 queries: the path condition $\Phi_\pi(\mathcal{F})$, the residual data error
 $E_\pi(\mathcal{F})$, and the measurement record $m_\pi(\mathcal{F})$.
 
-\subsubsection{FTEC Check}
+\subsubsection{Correctability Check}
 \label{subsec:ftec-check}
 
-We first present the SAT formula for checking the condition in
-Thm.~\ref{thm:mains}. This check is applied after the verifier has
-established that the input protocol is valid in the sense of
-Def.~\ref{def:protocol-validity}. As in Thm.~\ref{thm:mains}, we ignore
-global phases and write the relative Pauli error as the product of the two
-residual data errors.
+After circuit validity has been established, we check correctability
+of $\mathcal E_m$ (Def.~\ref{def:measurement-record-and-residual-error})
+using Eq.~\ref{eq:QECC_condition}. The subsequent correctability and
+protocol-validity checks are evaluated separately.
+As in Thm.~\ref{thm:mains}, we ignore global phases and write the
+relative Pauli error as the product of two residual data errors.
 
 For each terminating path $\pi$, the verifier searches for two fault
-assignments $\mathcal{F}_1$ and $\mathcal{F}_2$ such that both executions follow $\pi$, both contain
-at most $t$ faults, and both produce the same measurement record, but their
+assignments $\mathcal{F}_1$ and $\mathcal{F}_2$ such that both executions follow $\pi$, both have
+total fault-assignment weight at most $t$, and both produce the same measurement record, but their
 residual data errors violate the quantum error correction condition. The SAT
 formula is
 
 \begin{equation}
 \begin{aligned}
-\Psi^{\mathrm{FTEC}}_\pi
+\Psi^{\mathrm{Corr}}_\pi
 :=
 \exists \mathcal{F}_1,\mathcal{F}_2.\quad
 &
@@ -1904,14 +1999,15 @@ The last line requires the two residual data errors to violate the quantum
 error correction condition, since their product is a nontrivial logical
 operator.
 
-Thus, if $\Psi^{\mathrm{FTEC}}_\pi$ is satisfiable, the satisfying assignment
-gives a concrete counterexample to the condition in
-Thm.~\ref{thm:mains}. If $\Psi^{\mathrm{FTEC}}_\pi$ is unsatisfiable for
-every terminating path $\pi$, then no such counterexample exists within the
-fault bound. For a valid protocol, Thm.~\ref{thm:mains} implies that this
-is equivalent to $\Pi$ satisfying FTEC.
+Thus, if $\Psi^{\mathrm{Corr}}_\pi$ is satisfiable, it witnesses a
+reachable record $m$ for which $\mathcal E_m$ is not correctable.
+If the query is unsatisfiable for all terminating paths, every
+reachable $\mathcal E_m$ is correctable: each complete record determines
+its terminating path, so the per-path queries cover all pairs of
+errors associated with the same record. If protocol validity also
+holds, Thm.~\ref{thm:mains} yields an FTEC decoder.
 
-It remains to encode the last conjunct of $\Psi^{\mathrm{FTEC}}_\pi$. Let
+It remains to encode the last conjunct of $\Psi^{\mathrm{Corr}}_\pi$. Let
 
 $
 Q=E_\pi(\mathcal{F}_1) \cdot E_\pi(\mathcal{F}_2).
@@ -1984,16 +2080,16 @@ constraint encode
 $
 Q\in N(\mathcal S)\setminus\mathcal S.
 $
-Therefore $\Psi^{\mathrm{FTEC}}_\pi$ is a SAT query whose satisfying
+Therefore $\Psi^{\mathrm{Corr}}_\pi$ is a SAT query whose satisfying
 assignments are exactly the counterexamples to the condition in
 Thm.~\ref{thm:mains} on the path $\pi$.
 
 
 
-\subsubsection{Check for Condition~(1) of Def.~\ref{def:control-flow-validity} used in Thm.~\ref{thm:mains}}
+\subsubsection{Check for Condition~(1) of Def.~\ref{def:protocol-validity} used in Thm.~\ref{thm:mains}}
 \label{subsec:cf-validity-condition1}
 
-We next describe the SAT check for the assumption of Condition~(1) in Def.~\ref{def:control-flow-validity}, as required by Thm.~\ref{thm:mains}. We must check that if a path satisfies Condition~(1), any executions that produce the same measurement record leave residual data errors with the same ideal syndrome. Therefore, the verifier searches for a counterexample: two executions that follow the same terminating path and produce the same measurement record, but whose residual data errors have different ideal syndromes.
+We next describe the SAT check for the assumption of Condition~(1) in Def.~\ref{def:protocol-validity}, as required by Thm.~\ref{thm:mains}. We must check that if a path satisfies Condition~(1), any executions that produce the same measurement record leave residual data errors with the same ideal syndrome. Therefore, the verifier searches for a counterexample: two executions that follow the same terminating path and produce the same measurement record, but whose residual data errors have different ideal syndromes.
 
 For each terminating path $\pi$ intended to satisfy Condition (1), the verifier
 checks satisfiability of the formula
@@ -2052,7 +2148,7 @@ is encoded as
 
 If $\Psi^{\mathrm{CF1}}_\pi$ is satisfiable, then the same measurement record
 can correspond to two different ideal syndromes, so Condition (1) of
-Def.~\ref{def:control-flow-validity} fails on $\pi$. If the formula is
+Def.~\ref{def:protocol-validity} fails on $\pi$. If the formula is
 unsatisfiable, the record uniquely determines the ideal syndrome
 for all executions on $\pi$ within the fault bound.
 
@@ -2061,11 +2157,16 @@ for all executions on $\pi$ within the fault bound.
 
 
 We next describe the SAT check for Condition (3) of
-Def.~\ref{def:control-flow-validity}. This condition applies to terminating
-paths for which the decoder applies the trivial correction. Therefore, given an input error $E_{in}$ with $wt(E)=r  $ and  every
-fault event involving $r+ w\le t$ faults must already leave a residual data error
-whose $ \mathrm{wt}_{\mathrm{min}}$ is at most $w$.
+Def.~\ref{def:protocol-validity}. This condition applies to terminating
+paths for which the decoder applies the trivial correction. For an input
+error of weight $r$ and $w$ circuit faults with $r+w\le t$, the residual
+data error must have minimum weight at most $w$.
 
+In the following query, $w$ is fixed, while
+$r$ abbreviates $\mathrm{wt}(\mathcal F_{\mathrm{in}})$ for the
+existentially chosen fault assignment $\mathcal F$; it is not
+an additional fixed parameter. Thus all input error weights satisfying
+$r+w\le t$ are considered.
 For each terminating path $\pi$ intended to satisfy Condition (3), and for each
 $w=0,\ldots,t$, the verifier searches for a fault assignment that violates this
 requirement:
@@ -2084,10 +2185,11 @@ requirement:
 &\land\ \mathrm{wt}_{\min}(E_\pi(\mathcal{F}))> w  .
 \end{aligned}
 \end{equation}
-The first line requires the fault assignment to produce an execution that
-follows the terminating path $\pi$. The second line fixes the number of faults
-to be $w$. The last line requires the residual data error to have minimum
-weight greater than $w$, even after multiplying by stabilizers.
+The constraints require the input error weight $r$ and the circuit fault
+count $w$ to satisfy $r+w\le t$, while the path condition requires the
+execution to follow $\pi$. The final conjunct searches for a residual
+data error whose minimum weight exceeds $w$, even after multiplying by
+stabilizers.
 
 
 Recall from Eq.~(\ref{eq:wt_min}) that 
@@ -2096,7 +2198,7 @@ To encode the condition $\mathrm{wt}_{\min}(E_\pi(\mathcal{F})) > w$, we must as
 
 \begin{equation} \label{eq:minimum-weight}
     \begin{aligned}
-      \mathrm{wt}_{\min}(E_\pi(\mathcal{F}))>w \ =   \bigwedge_{P : \mathrm{wt}(P) \leq w } \neg  \mathrm{Norm}(P \cdot E_\pi(\mathcal{F}), \mathcal{S}) \lor \mathrm{Stab}_{\mathrm{non}}(P \cdot E_\pi(\mathcal{F}), \mathcal{L}) 
+      \mathrm{wt}_{\min}(E_\pi(\mathcal{F}))>w \ = \bigwedge_{P : \mathrm{wt}(P) \leq w} \left(\neg\mathrm{Norm}(P \cdot E_\pi(\mathcal{F}), \mathcal{S}) \lor \mathrm{Stab}_{\mathrm{non}}(P \cdot E_\pi(\mathcal{F}), \mathcal{L})\right)
     \end{aligned}
 \end{equation}
 
@@ -2204,7 +2306,7 @@ To encode the condition $\mathrm{wt}_{\min}(E_\pi(\mathcal{F})) > w$, we must as
 
 If $\Psi^{\mathrm{CF3}}_{\pi,w}$ is satisfiable for some $w$, then there is a
 $w$-fault execution on $\pi$ whose residual data error has minimum  weight larger
-than $w$, so Condition (3) of Def.~\ref{def:control-flow-validity} fails on
+than $w$, so Condition (3) of Def.~\ref{def:protocol-validity} fails on
 $\pi$. If the formula is unsatisfiable for every $w=0,\ldots,t$, then
 Condition (3) holds on $\pi$.
 
@@ -2213,53 +2315,48 @@ Condition (3) holds on $\pi$.
 
 We check the flag-condition requirement in Def.~\ref{def:protocol-validity}
 only for terminating paths satisfying Condition (2) of
-Def.~\ref{def:control-flow-validity}. For
-such a path, the direct inspection used in the control-flow validity check
-determines the number $w$ of detected faults on the path. The protocol validity
-condition then requires the full syndrome extraction circuit used in the
+Def.~\ref{def:protocol-validity}. For
+such a path, the structural check for Condition (2)
+determines the detected-fault lower bound $w$ on the path. Protocol validity
+then requires the full syndrome extraction circuit used in the
 repeated-syndrome suffix to satisfy the $(t-w)$-flag condition.
 
 
 
 Let $C$ be this full syndrome extraction circuit, and let $F_C$ be the
-set of flag qubits in $C$. For a fault assignment $\mathcal{F}$ on $C$, symbolic Pauli
-propagation produces a residual data error $E_C(\mathcal{F})$ and, for each flag qubit
-$q\in  F_C$, a recorded flag outcome $f_q(\mathcal{F})$. For each
-$s=1,\ldots,t-w$, the verifier searches for an unflagged $s$-fault execution
-of $C$ with $\mathrm{wt}_{\min}(E_C(\mathcal{F}))>s$:
+set of flag qubits in $C$. For a fault assignment $\mathcal{F}$ on $C$,
+symbolic Pauli propagation produces a residual data error
+$E_C(\mathcal{F})$ and, for each flag qubit $q\in F_C$, a recorded flag
+outcome $f_q(\mathcal{F})$. Let $k=t-w$, and abbreviate
+$s=\mathrm{wt}(\mathcal{F}_{\mathrm{circ}})$. We encode both violations of the
+$k$-flag condition in a single SAT query:
 \begin{equation}
+\label{eq:flag-check}
 \begin{aligned}
-\Psi^{\mathrm{flag}}_{C,s}
-:=
-\exists \mathcal{F}.\quad
-&
-\mathrm{wt}(\mathcal{F}_{circ})=s
-\\
-&\land\ \bigwedge_{q\in F_C}\neg f_q(\mathcal{F})
-\\
-&\land\ \mathrm{wt}_{\min}(E_C(\mathcal{F}))> s 
-\\
-&\lor ( \mathrm{wt}(\mathcal{F}_{circ}) = 0 \land \bigvee_{q\in F_C}  f_q(\mathcal{F}) )  .
+\Psi^{\mathrm{flag}}_{C,k}:=\exists\mathcal{F}.\quad
+&\bigl(s=0\land\bigvee_{q\in F_C}f_q(\mathcal{F})\bigr)\\
+&\lor\bigl(\mathcal{F}_{\mathrm{in}}=I\land 1\le s\le k
+\land\neg\bigvee_{q\in F_C}f_q(\mathcal{F})
+\land\mathrm{wt}_{\min}(E_C(\mathcal{F}))>s\bigr).
 \end{aligned}
 \end{equation}
 
-\bw{added : no fault the nno flag}
-The first line fixes the number of faults in the circuit to be $s$. The second
-line requires that no flag qubit is raised. The last line requires the induced
-residual data error to have $\mathrm{wt}_{\mathrm{min}}$ larger than $s$.
+The first disjunct detects a raised flag when there are no circuit faults,
+allowing arbitrary input data errors. The second disjunct assumes no input
+data error ($\mathcal{F}_{\mathrm{in}}=I$) and detects a fault-induced
+data error with minimum weight greater than the number $s$ of circuit
+faults, without any raised flag, for some $1\le s\le k$.
 
 As in the Condition (3) check, the constraint
-$\mathrm{wt}_{\min}(E_C(\mathcal{F}))>s$ is encoded using Eq.~\eqref{eq:minimum-weight} with $w$ replaced by $s$.
-In the binary Pauli representation, this is implemented by XORing the binary
-vector of $E_C(\mathcal{F})$ with the selected stabilizer representative
-and constraining the support cardinality of their XOR.
+$\mathrm{wt}_{\min}(E_C(\mathcal{F}))>s$ is encoded using
+Eq.~\eqref{eq:minimum-weight} with $w$ replaced by $s$.
+This encoding enumerates Pauli operators $P$ of weight at most $s$
+and checks that $P E_C(\mathcal{F})$ does not belong to the stabilizer group.
 
-If $\Psi^{\mathrm{flag}}_{C,s}$ is satisfiable for some $s\le t-w$, then the
-circuit violates the required $(t-w)$-flag condition: there is an unflagged
-$s$-fault execution whose residual data error is not stabilizer-equivalent to
-any Pauli error of weight at most $r$. If the formula is unsatisfiable for every
-$s=1,\ldots,t-w$, then the circuit satisfies the required $(t-w)$-flag
-condition.
+If $\Psi^{\mathrm{flag}}_{C,k}$ is satisfiable, at least one of the two
+flag-condition requirements is violated. The circuit satisfies the required
+$k$-flag condition if and only if $\Psi^{\mathrm{flag}}_{C,k}$ is
+unsatisfiable.
 
 \subsubsection{Circuit Correctness Check}
 \label{subsec:circuit-correctness-check}
@@ -2336,7 +2433,7 @@ The remaining checks use different mechanisms.
 The second part of circuit validity verification
 uses fault-free stabilizer-tableau simulation,
 while Condition (2) of
-Def.~\ref{def:control-flow-validity}
+Def.~\ref{def:protocol-validity}
 is checked directly from the structure of
 the terminating path.
 
@@ -2392,7 +2489,7 @@ and is rejected by the verifier.
 \subsubsection{Control-Flow Validity: Condition (2)}
 \label{subsec:cf-validity-condition2}
 
-Condition (2) of Def.~\ref{def:control-flow-validity} is checked by direct
+Condition (2) of Def.~\ref{def:protocol-validity} is checked by direct
 inspection of terminating paths. This condition applies to paths that terminate
 after a repeated full-syndrome suffix. For each such path $\pi$, the verifier
 infers a detected-fault lower bound $w$ from the preceding measurement
@@ -2412,7 +2509,11 @@ Section~\ref{subsec:tw-flag-condition-check}.
 \subsection{Overall Algorithm}
 \label{subsec:overall-algorithm}
 
-Algorithm~\ref{alg:ftec-verification} summarizes the verification procedure. Although the previous subsections present the SAT-based checks first, the algorithm first establishes protocol validity, because Thm.~\ref{thm:mains} applies only to valid protocols. If the protocol is invalid, it returns \textsc{NotValid}. If valid, the algorithm then checks the condition in Thm.~\ref{thm:mains} on every terminating path and returns either \textsc{NotFTEC} or \textsc{FTEC}.
+Algorithm~\ref{alg:ftec-verification} checks circuit validity first.
+If it fails, the protocol is rejected without running the remaining
+checks. Otherwise, correctability and protocol validity are checked
+separately. All three properties must pass for FTEC acceptance,
+by Thm.~\ref{thm:mains}.
 
 \begin{algorithm}[t]
 
@@ -2422,25 +2523,28 @@ Algorithm~\ref{alg:ftec-verification} summarizes the verification procedure. Alt
 \caption{Verification of a flagged error correction protocol}
 \label{alg:ftec-verification}
 \KwIn{Stabilizer code $\mathcal Q$, flagged protocol $\Pi$, fault bound $t$}
-\KwOut{\textsc{NotValid}, \textsc{NotFTEC}, or \textsc{FTEC}}
+\KwOut{$(v_{\mathrm{circ}},v_{\mathrm{prot}},c)$; $\bot$ means not evaluated}
 
 \ForEach{syndrome extraction circuit $C$ used in $\Pi$}{
-    \lIf{\textsc{CircuitValidity}$(C)$ fails}{\Return \textsc{NotValid}}
+    \lIf{\textsc{CircuitValidity}$(C)$ fails}{\Return $(\mathrm{false},\bot,\bot)$}
+}
+$v_{\mathrm{circ}}\gets\mathrm{true}$; 
+$c\gets\mathrm{true}$;
+$v_{\mathrm{prot}}\gets\mathrm{true}$\;
+\ForEach{terminating path $\pi\in\Pi$}{
+    \lIf{$\Psi^{\mathrm{Corr}}_\pi$ is SAT}{$c\gets\mathrm{false}$}
 }
 
-\ForEach{terminating path $\pi\in \Pi$}{
-    \lIf{\textsc{ControlFlowValidity}$(\pi,t)$ fails}{\Return \textsc{NotValid}}
-    
-    \If{$\pi$ satisfies Condition (2) with detected-fault count $w$}{
-        \ForEach{full syndrome extraction circuit $C\in \pi$}{\lIf{\textsc{FlagCondition}$(C,t-w)$ fails}{\Return \textsc{NotValid}}}
+
+\ForEach{terminating path $\pi\in\Pi$}{
+    \lIf{\textsc{ControlFlowValidity}$(\pi,t)$ fails}{$v_{\mathrm{prot}}\gets\mathrm{false}$}
+    \If{$\pi$ satisfies the termination condition (2) with detected-fault lower bound $w$}{
+        Let $C$ be the full syndrome extraction circuit used in $\pi$'s repeated-syndrome suffix\;
+        \lIf{\textsc{FlagCondition}$(C,t-w)$ fails}{$v_{\mathrm{prot}}\gets\mathrm{false}$}
     }
 }
 
-\ForEach{terminating path $\pi\in\Pi$}{
-    \lIf{$\Psi^{\mathrm{FTEC}}_\pi$ is SAT}{\Return \textsc{NotFTEC}}
-}
-
-\Return \textsc{FTEC}
+\Return $(v_{\mathrm{circ}},v_{\mathrm{prot}},c)$
 \end{algorithm}
 
 The subroutines in Algorithm~\ref{alg:ftec-verification} refer to the checks
@@ -2448,83 +2552,52 @@ defined above. \textsc{CircuitValidity} checks
 Def.~\ref{def:syndrome-extraction-valid} by stabilizer-tableau simulation and SAT-based check.
 
 
-\textsc{ControlFlowValidity} checks Def.~\ref{def:control-flow-validity}: the subroutine first determines which control flow validity case applies
-to the path $\pi$. If no case applies, it returns
-\textsc{NotValid}. Otherwise, it performs the checks corresponding
-to the identified case and returns whether they pass.
+\textsc{ControlFlowValidity} checks whether at least one of the three
+conditions in Def.~\ref{def:protocol-validity} holds for the path $\pi$.
+It returns success if any condition is satisfied, and failure otherwise.
 For Condition (1), it checks that the record indicates $t$ detected
 faults and that $\Psi^{\mathrm{CF1}}_\pi$ is unsatisfiable.
-For Condition (2), it checks the repeated-syndrome suffix and all
-required $(t-w)$-flag conditions.
+For Condition (2), it checks that the path has detected $w<t$ faults
+and terminates after $t-w+1$ consecutive full syndrome extraction rounds
+with identical syndrome outcomes and no raised flags.
 For Condition (3), it checks that all required
 $\Psi^{\mathrm{CF3}}_{\pi,w}$ queries are unsatisfiable.
-The flag checks for Condition (2) are performed only when the path
-is classified under that case.
+The required $(t-w)$-flag condition is checked separately by
+\textsc{FlagCondition} in Algorithm~\ref{alg:ftec-verification} for every
+path satisfying Condition (2), even if another termination condition also holds.
 
 \begin{theorem}[Verification correctness]
 \label{thm:verification-correctness}
-Algorithm~\ref{alg:ftec-verification} satisfies the following:
-\begin{enumerate}
-    \item If it returns \textsc{NotValid}, then $\Pi$ fails
-    Def.~\ref{def:protocol-validity}.
-    \item If it returns \textsc{NotFTEC}, then $\Pi$ is a valid protocol but
-    does not satisfy FTEC.
-    \item If it returns \textsc{FTEC}, then $\Pi$ is a valid protocol and
-    satisfies FTEC.
-\end{enumerate}
+Under the assumed Pauli fault model,
+Algorithm~\ref{alg:ftec-verification} correctly verifies
+circuit validity, protocol validity, and correctability
+of the residual error sets.
+
+If circuit validity fails, the remaining checks are
+not performed. Otherwise, the algorithm returns
+$(v_{\mathrm{circ}},v_{\mathrm{prot}},c)$,
+where each Boolean result indicates whether the
+corresponding property holds.
+
+If all three properties hold, there exists a
+lookup-table decoder $D$ such that $(\Pi,D)$
+satisfies FTEC.
 \end{theorem}
 
 \begin{proof}
-If the algorithm returns \textsc{NotValid}, either a syndrome
-extraction circuit fails Def.~\ref{def:syndrome-extraction-valid},
-or some terminating path cannot be classified under any termination
-case, or a required check for its identified case fails, including
-the flag condition for Condition (2).
-Hence $\Pi$ fails Def.~\ref{def:protocol-validity}.
+The circuit-validity check establishes
+Def.~\ref{def:syndrome-extraction-valid}.
+Once circuit validity holds, the SAT queries
+$\Psi^{\mathrm{Corr}}_\pi$ characterize violations
+of correctability for each terminating path,
+while the control-flow and flag-condition checks
+establish protocol validity.
 
-Suppose the algorithm reaches the FTEC-check loop. Then all protocol-validity
-checks have passed, so $\Pi$ is a valid protocol in the sense of
-Def.~\ref{def:protocol-validity}. If the algorithm returns \textsc{NotFTEC},
-then $\Psi^{\mathrm{FTEC}}_\pi$ is satisfiable for some terminating path
-$\pi$. Thus, there exist two executions within the fault bound that follow the
-same terminating path, produce the same measurement record, and leave residual
-data errors whose product lies in
-$N(\mathcal S)\setminus\mathcal S$. This violates the condition in
-Thm.~\ref{thm:mains}. Since $\Pi$ is valid, the theorem implies that
-$\Pi$ does not satisfy FTEC.
-
-Finally, if the algorithm returns \textsc{FTEC}, then all protocol-validity
-checks have passed and every formula $\Psi^{\mathrm{FTEC}}_\pi$ is
-unsatisfiable. Hence no two executions within the fault bound produce the same
-measurement record while leaving residual data errors whose product lies in
-$N(\mathcal S)\setminus\mathcal S$. Therefore the condition in
-Thm.~\ref{thm:mains} holds. Since $\Pi$ is valid, the theorem implies
-that $\Pi$ satisfies FTEC.
+Thus the algorithm correctly determines the
+three properties. If all three hold,
+Thm.~\ref{thm:mains} guarantees the existence
+of an FTEC lookup-table decoder.
 \end{proof}
-
-\section{Related Work}
-
-Recent works have made significant progress in verifying quantum error correction circuits using SAT solvers. For example, Chen et al.~\cite{chen2025verifying} employ symbolic execution to check if injected faults in quantum gadgets violate fault-tolerance conditions. Similarly, Huang et al.~\cite{10.1145/3729293} introduce Veri-QEC, a formal verification framework that translates Pauli errors into classical assertions solved by SAT solvers. 
-
-However, applying these general methods to flagged syndrome extraction circuits creates a major bottleneck if an explicit decoder is not provided. In these frameworks, two distinct faults might produce the exact same syndrome. Without a predefined decoder to resolve this ambiguity, their tools cannot determine whether the post-recovery state will actually cause a logical error. 
-Furthermore, weight greater than $t$ does not imply uncorrectability:
-an error may be stabilizer-equivalent to one of lower weight.
-This occurs naturally when a fault propagates to multiple data qubits
-in a flagged protocol.
-
-Our work bypasses these limitations by adopting a specialized approach. By focusing strictly on flagged fault-tolerant error correction protocols, we completely eliminate the need for an explicit decoder during the verification process.
-Rather than constructing a decoder and evaluating its performance, we establish a theorem that characterizes FTEC directly in terms of the residual-error sets associated with measurement records.
-Beyond these theoretical guarantees, our framework demonstrates clear practical utility: by applying our method, we successfully identified previously unknown design flaws in published flagged error correction protocols.
-\paragraph{Other automatic approaches for quantum circuit verification.}
-
-Beyond quantum error correction, a variety of automated techniques have been developed for quantum circuit and program verification. Symbolic-execution-based approaches, such as SymQV~\cite{BauerMarquartLS23}, encode circuit semantics and verification conditions as SMT queries. Other works use automata-based representations of quantum states and symbolic gate execution~\cite{ChenCLLTY23,ChenCLLT23,abdulla2025verifying,autoq2,abdulla2026parameterized}, SMT array theories~\cite{chen2023theory}, or abstract interpretation~\cite{yu2021quantum,perdrix2008quantum} to reason about quantum programs.
-
-These techniques have primarily been evaluated on functional correctness properties of quantum circuits and programs rather than fault-tolerance properties of quantum error-correction protocols. Nevertheless, many of the underlying ideas, such as symbolic execution, symbolic state representations, and automated constraint solving, appear potentially applicable to QECC verification as well. 
-These techniques provide useful foundations for automated QECC verification, but their application to fault-tolerance properties involving fault propagation, stabilizer degeneracy, and recovery correctness requires additional structure.
-
-
-
-Our work represents one step in this direction. By exploiting the structure of flagged syndrome-extraction protocols, we obtain a SAT-based verification procedure that avoids explicit decoder construction while still providing a complete correctness guarantee.
 
 
 \section{Results}
@@ -2615,7 +2688,7 @@ AMD EPYC 7742 64-core processor (1.5\,GHz), 2\,TiB of RAM, and a 1\,TB SSD. We i
 % \midrule
 % \multicolumn{8}{c}{\textbf{FTEC}} \\
 % \midrule
-% FTEC(path) & 0 & 0 & 0 & 3 & 0 & 0 & 0 \\
+% FTEC (path) & 0 & 0 & 0 & 3 & 0 & 0 & 0 \\
 % Time (s) & 0.307 & 0.262 & 0.257 & 0.211 & 0.222 & 0.263 & 0.348 \\
 % Peak Mem (MB) & 155.6 & 111.8 & 114.6 & 306.3 & 164.1 & 321.4 & 172.8 \\
 % SAT Calls & 4 & 4 & 4 & 21 & 21 & 21 & 21 \\
@@ -2715,7 +2788,7 @@ AMD EPYC 7742 64-core processor (1.5\,GHz), 2\,TiB of RAM, and a 1\,TB SSD. We i
 % \midrule
 % \multicolumn{8}{c}{\textbf{FTEC}} \\
 % \midrule
-% FTEC(path) & 0 & 0 & 0 & 3 & 0 & 0 & 0 \\
+% FTEC (path) & 0 & 0 & 0 & 3 & 0 & 0 & 0 \\
 % Peak Mem (MB) & 155.6 & 111.8 & 114.6 & 306.3 & 164.1 & 321.4 & 172.8 \\
 % SAT Calls & 4 & 4 & 4 & 21 & 21 & 21 & 21 \\
 % Total SAT Time (s) & 2312.0 & 1243.5 & 1562.3 & 123486.4 & 86124.3 & 151274.4 & 40477.4 \\
@@ -2747,33 +2820,43 @@ Protocol & [Bha23] & [LL25] & [LL25]  & [LL25]  & [LL25] & [RC18]  & [Bha23] & [
 Total circuits & 14 & 2 & 2 & 2 & 2 & 6 & 4 & 14 & 2 \\
 Total paths & 13 & 2 & 2 & 2 & 2 & 5 & 4 & 19 & 4 \\
 \midrule
-\multicolumn{10}{c}{\textbf{Protocol Verification}} \\
+\multicolumn{10}{c}{\textbf{Circuit Validity Diagnostics}} \\
 \midrule
 Syndrome extraction bugs (circuit) & 0 & 0 & 2 & 2 & 0 & 0 & 0 & 0 & 0 \\
-Control flow bugs (path) & 7 & 0 & 0 & 0 & 0 & 0 & 1 & 6 & 1 \\
-Flag bugs (circuit) & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
 \midrule
 \multicolumn{10}{l}{\textit{Stim}} \\
-Stim Runtime (s) & 0.523 & 0.086 & 0.085 & 0.083 & 0.088 & 0.203 & 0.143 & 0.382 & 0.152 \\
-Stim Peak Mem (MB) & 212.1 & 223.8 & 197.4 & 215.0 & 203.3 & 199.3 & 236.5 & 204.4 & 198.8 \\
+Stim Runtime (s) & 0.677 & 0.086 & 0.085 & 0.083 & 0.088 & 0.203 & 0.202 & 0.382 & 0.152 \\
+Stim Peak Mem (MB) & 216.8 & 223.8 & 197.4 & 215.0 & 203.3 & 199.3 & 220.9 & 204.4 & 198.8 \\
+\midrule
+\multicolumn{10}{c}{\textbf{Protocol Validity Diagnostics}} \\
+\midrule
+Control flow bugs (path) & 4 & 0 & 0 & 0 & 0 & 0 & 0 & 6 & 1 \\
+Flag bugs (circuit) & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
 \midrule
 \multicolumn{10}{l}{\textit{SAT Solver}} \\
-Peak Memory (MB) & 91.6 & 98.5 & 91.6 & 100.0 & 99.7 & 99.9 & 100.2 & 90.7 & 101.4 \\
+Peak Memory (MB) & 90.4 & 98.5 & 91.6 & 100.0 & 99.7 & 99.9 & 101.0 & 90.7 & 101.4 \\
 Total SAT Calls & 17 & 3 & 3 & 3 & 3 & 10 & 7 & 25 & 4 \\
-Total SAT Time (s) & 4.850 & 0.927 & 0.931 & 0.968 & 0.965 & 2.071 & 2.099 & 8.228 & 32.8 \\
-Total CPU Time (s) & 10.2 & 4.3 & 4.1 & 4.2 & 4.5 & 6.2 & 6.4 & 16.4 & 60.5 \\
-\#Vars & 58--615 & 192--615 & 193--625 & 194--627 & 186--623 & 58--615 & 85--763 & 51--793 & 1104--8973 \\
-\#Clauses & 312--4551 & 1369--4563 & 1385--4623 & 1385--4623 & 1345--4623 & 312--4553 & 524--5717 & 272--5999 & 8806--66744 \\
+Total SAT Time (s) & 5.191 & 0.927 & 0.931 & 0.968 & 0.965 & 2.071 & 2.647 & 8.228 & 32.8 \\
+Total CPU Time (s) & 11.5 & 4.3 & 4.1 & 4.2 & 4.5 & 6.2 & 7.1 & 16.4 & 60.5 \\
+\#Vars & 113--615 & 192--615 & 193--625 & 194--627 & 186--623 & 58--615 & 158--761 & 51--793 & 1104--8973 \\
+\#Clauses & 638--4551 & 1369--4563 & 1385--4623 & 1385--4623 & 1345--4623 & 312--4553 & 1002--5717 & 272--5999 & 8806--66744 \\
 \midrule
-\multicolumn{10}{c}{\textbf{FTEC}} \\
+\multicolumn{10}{c}{\textbf{Correctability Verification}} \\
 \midrule
-FTEC (path) & 0 & 0 & 1 & 1 & 1 & 0 & 1 & 0 & 0 \\
-Peak Mem (MB) & 85.5 & 81.5 & 80.4 & 88.0 & 85.4 & 84.0 & 71.4 & 79.7 & 200.8 \\
+Corr. failures (paths) & 0 & 0 & 1 & 1 & 1 & 0 & 1 & 0 & 0 \\
+Peak Mem (MB) & 55.6 & 81.5 & 80.4 & 88.0 & 85.4 & 84.0 & 88.0 & 79.7 & 200.8 \\
 SAT Calls & 13 & 2 & 2 & 2 & 2 & 5 & 4 & 19 & 4 \\
-Total SAT Time (s) & 5.020 & 0.937 & 0.911 & 1.034 & 0.990 & 2.001 & 2.243 & 8.948 & 1403.4 \\
-Total CPU Time (s) & 9.9 & 4.2 & 3.9 & 4.2 & 4.2 & 5.2 & 6.2 & 16.3 & 1434.4 \\
-\#Vars & 278--626 & 366--626 & 374--624 & 376--624 & 369--634 & 348--626 & 396--772 & 274--803 & 2373--8973 \\
-\#Clauses & 2010--4576 & 2670--4588 & 2714--4620 & 2724--4620 & 2712--4648 & 2458--4578 & 2824--5738 & 1974--6033 & 20085--66716 \\
+Total SAT Time (s) & 5.481 & 0.937 & 0.911 & 1.034 & 0.990 & 2.001 & 2.261 & 8.948 & 1403.4 \\
+Total CPU Time (s) & 10.7 & 4.2 & 3.9 & 4.2 & 4.2 & 5.2 & 6.1 & 16.3 & 1434.4 \\
+\#Vars & 279--626 & 366--626 & 374--624 & 376--624 & 369--634 & 348--626 & 396--770 & 274--803 & 2373--8973 \\
+\#Clauses & 2020--4576 & 2670--4588 & 2714--4620 & 2724--4620 & 2712--4648 & 2458--4578 & 2834--5738 & 1974--6033 & 20085--66716 \\
+\midrule
+\multicolumn{10}{c}{\textbf{Staged Verification Result}} \\
+\midrule
+Circuit valid & Yes & Yes & No & No & Yes & Yes & Yes & Yes & Yes \\
+Protocol valid & No & Yes & $\bot$ & $\bot$ & Yes & Yes & Yes & No & No \\
+Correctable & Yes & Yes & $\bot$ & $\bot$ & No & Yes & No & Yes & Yes \\
+\textbf{FTEC accepted} & \textbf{No} & \textbf{Yes} & \textbf{No} & \textbf{No} & \textbf{No} & \textbf{Yes} & \textbf{No} & \textbf{No} & \textbf{No} \\
 \bottomrule
 \end{tabular}%
 }
@@ -2794,15 +2877,18 @@ Protocol & [LL25]  & [LL25]  & [LL25]  & [Du24]  & [CB18]  & [Du24]  & [CB18]  \
 Total circuits & 2 & 2 & 2 & 2 & 2 & 2 & 2 \\
 Total paths & 4 & 4 & 4 & 21 & 21 & 21 & 21 \\
 \midrule
-\multicolumn{8}{c}{\textbf{Protocol Verification}} \\
+\multicolumn{8}{c}{\textbf{Circuit Validity Diagnostics}} \\
 \midrule
 Syndrome extraction bugs (circuit) & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-Control flow bugs (path) & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-Flag bugs (circuit) & 0 & 0 & 0 & 1 & 0 & 1 & 0 \\
 \midrule
 \multicolumn{8}{l}{\textit{Stim}} \\
 Stim Runtime (s) & 0.156 & 0.146 & 0.140 & 0.135 & 0.143 & 0.154 & 0.150 \\
 Stim Peak Mem (MB) & 201.7 & 235.8 & 199.1 & 215.9 & 199.4 & 221.6 & 199.6 \\
+\midrule
+\multicolumn{8}{c}{\textbf{Protocol Validity Diagnostics}} \\
+\midrule
+Control flow bugs (path) & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+Flag bugs (circuit) & 0 & 0 & 0 & 1 & 0 & 1 & 0 \\
 \midrule
 \multicolumn{8}{l}{\textit{SAT Solver}} \\
 Peak Memory (MB) & 103.6 & 101.8 & 99.2 & 275.8 & 120.9 & 209.4 & 116.9 \\
@@ -2812,30 +2898,39 @@ Total CPU Time (s) & 52.3 & 70.0 & 60.4 & 2194.0 & 1204.8 & 2623.5 & 638.3 \\
 \#Vars & 1102--8875 & 930--7743 & 945--7660 & 1744--11570 & 1660--11760 & 2118--14170 & 1070--11297 \\
 \#Clauses & 8770--66244 & 7481--53071 & 7517--52736 & 13124--122318 & 12806--120077 & 17465--114426 & 9769--123213 \\
 \midrule
-\multicolumn{8}{c}{\textbf{FTEC}} \\
+\multicolumn{8}{c}{\textbf{Correctability Verification}} \\
 \midrule
-FTEC(path) & 0 & 0 & 0 & 3 & 0 & 0 & 0 \\
+Corr. failures (paths) & 0 & 0 & 0 & 3 & 0 & 0 & 0 \\
 Peak Mem (MB) & 179.7 & 145.6 & 226.9 & 862.7 & 537.9 & 870.1 & 387.0 \\
 SAT Calls & 4 & 4 & 4 & 21 & 21 & 21 & 21 \\
 Total SAT Time (s) & 1417.6 & 779.4 & 1157.5 & 38948.4 & 37119.7 & 59767.7 & 21011.6 \\
 Total CPU Time (s) & 1451.0 & 803.1 & 1183.0 & 39177.5 & 37422.7 & 60069.4 & 21352.3 \\
 \#Vars & 2362--8868 & 2045--7737 & 2041--7648 & 5466--11582 & 5494--11755 & 6586--14266 & 5372--11398 \\
 \#Clauses & 19960--66195 & 14394--57063 & 14304--56636 & 48370--122417 & 50906--120417 & 45341--119101 & 49264--123632 \\
+\midrule
+\multicolumn{8}{c}{\textbf{Staged Verification Result}} \\
+\midrule
+Circuit valid & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\
+Protocol valid & Yes & Yes & Yes & No & Yes & No & Yes \\
+Correctable & Yes & Yes & Yes & No & Yes & Yes & Yes \\
+\textbf{FTEC accepted} & \textbf{Yes} & \textbf{Yes} & \textbf{Yes} & \textbf{No} & \textbf{Yes} & \textbf{No} & \textbf{Yes} \\
 \bottomrule
 \end{tabular}%
 }
-\caption{Experimental results of the protocol verification and FTEC verification (Top: Part 1, Bottom: Part 2). Total CPU Time differs from Total SAT Time by including symbolic execution and DIMACS export .}
+\caption{Verification results and performance for the evaluated protocols (top: Part 1; bottom: Part 2). Diagnostic checks were performed independently; $\bot$ denotes a skipped check in the staged verifier.}
 \label{tab:combined-results}
 
 \end{table}
 
 \begin{itemize}
 
-    \item \textbf{Protocol Verification:} This block reports the specific defect counts. \emph{Syndrome extraction bugs} denotes the ratio of failed circuits to the total QASM circuits evaluated via Stim that fail to satisfy Def~\ref{def:syndrome-extraction-valid}. \emph{Control-flow bugs} counts the number of paths that violate control-flow constraints relative to the total number of paths. \emph{Flag bugs} indicates the number of circuits that failed the flag condition (Def~\ref{def:flag}).
+    \item \textbf{Circuit Validity Diagnostics:} \emph{Syndrome extraction bugs} counts the evaluated QASM circuits that fail circuit validity (Def.~\ref{def:syndrome-extraction-valid}). The Stim rows report simulation costs for these diagnostic runs.
+    \item \textbf{Protocol Validity Diagnostics:} \emph{Control-flow bugs} counts paths that fail the termination requirements of Def.~\ref{def:protocol-validity}; \emph{flag bugs} counts circuits that fail the applicable flag condition (Def.~\ref{def:flag}). These independently collected diagnostic counts do not imply that the staged algorithm proceeded past an invalid circuit.
     \item \textbf{Stim:} These rows report the wall-clock runtime and peak memory required to run the complete Stim simulation for each setup.
     \item \textbf{SAT Solver:} 
     \emph{Total runtime} reflects the end-to-end wall time, encompassing Z3 constraint export and parallel SAT solving. \emph{Total SAT time} aggregates the per-path solver durations; because paths are solved concurrently, this sum can exceed the total wall time (conversely, on smaller instances, Z3 export overhead may dominate). This section also reports peak memory, total SAT calls, and the range (min--max) of variables (\#\textsc{vars}) and clauses (\#\textsc{clauses}) across the evaluated paths.
-    \item \textbf{FTEC:} This block reports the number of FTEC failures over the total flag circuits checked, accompanied by the summed per-circuit runtime, peak memory, SAT calls, cumulative SAT solver time (excluding export overhead), and range (min--max) of variables (\#\textsc{vars}) and clauses (\#\textsc{clauses}) across the evaluated paths.
+    \item \textbf{Correctability Verification:} This block reports the number of paths with correctability counterexamples in the symbolic fault model, together with runtime, memory, SAT calls, and formula-size ranges. These diagnostic checks were also run on circuit-invalid protocols for the reported experiments; their results do not establish physical correctability in that case.
+    \item \textbf{Staged Verification Result:} \emph{Circuit valid}, \emph{Protocol valid}, and \emph{Correctable} correspond to $(v_{\mathrm{circ}},v_{\mathrm{prot}},c)$ in Algorithm~\ref{alg:ftec-verification}. If circuit validity fails, the latter two entries are $\bot$ (not evaluated), even though separate diagnostic measurements are reported above. \emph{FTEC accepted} is Yes exactly when all three checks pass.
 \end{itemize}
 
 
@@ -2844,12 +2939,25 @@ Total CPU Time (s) & 1451.0 & 803.1 & 1183.0 & 39177.5 & 37422.7 & 60069.4 & 213
 
 
 
-Highlighting specific findings from Table~\ref{tab:combined-results}, the $[[5,1,3]]$ code with the $[2,2]$ and $[2,2]^T$ optimizations, as well as the $[[17,1,5]]$ code with the $[2,2,2,1,1]^T$ optimization, initially failed the Stim determinism check. However, the corrected $[[5,1,3]]$ version, denoted as $[2,2]^T$ fix$_2$, successfully satisfied all determinism requirements. For the low-depth optimizations applied to the $[[5,1,3]]$ and $[[7,1,3]]$ codes, protocol bugs primarily stemmed from violations of Condition (1) of Def~\ref{def:control-flow-validity}, as the resulting errors were not syndrome-consistent. Furthermore, the $[[17,1,5]]$ and $[[19,1,5]]$ protocols from~\cite{Du24} both failed the flag condition (Def~\ref{def:flag}).
+Highlighting specific findings from Table~\ref{tab:combined-results}, the $[[5,1,3]]$ code with the $[2,2]$ and $[2,2]^T$ optimizations failed the Stim determinism check. However, the corrected $[[5,1,3]]$ version, denoted as $[2,2]^T$ fix$_2$, satisfied all determinism requirements. Furthermore, the $[[17,1,5]]$ and $[[19,1,5]]$ protocols from~\cite{Du24} both failed the flag condition (Def.~\ref{def:flag}).
 
-Finally, our FTEC verification revealed protocols that failed to be valid or satisfy FTEC. For the $[[5,1,3]]$ code, we found paths that fell short of FTEC requirements under both the $[2,2]$ and $[2,2]^T$ optimizations. Notably, these violations persisted even in the corrected version of the syndrome circuit ($[2,2]^T$ fix$_2$). We also observed FTEC failures in the low-depth $[[7,1,3]]$ code, as well as three paths in the $[[17,1,5]]$ protocol from~\cite{Du24} that violated FTEC.
+The independent symbolic correctability diagnostics found counterexamples
+on paths of the $[[5,1,3]]$ protocols with $[2,2]$ and $[2,2]^T$
+optimizations, including the corrected syndrome-circuit variant
+($[2,2]^T$ fix$_2$). They also found a correctability failure in the
+low-depth $[[7,1,3]]$ protocol and three such paths in the
+$[[17,1,5]]$ protocol from~\cite{Du24}. For the circuit-invalid
+$[2,2]$ and $[2,2]^T$ variants, these are diagnostic findings rather
+than physical correctability conclusions. All three verification
+properties are required for FTEC acceptance.
  
  
-We illustrate two bugs found by the verifier. Example 1 demonstrates an invalid protocol, as one of its syndrome extraction circuits fails to satisfy the determinism requirement of Definition~\ref{def:syndrome-extraction-deterministic}. Example 2 illustrates a scenario where the protocol itself is valid, but it ultimately violates FTEC (Definition~\ref{def:weak-FTEC}); specifically, there exist two possible residual errors corresponding to the same measurement outcome $m$ whose product forms a non-trivial logical operator.
+We illustrate two distinct failure modes.
+Example 1 demonstrates a circuit-validity failure: a syndrome extraction
+circuit violates Def.~\ref{def:syndrome-extraction-deterministic}.
+Example 2 demonstrates a correctability failure: two admissible
+executions with the same reachable measurement record leave residual
+errors whose product is a nontrivial logical operator.
 
 
 \textbf{Example 1.} Figure~\ref{fig:[[5,1,3]]_[2,2]^T} illustrates the flagged syndrome extraction circuit for the $[[5,1,3]]$ code utilizing the $[2,2]^T$ optimization from [LL25]. Let $U$ denote the overall unitary evolution of this circuit, 
@@ -2900,13 +3008,13 @@ The complete evolution of these generators is detailed in Table~\ref{tab:stabili
         \midrule
         \multirow{4}{*}{\rotatebox[origin=c]{90}{\(\mathcal{S}_{\mathrm{data}} \otimes I_{\mathrm{anc}}\)}} & $g_0 = +X_{D_1} Z_{D_2} Z_{D_3} X_{D_4}$ & $g'_0 = g_0$ \\
          & $g_1 = +X_{D_1} X_{D_3} Z_{D_4} Z_{D_5}$ & $g'_1 = g_1$ \\
-         & $g_2 = +X_{D_2} Z_{D_3} Z_{D_4} X_{D_5}$ & $g'_2 = g_2$ \\
+         & $g_2 = +Z_{D_1} Z_{D_2} X_{D_3} X_{D_5}$ & $g'_2 = g_2$ \\
          & $g_3 = +Z_{D_1} X_{D_2} X_{D_4} Z_{D_5}$ & $g'_3 = g_3$ \\
         \midrule
         \multirow{6}{*}{\rotatebox[origin=c]{90}{\(I_{\mathrm{data}} \otimes \mathcal{S}_{\mathrm{anc}}\) }} & $g_4 = +X_{A_{x,1}}$ & \begin{tabular}{@{}l@{}}$g'_4 = +X_{D_1} Z_{D_2} Z_{D_3} X_{D_4}$ \\ $\quad\quad\;  X_{A_{x,1}} Z_{A_{x,2}} Z_{A_{x,3}} Z_{A_{x,4}}$\end{tabular} \\[1ex]
          & $g_5 = +X_{A_{x,2}}$ & \begin{tabular}{@{}l@{}}$g'_5 = +X_{D_1} X_{D_3} Z_{D_4} Z_{D_5}$ \\ $\quad\quad\; Z_{A_{x,1}} X_{A_{x,2}} Z_{A_{x,3}}$\end{tabular} \\[1ex]
-         & $g_6 = +X_{A_{x,3}}$ & \begin{tabular}{@{}l@{}}$g'_6 = +X_{D_2} Z_{D_3} X_{D_4} X_{D_5}$ \\ $\quad\quad\; X_{A_{x,1}} Z_{A_{x,2}} Z_{A_{x,3}}$\end{tabular} \\[1ex]
-         & $g_7 = +X_{A_{x,4}}$ & $g'_7 = +Z_{D_1} X_{D_2} X_{D_4} Z_{D_5} X_{A_{x,1}} X_{A_{x,4}}$ \\
+         & $g_6 = +X_{A_{x,3}}$ & \begin{tabular}{@{}l@{}}$g'_6 = +Z_{D_1} Z_{D_2} X_{D_3} X_{D_5}$ \\ $\quad\quad\; Z_{A_{x,1}} Z_{A_{x,2}} X_{A_{x,3}}$\end{tabular} \\[1ex]
+         & $g_7 = +X_{A_{x,4}}$ & $g'_7 = +Z_{D_1} X_{D_2} X_{D_4} Z_{D_5} Z_{A_{x,1}} X_{A_{x,4}}$ \\
         %\midrule
          & $g_8 = +Z_{F_{z,1}}$  & $g'_8 = g_8$ \\
          & $g_9 = +Z_{F_{z,2}}$  & $g'_9 = g_9$ \\
@@ -3005,15 +3113,26 @@ The complete evolution of these generators is detailed in Table~\ref{tab:stabili
 \end{figure}
 
 
+\section{Related Work}
+
+\paragraph{Flagged error correction and fault distinguishability.}
+Flagged error correction reduces ancilla overhead by using flag outcomes to identify potentially harmful fault propagation~\cite{Chao18,CB18}. Subsequent constructions further reduce resource costs through adaptive measurements, parallel extraction, and flag sharing~\cite{low-depth,Liou25,Du24}. Fault distinguishability is central to these designs. Pato et al.~\cite{PTH+24} study distinguishable fault sets and develop tools for checking distinguishability and constructing lookup-table decoders. Their criterion requires fault combinations with the same error syndrome and cumulative flag vector to produce stabilizer-equivalent data errors. They also develop adaptive decoding procedures. Our work addresses the verification of a given adaptive protocol: we analyze the complete noisy measurement records produced along its execution paths and characterize when these records admit a weak-FTEC decoder, under explicit circuit- and protocol-validity conditions. The characterization connects error-set correctability to both logical-state preservation and fault containment.
+
+\paragraph{Formal verification of quantum error correction.}
+Chen et al.~\cite{chen2025verifying} develop symbolic execution techniques for verifying fault tolerance of quantum error-correction gadgets. Their framework can abstract classical decoders through assertions on their outputs, avoiding execution of a concrete decoder implementation. Huang et al.~\cite{10.1145/3729293} introduce Veri-QEC, which uses program logic and SMT solving to verify quantum error-correcting programs. Their framework can also derive conditions that a decoder must satisfy. These approaches therefore support reasoning about recovery without requiring an explicit lookup table.
+
+Our verification target is whether the measurement information collected by a protocol admits a suitable decoder. We express this requirement directly through the residual-error sets associated with reachable records. After establishing circuit validity, the verifier searches for two bounded-fault executions with the same record whose residual errors differ by a nontrivial logical operator. Protocol-validity checks separately establish the termination and flag conditions needed to turn the absence of such pairs into a weak-FTEC guarantee. Thus, the correctability queries contain fault variables and execution constraints, but no decoder implementation or decoder-output variables.
+
+\paragraph{Other automated quantum verification techniques.}
+Automated quantum verification also includes SMT-based circuit analysis, such as SymQV~\cite{BauerMarquartLS23}, automata-based symbolic execution~\cite{ChenCLLTY23,ChenCLLT23,autoq2}, and abstract interpretation~\cite{yu2021quantum,perdrix2008quantum}. These techniques provide methods for representing quantum states and checking program properties. Our framework instead exploits Clifford Pauli propagation and stabilizer structure to formulate a specialized verification problem over pairs of faulty executions. It checks whether an adaptive protocol collects sufficient information for fault-tolerant recovery, rather than whether a fault-free circuit implements a specified operation.
+
 
 
 \section{Conclusion}
 
 In this paper, we presented a formal verification framework for fault-tolerant flagged error correction protocols. 
-Rather than explicitly constructing a decoder, we established a necessary and sufficient condition
-for FTEC in terms of the residual errors compatible with each measurement record. 
-Our SAT-based approach provides a systematic way to verify this
-condition and to identify concrete design flaws in flagged protocols.
+Rather than explicitly constructing a decoder, we established that, when the extraction circuits and protocol are valid, an FTEC decoder exists if and only if the residual error set for every reachable measurement record is correctable.
+Our framework first checks circuit validity and then separately verifies protocol validity and error-set correctability using SAT-based and structural checks. A protocol is accepted as FTEC only when all three properties hold. The verifier also identifies concrete design flaws in flagged protocols.
 In particular, it can help detect errors that are difficult to uncover by
 manual verification, especially in optimized protocols with reduced circuit
 depth, flag-qubit sharing, or adaptive control flow.
@@ -3021,6 +3140,13 @@ depth, flag-qubit sharing, or adaptive control flow.
 In future work, we plan to extend our Pauli-tracking encoding to other
 fault-tolerant gadgets and broader quantum computing architectures, such as
 measurement-based quantum computation.
+
+\paragraph{AI Use.}
+We used OpenAI ChatGPT to assist with manuscript drafting and
+revision, checking mathematical arguments, and discussing
+experimental design and interpretation.
+The authors take full responsibility for the correctness
+and originality of the paper.
 
 
 % \section*{Data-Availability Statement}
@@ -3098,131 +3224,18 @@ measurement-based quantum computation.
 % To generate the version WITHOUT the appendix, comment out the line below:
 \newpage
 \appendix
-\section{Proof of Main Theorem}
-\label{app:proof}
-
-\begin{theorem}
-\label{thm:mains-appendix}
- Consider a flagged error correction protocol $\Pi$ for a stabilizer code
-with stabilizer group $\cS$, distance $d$, and
-$t=\lfloor (d-1)/2 \rfloor$. Assume that $\Pi$ is valid in the sense of Def.~\ref{def:protocol-validity}
-Then there exists a suitable lookup-table decoder $D$ such that $(\Pi,D)$ satisfies
-FTEC if and only if, for all measurement record $m$,
-$\forall E_1,E_2\in \mathcal{E}_{m},
-    E_1\cdot E_2 \notin N(\cS) \setminus \cS$.  
-\end{theorem}\label{thm:ftec-verify}
-
-% \begin{theorem}
-% \label{thm:mains}
-% Consider a flagged error correction protocol for a QECC of distance $d$ and $t = \lfloor\frac{d-1}{2} \rfloor$. Assume that the protocol satisfies Def.~\ref{def:protocol-validity}. 
-% The flagged error correction protocol, coupled with any suitable LUT decoder from Definition~\ref{def:decoder}, achieves fault-tolerant error correction if and only if for each $m$, $\forall E_1, E_2 \in \mathcal{E}_{m}$, $E_1 \cdot E_2 \notin \mathcal{N(S)} \setminus \mathcal{S}$.
-% \end{theorem}\label{thm:ftec-verify}
-
-\begin{proof}
-\textbf{($\Rightarrow$) 
-Let $E_1$ and $E_2$ be any two possible residual errors in $\mathcal{E}_{m}$ resulting from distinct fault events. Assume the protocol achieves FTEC. We must show $E_1 \cdot E_2 \notin N(\cS) \setminus \cS$.}\\
-We proceed by contradiction. Suppose $E_1 \cdot E_2 \in N(\cS) \setminus \cS$.  This implies that there exists a measurement record $m$ for which the LUT decoder outputs a correction $C$ such that $E_1 \cdot E_2 = (E_1 \cdot C) \cdot (E_2 \cdot C)$ constitutes a logical operator. Suppose that both $\mathrm{wt}_{\mathrm{min}}(E_1 \cdot C)$ and $\mathrm{wt}_{\mathrm{min}}(E_2 \cdot C)$ are at most $t$. Then, their product would have a  $\mathrm{wt}_{\mathrm{min}}$ of at most $2t$. However, because $(E_1 \cdot C) \cdot (E_2 \cdot C)$ is a logical operator, $\mathrm{wt}_{\mathrm{min}}((E_1 \cdot C) \cdot (E_2 \cdot C))$ must be at least $d > 2t$, which yields a contradiction. Therefore, if $\mathrm{wt}_{\mathrm{min}}(E_1 \cdot C) \leq t$, then $\mathrm{wt}_{\mathrm{min}}(E_2 \cdot C)>t$ , and vice versa. It follows that either $(E_1 \cdot C)$ or $(E_2 \cdot C)$ must violate FTEC (2) of Def.~\ref{def:weak-FTEC}.
-
-\textbf{($\Leftarrow$) 
-Assume $\forall E_1 , E_2 \in \mathcal{E}_m,  E_1 \cdot E_2 \notin  N(\cS) \setminus \cS$. We must show the protocol achieves FTEC.}
-\paragraph{Termination Condition (1).}
-Let $m$ be the corresponding
-    measurement record, and let $C\in\mathcal{E}_m$ be the representative
-    correction chosen by the LUT decoder.
-    Since all residual errors in $\mathcal{E}_m$ have the same ideal syndrome,
-    for every $E\in\mathcal{E}_m$,
-    $\operatorname{syn}(E)=\operatorname{syn}(C)$.
-    Hence, $\operatorname{syn}(E\cdot C)=0,$ which implies $E\cdot C\in N(\mathcal{S}).$
-    On the other hand, both $E$ and $C$ belong to $\mathcal{E}_m$. By the
-    assumption of the theorem, $E \cdot C \notin N(\mathcal{S}) \setminus \mathcal{S}$. 
-    Therefore, $E \cdot C\in S$.
-    Thus, after applying the representative correction, every possible residual
-    error is equivalent to the identity up to a stabilizer. Hence the logical
-    state is preserved, and FTEC of Definition~\ref{def:weak-FTEC} is satisfied.
-        
-\paragraph{Termination Condition (2).}
-Let $w$ be the number of faults detected
-before the final repeated full-syndrome suffix.  By Condition~(2), this suffix
-consists of $t-w+1$ consecutive full syndrome extraction rounds whose measured
-syndrome outcomes are all equal to the same value $\sigma$, and no flag is
-raised during these rounds.
-
-Fix an execution with total fault number $s\le t$.  Since at least $w$ faults
-have already been detected before the suffix, at most $s-w\le t-w$ faults occur
-during the repeated full-syndrome suffix.  Hence, among the $t-w+1$ full
-syndrome extraction rounds in the suffix, at least one round is fault-free.
-Fix such a fault-free round $R$, and let $E^-$ be the data error immediately
-before $R$.
-Because $R$ is fault-free and the full syndrome extraction circuit is correct,
-the measured syndrome outcome of $R$ is exactly the ideal syndrome of $E^-$.
-Since all rounds in the repeated suffix report the same syndrome value
-$\sigma$, we have
-$\operatorname{syn}(E^-)=\sigma$.
-Moreover, by correctness of the fault-free syndrome extraction circuit, $R$
-introduces no additional data error, so the data error immediately after $R$ is
-still $E^-$.
-
-Now consider
-another execution that has the same faults as the original execution up to $R$,
-but has no faults after $R$.  Since $R$ is fault-free and the later full
-syndrome extraction rounds are also fault-free in this execution, the data
-error remains $E^-$ throughout the rest of the suffix.  Moreover, all later
-rounds report the same syndrome value $\sigma$ and raise no flag.  Hence this
-execution follows the same terminating path, has the same measurement record
-$m$, and has final residual data error $E^-$.  Therefore $E^-\in\mathcal E_m$.
-Thus all possible errors $E^-$ arising immediately before a fault-free round
-in the repeated suffix are equivalent up to stabilizers.  For the record $m$,
-choose the decoder output $C$ to be one representative of this equivalence
-class.  Then, for the prefix error $E^-$ in the actual execution,
-$C\cdot E^- \in \mathcal S$. This does not yet account for faults occurring after $R$; these faults are
-handled separately below.
-Let $E_{\mathrm{suf}}$ denote the data error induced by faults occurring after
-$R$ in the repeated full-syndrome suffix.  By Pauli propagation through Clifford
-circuits, the final data error before applying the decoder output can be written,
-up to global phase, as
-$E_{\mathrm{fin}} = E^- \cdot E_{\mathrm{suf}}$.
-Therefore, after applying the decoder output $C$, $C\cdot E_{\mathrm{fin}}
-    =
-    C\cdot E^- E_{\mathrm{suf}}
-    \sim
-    E_{\mathrm{suf}}$, because $C\cdot E^-\in\mathcal S$.
-
-It remains to bound $E_{\mathrm{suf}}$. The number of faults occurring after
-$R$ is at most $s-w$. Since no flag is raised during the repeated suffix and the
-full syndrome extraction circuit satisfies the required $(t-w)$-flag condition,
-these faults induce a data error satisfying
-$\mathrm{wt}_{\min}(E_{\mathrm{suf}})\le s-w\le s$.
-Hence
-$\mathrm{wt}_{\min}(C\cdot E_{\mathrm{fin}})
-    =
-    \mathrm{wt}_{\min}(E_{\mathrm{suf}})
-    \le s$.
-This proves FTEC~(2) of Def.~\ref{def:weak-FTEC}.
-
-For FTEC (1), observe that the error accumulated before $R$ is canceled
-up to stabilizer equivalence by the decoder output, since $C\cdot E^-\in\mathcal S$.
-Thus the output data block differs from the ideally decoded input only by the
-suffix error $E_{\mathrm{suf}}$, up to stabilizer equivalence. Since
-$\mathrm{wt}_{\min}(E_{\mathrm{suf}})\le s\le t$, ideal decoding removes this
-remaining error. Therefore, ideal decoding of the output data block gives the
-same logical state as ideal decoding of the input data block. This proves
-FTEC~(1) of Def.~\ref{def:weak-FTEC}.
-
-\paragraph{Termination Condition (3).}
-For any fault event of weight $w \leq t$, every resulting error $E \in \mathcal{E}_m$ has a  weight $\mathrm{wt}_{\min}(E) \leq t$, thereby satisfying FTEC (2) of Def~\ref{def:weak-FTEC}. Consequently, applying an ideal decoder to an input state---which contains an initial data error of weight $r \leq t$ and an accumulated output error $E$ with $\mathrm{wt}_{\min}(E) \leq t$---will successfully recover the original state. This holds because, for any quantum error-correcting code with distance $d$, every error $e$ with $\mathrm{wt}_{\min}(e) \leq t$ is perfectly correctable via ideal decoding, thus satisfying FTEC (1) of Def~\ref{def:weak-FTEC}.
-
-
-\end{proof}
-
-\section{section 3 appendix}
-\section{Proof of Theorem 3.11}
+\section{Proof of Theorem~\ref{thm:mains}}
 \label{app:proof}
 
 \begin{proof}[Proof of Theorem~\ref{thm:mains}]
 All Pauli products are considered up to global phase. Throughout the proof,
 $r$ denotes the input error weight and $s$ the number of circuit faults,
-with $r+s\le t$. The residual error sets $\mathcal E_m$ are understood to
-range over these admissible executions.
+with $r+s\le t$, as in Def.~\ref{def:measurement-record-and-residual-error}.
+Since every extraction circuit is valid by the theorem's premise,
+the measurement records and residual errors in $\mathcal E_m$
+correspond to the executions under the assumed fault model.
+For a fixed measurement record $m$, the decoder must use the same correction
+for every execution represented in $\mathcal E_m$.
 
 \paragraph{($\Rightarrow$).}
 Suppose there exists a lookup-table decoder $D$ such that $(\Pi,D)$
@@ -3257,10 +3270,9 @@ Assume that, for every measurement record $m$,
 \]
 We choose a correction for each reachable record according to the
 termination condition of its path and prove the two FTEC requirements.
-Unreachable records may be assigned arbitrary corrections.
 
 \paragraph{Termination Condition (1).}
-By control-flow validity, all errors in $\mathcal E_m$ have the same
+By protocol validity, all errors in $\mathcal E_m$ have the same
 ideal syndrome. Choose any representative $C\in\mathcal E_m$ as the
 decoder output. For every $E\in\mathcal E_m$, equal syndromes imply
 $E\cdot C\in N(\cS)$. The assumed pairwise condition then gives
@@ -3278,11 +3290,18 @@ fault-free and reports the ideal syndrome of its input data error.
 
 Consider the execution obtained by keeping the same input error and all
 faults before this fault-free round, and removing all faults after it.
-Every subsequent round then preserves the data error up to stabilizers,
-reports the same syndrome, and raises no flag. Thus the modified execution
-has the same record $m$, remains within the fault budget, and leaves a
-residual error in $\mathcal E_m$ equivalent to the error at the fault-free
-round.
+The measurement outcomes through the fault-free round are unchanged.
+Every subsequent round is now fault-free, so circuit validity gives
+the same ideal syndrome as the fault-free round, and the no-fault
+flag property ensures that no flags are raised even in the presence
+of the incoming data error. Since the original suffix also had this
+syndrome in every round and no raised flags, the outcomes of each
+subsequent round agree with the original execution. Inductively, all
+later branch guards select the same branches, so the modified execution
+follows the same terminating path and produces the same record $m$.
+Removing faults cannot increase the fault count, so its residual
+error, equivalent to the data error at the fault-free round, belongs
+to $\mathcal E_m$.
 
 For a fixed record $m$, all modified executions constructed this way
 leave errors with the same ideal syndrome. For any two such errors
@@ -3294,13 +3313,20 @@ the error at a fault-free suffix round in every compatible execution.
 
 Consequently, for an actual residual error $E\in\mathcal E_m$,
 $E\cdot C$ is equivalent up to stabilizers to the error induced by
-faults after that fault-free round. Apply the $(t-w)$-flag condition
-to each remaining round. The no-fault flag property holds for every
-input data error; by linearity of Pauli propagation, an existing data
-error cannot cancel flags caused by circuit faults. Each unflagged
-round therefore contributes an error of minimum weight at most its
-number of faults. Circuit correctness preserves incoming errors up to
-stabilizers, and minimum weight is subadditive. Adding these bounds gives
+faults after that fault-free round. There are at most $s-w\le t-w$
+circuit faults in the entire suffix, so each remaining round contains
+at most $t-w$ faults and is covered by the $(t-w)$-flag condition.
+By the no-fault
+flag requirement, the flag outcomes vanish for any input data error
+in the absence of circuit faults. Since Pauli propagation and the
+recorded flag bits are linear in the Pauli error representation,
+adding an incoming data error does not change the flag outcomes
+caused by the circuit faults. Hence each unflagged round with its
+incoming error removed is also unflagged, and its fault-induced data
+error has minimum weight at most the number of faults in that round.
+Circuit correctness preserves incoming data errors up to stabilizers.
+Minimum weight is subadditive, so summing the bounds for the rounds
+after the fault-free round gives
 \[
  \mathrm{wt}_{\min}(E\cdot C)\le s-w\le s.
 \]
@@ -3310,7 +3336,7 @@ ideal decoding removes it, proving FTEC~(1).
 
 \paragraph{Termination Condition (3).}
 Choose the identity correction, $D(m)=I$.
-By Condition~(3) of control-flow validity, every execution with
+By Condition~(3) of protocol validity, every execution with
 $r+s\le t$ producing $m$ has residual error $E\in\mathcal E_m$ satisfying
 \[
  \mathrm{wt}_{\min}(E)\le s.
@@ -3319,8 +3345,47 @@ This directly establishes FTEC~(2). Because $s\le t$, ideal decoding
 corrects this residual error and recovers the original logical state,
 establishing FTEC~(1).
 
-The decoder defined by these choices satisfies both FTEC requirements
-on every terminating path, completing the proof.
+If a terminating path satisfies more than one condition, any one of
+the corresponding constructions may be used: each produces a
+correction depending only on $m$ and satisfies both FTEC requirements
+for all executions with that record. Thus a single lookup-table
+decoder can be chosen for all reachable records, completing the proof.
+\end{proof}
+
+\section{Proof of Theorem~\ref{thm:syndrome-extraction-valid}}
+\label{app:proof-syndrome-extraction}
+
+\begin{proof}
+Assume first that $U$ is valid. By
+Def.~\ref{def:syndrome-extraction-deterministic}, in the error-free
+execution the data remains in the codespace, each ancilla has its
+prescribed measurement outcome, and the encoded logical state is
+unchanged up to global phase. Since the ancilla observables $A_i$
+have definite outcomes, the joint state remains in the simultaneous
+$+1$ eigenspace of $\mathcal S_{\mathrm{joint}}$.
+Thus $U$ preserves this joint codespace, implying
+$U\mathcal S_{\mathrm{joint}}U^\dagger=\mathcal S_{\mathrm{joint}}$
+with Pauli signs retained. Preservation of the logical state also
+implies that $UL_iU^\dagger$ and $L_i$ act identically on the joint
+codespace, so $(UL_iU^\dagger)L_i\in\mathcal S_{\mathrm{joint}}$
+for each $i$. Correctness follows from validity by definition.
+
+Conversely, assume that $U$ is correct and satisfies the two
+preservation conditions. Signed equality of the joint stabilizer
+groups ensures that the error-free output remains in the joint
+codespace. In particular, all ancilla observables $A_i$ have
+deterministic $+1$ outcomes, and the output data remains in the
+data codespace. The logical-operator condition implies that $U$
+preserves the action of every logical Pauli generator on this
+codespace; since these generators act irreducibly on the encoded
+degrees of freedom, $U$ acts as the identity up to global phase.
+For any input data Pauli error $E$, Clifford conjugation gives
+a fixed propagated Pauli error, so the ancilla outcomes differ
+from their error-free values by fixed commutation signs,
+independently of the encoded state. Correctness additionally
+ensures the designated syndrome outcomes and preservation of
+the input data error up to stabilizers. Hence $U$ is
+deterministic and correct, and therefore valid.
 \end{proof}
 
 % ==========================================
