@@ -3115,27 +3115,16 @@ The complete evolution of these generators is detailed in Table~\ref{tab:stabili
 
 \section{Related Work}
 
-Recent works have made significant progress in verifying quantum error correction circuits using SAT solvers. For example, Chen et al.~\cite{chen2025verifying} employ symbolic execution to check if injected faults in quantum gadgets violate fault-tolerance conditions. Similarly, Huang et al.~\cite{10.1145/3729293} introduce Veri-QEC, a formal verification framework that translates Pauli errors into classical assertions solved by SAT solvers. 
+\paragraph{Flagged error correction and fault distinguishability.}
+Flagged error correction reduces ancilla overhead by using flag outcomes to identify potentially harmful fault propagation~\cite{Chao18,CB18}. Subsequent constructions further reduce resource costs through adaptive measurements, parallel extraction, and flag sharing~\cite{low-depth,Liou25,Du24}. Fault distinguishability is central to these designs. Pato et al.~\cite{PTH+24} study distinguishable fault sets and develop tools for checking distinguishability and constructing lookup-table decoders. Their criterion requires fault combinations with the same error syndrome and cumulative flag vector to produce stabilizer-equivalent data errors. They also develop adaptive decoding procedures. Our work addresses the verification of a given adaptive protocol: we analyze the complete noisy measurement records produced along its execution paths and characterize when these records admit a weak-FTEC decoder, under explicit circuit- and protocol-validity conditions. The characterization connects error-set correctability to both logical-state preservation and fault containment.
 
-However, applying these general methods to flagged syndrome extraction circuits creates a major bottleneck if an explicit decoder is not provided. In these frameworks, two distinct faults might produce the exact same syndrome. Without a predefined decoder to resolve this ambiguity, their tools cannot determine whether the post-recovery state will actually cause a logical error. 
-Furthermore, weight greater than $t$ does not imply uncorrectability:
-an error may be stabilizer-equivalent to one of lower weight.
-This occurs naturally when a fault propagates to multiple data qubits
-in a flagged protocol.
+\paragraph{Formal verification of quantum error correction.}
+Chen et al.~\cite{chen2025verifying} develop symbolic execution techniques for verifying fault tolerance of quantum error-correction gadgets. Their framework can abstract classical decoders through assertions on their outputs, avoiding execution of a concrete decoder implementation. Huang et al.~\cite{10.1145/3729293} introduce Veri-QEC, which uses program logic and SMT solving to verify quantum error-correcting programs. Their framework can also derive conditions that a decoder must satisfy. These approaches therefore support reasoning about recovery without requiring an explicit lookup table.
 
-Our work bypasses these limitations by adopting a specialized approach. By focusing strictly on flagged fault-tolerant error correction protocols, we completely eliminate the need for an explicit decoder during the verification process.
-Rather than constructing a decoder and evaluating its performance, we establish a theorem that characterizes FTEC directly in terms of the residual-error sets associated with measurement records.
-Beyond these theoretical guarantees, our framework demonstrates clear practical utility: by applying our method, we successfully identified previously unknown design flaws in published flagged error correction protocols.
-\paragraph{Other automatic approaches for quantum circuit verification.}
+Our verification target is whether the measurement information collected by a protocol admits a suitable decoder. We express this requirement directly through the residual-error sets associated with reachable records. After establishing circuit validity, the verifier searches for two bounded-fault executions with the same record whose residual errors differ by a nontrivial logical operator. Protocol-validity checks separately establish the termination and flag conditions needed to turn the absence of such pairs into a weak-FTEC guarantee. Thus, the correctability queries contain fault variables and execution constraints, but no decoder implementation or decoder-output variables.
 
-Beyond quantum error correction, a variety of automated techniques have been developed for quantum circuit and program verification. Symbolic-execution-based approaches, such as SymQV~\cite{BauerMarquartLS23}, encode circuit semantics and verification conditions as SMT queries. Other works use automata-based representations of quantum states and symbolic gate execution~\cite{ChenCLLTY23,ChenCLLT23,abdulla2025verifying,autoq2,abdulla2026parameterized}, SMT array theories~\cite{chen2023theory}, or abstract interpretation~\cite{yu2021quantum,perdrix2008quantum} to reason about quantum programs.
-
-These techniques have primarily been evaluated on functional correctness properties of quantum circuits and programs rather than fault-tolerance properties of quantum error-correction protocols. Nevertheless, many of the underlying ideas, such as symbolic execution, symbolic state representations, and automated constraint solving, appear potentially applicable to QECC verification as well. 
-These techniques provide useful foundations for automated QECC verification, but their application to fault-tolerance properties involving fault propagation, stabilizer degeneracy, and recovery correctness requires additional structure.
-
-
-
-Our work represents one step in this direction. By exploiting the structure of flagged syndrome-extraction protocols, we obtain a SAT-based verification procedure that avoids explicit decoder construction while still providing a complete correctness guarantee.
+\paragraph{Other automated quantum verification techniques.}
+Automated quantum verification also includes SMT-based circuit analysis, such as SymQV~\cite{BauerMarquartLS23}, automata-based symbolic execution~\cite{ChenCLLTY23,ChenCLLT23,autoq2}, and abstract interpretation~\cite{yu2021quantum,perdrix2008quantum}. These techniques provide methods for representing quantum states and checking program properties. Our framework instead exploits Clifford Pauli propagation and stabilizer structure to formulate a specialized verification problem over pairs of faulty executions. It checks whether an adaptive protocol collects sufficient information for fault-tolerant recovery, rather than whether a fault-free circuit implements a specified operation.
 
 
 
@@ -3151,6 +3140,13 @@ depth, flag-qubit sharing, or adaptive control flow.
 In future work, we plan to extend our Pauli-tracking encoding to other
 fault-tolerant gadgets and broader quantum computing architectures, such as
 measurement-based quantum computation.
+
+\paragraph{AI Use.}
+We used OpenAI ChatGPT to assist with manuscript drafting and
+revision, checking mathematical arguments, and discussing
+experimental design and interpretation.
+The authors take full responsibility for the correctness
+and originality of the paper.
 
 
 % \section*{Data-Availability Statement}
