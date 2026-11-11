@@ -336,12 +336,9 @@ class Bridge:
                 "Another paper file differs; manual reconciliation required.")
         self.check_github()
         require(remote_head(overleaf) == revision, "Overleaf changed before backup.")
-        backup = "backup/overleaf-before-github-authority-" + revision[:12]
-        git(self.repo, "fetch", "--no-tags", str(overleaf), "HEAD")
-        require(output(self.repo, "rev-parse", "FETCH_HEAD") == revision,
-                "Overleaf backup fetch did not match current revision.")
-        git(self.repo, "push", "origin", revision + ":refs/heads/" + backup)
-        print(f"Saved Overleaf revision {revision} in GitHub branch {backup}.")
+        # A fast-forward commit keeps the previous Overleaf revision as parent.
+        # Do not push foreign history to GitHub: workflow file permissions can reject it.
+        print(f"Preserving original Overleaf revision {revision} in Overleaf Git history.")
         self.check_github()
         require(remote_head(overleaf) == revision, "Overleaf changed after backup.")
         replace_paper(self.repo, overleaf, gh_files)
