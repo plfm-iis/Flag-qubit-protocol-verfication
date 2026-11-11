@@ -1,4 +1,0 @@
-{
-  "schema": 1,
-  "purpose": "Read-only exact diff of paper snapshots; never overwrite."
-}
