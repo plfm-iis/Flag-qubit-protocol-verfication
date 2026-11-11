@@ -12,6 +12,7 @@ on:
       - '!CLAIMS.md'
       - '.github/overleaf-reconcile-request.json'
       - '.github/overleaf-github-authority-request.json'
+      - '.github/overleaf-baseline-check-request.json'
   schedule:
     - cron: '*/5 * * * *'
   workflow_dispatch:
