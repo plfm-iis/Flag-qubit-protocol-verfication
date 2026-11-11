@@ -257,7 +257,7 @@ compatible with two logically inequivalent residual errors, and no recovery
 depending only on that record can correctly handle both cases.
 
 
-Based on this characterization, we develop a staged verification framework.
+Based on this characterization, we develop a verification framework.
 We first verify the correctness and determinism of the syndrome extraction
 circuits. Only if circuit validity passes do we check error-set correctability
 and protocol validity, which includes control-flow termination and flag
@@ -1502,7 +1502,7 @@ and fault bound $t$
 };
 
 \node[box, below=of input] (circuit) {
-\textbf{Stage 1: Circuit Validity}\\
+\textbf{Circuit Validity (First Check)}\\
 Correctness and determinism\\
 Reject immediately if any circuit fails
 };
@@ -1545,7 +1545,7 @@ The protocol is accepted as FTEC only if both subsequent checks pass,
 by Thm.~\ref{thm:mains}.
 
 We describe the SAT-based, simulation-based, and structural checks
-below, followed by their staged execution in the overall algorithm.
+below, followed by their execution order in the overall algorithm.
 
 \subsection{SAT-Based Checks}
 \label{subsec:sat-based-checks}
@@ -1654,7 +1654,7 @@ m_\pi(\mathcal{F})
 This notation makes the dependence of the symbolic quantities on the Boolean
 fault variables explicit.
 
-After the circuit-validity stage has passed, these symbolic quantities
+After circuit validity has been established, these symbolic quantities
 describe the physical executions within the assumed Pauli fault model.
 In particular, assignments satisfying $\Phi_\pi(\mathcal F)$ and
 $\mathrm{wt}(\mathcal F)\le t$ generate the residual errors in
@@ -2851,7 +2851,7 @@ Total CPU Time (s) & 10.7 & 4.2 & 3.9 & 4.2 & 4.2 & 5.2 & 6.1 & 16.3 & 1434.4 \\
 \#Vars & 279--626 & 366--626 & 374--624 & 376--624 & 369--634 & 348--626 & 396--770 & 274--803 & 2373--8973 \\
 \#Clauses & 2020--4576 & 2670--4588 & 2714--4620 & 2724--4620 & 2712--4648 & 2458--4578 & 2834--5738 & 1974--6033 & 20085--66716 \\
 \midrule
-\multicolumn{10}{c}{\textbf{Staged Verification Result}} \\
+\multicolumn{10}{c}{\textbf{Overall Verification Result}} \\
 \midrule
 Circuit valid & Yes & Yes & No & No & Yes & Yes & Yes & Yes & Yes \\
 Protocol valid & No & Yes & $\bot$ & $\bot$ & Yes & Yes & Yes & No & No \\
@@ -2908,7 +2908,7 @@ Total CPU Time (s) & 1451.0 & 803.1 & 1183.0 & 39177.5 & 37422.7 & 60069.4 & 213
 \#Vars & 2362--8868 & 2045--7737 & 2041--7648 & 5466--11582 & 5494--11755 & 6586--14266 & 5372--11398 \\
 \#Clauses & 19960--66195 & 14394--57063 & 14304--56636 & 48370--122417 & 50906--120417 & 45341--119101 & 49264--123632 \\
 \midrule
-\multicolumn{8}{c}{\textbf{Staged Verification Result}} \\
+\multicolumn{8}{c}{\textbf{Overall Verification Result}} \\
 \midrule
 Circuit valid & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\
 Protocol valid & Yes & Yes & Yes & No & Yes & No & Yes \\
@@ -2917,7 +2917,7 @@ Correctable & Yes & Yes & Yes & No & Yes & Yes & Yes \\
 \bottomrule
 \end{tabular}%
 }
-\caption{Verification results and performance for the evaluated protocols (top: Part 1; bottom: Part 2). Diagnostic checks were performed independently; $\bot$ denotes a skipped check in the staged verifier.}
+\caption{Verification results and performance for the evaluated protocols (top: Part 1; bottom: Part 2). Diagnostic checks were performed independently; $\bot$ denotes a check skipped when circuit validity fails.}
 \label{tab:combined-results}
 
 \end{table}
@@ -2925,12 +2925,12 @@ Correctable & Yes & Yes & Yes & No & Yes & Yes & Yes \\
 \begin{itemize}
 
     \item \textbf{Circuit Validity Diagnostics:} \emph{Syndrome extraction bugs} counts the evaluated QASM circuits that fail circuit validity (Def.~\ref{def:syndrome-extraction-valid}). The Stim rows report simulation costs for these diagnostic runs.
-    \item \textbf{Protocol Validity Diagnostics:} \emph{Control-flow bugs} counts paths that fail the termination requirements of Def.~\ref{def:protocol-validity}; \emph{flag bugs} counts circuits that fail the applicable flag condition (Def.~\ref{def:flag}). These independently collected diagnostic counts do not imply that the staged algorithm proceeded past an invalid circuit.
+    \item \textbf{Protocol Validity Diagnostics:} \emph{Control-flow bugs} counts paths that fail the termination requirements of Def.~\ref{def:protocol-validity}; \emph{flag bugs} counts circuits that fail the applicable flag condition (Def.~\ref{def:flag}). These independently collected diagnostic counts do not imply that Algorithm~\ref{alg:ftec-verification} proceeded past an invalid circuit.
     \item \textbf{Stim:} These rows report the wall-clock runtime and peak memory required to run the complete Stim simulation for each setup.
     \item \textbf{SAT Solver:} 
     \emph{Total runtime} reflects the end-to-end wall time, encompassing Z3 constraint export and parallel SAT solving. \emph{Total SAT time} aggregates the per-path solver durations; because paths are solved concurrently, this sum can exceed the total wall time (conversely, on smaller instances, Z3 export overhead may dominate). This section also reports peak memory, total SAT calls, and the range (min--max) of variables (\#\textsc{vars}) and clauses (\#\textsc{clauses}) across the evaluated paths.
     \item \textbf{Correctability Verification:} This block reports the number of paths with correctability counterexamples in the symbolic fault model, together with runtime, memory, SAT calls, and formula-size ranges. These diagnostic checks were also run on circuit-invalid protocols for the reported experiments; their results do not establish physical correctability in that case.
-    \item \textbf{Staged Verification Result:} \emph{Circuit valid}, \emph{Protocol valid}, and \emph{Correctable} correspond to $(v_{\mathrm{circ}},v_{\mathrm{prot}},c)$ in Algorithm~\ref{alg:ftec-verification}. If circuit validity fails, the latter two entries are $\bot$ (not evaluated), even though separate diagnostic measurements are reported above. \emph{FTEC accepted} is Yes exactly when all three checks pass.
+    \item \textbf{Overall Verification Result:} \emph{Circuit valid}, \emph{Protocol valid}, and \emph{Correctable} correspond to $(v_{\mathrm{circ}},v_{\mathrm{prot}},c)$ in Algorithm~\ref{alg:ftec-verification}. If circuit validity fails, the latter two entries are $\bot$ (not evaluated), even though separate diagnostic measurements are reported above. \emph{FTEC accepted} is Yes exactly when all three checks pass.
 \end{itemize}
 
 

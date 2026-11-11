@@ -13,6 +13,7 @@ PROJECT = "6adb7e8c4019793a7dcea09f"
 REPOSITORY = "plfm-iis/Flag-qubit-protocol-verfication"
 REMOTE = f"https://git@git.overleaf.com/{PROJECT}"
 STATE = ".github/overleaf-state.json"
+RECONCILE_REQUEST = ".github/overleaf-reconcile-request.json"
 REQUEST = ".github/overleaf-sync-request.json"
 METADATA_FILES = {"AGENTS.md", "PAPER_CONTEXT.md", "CLAIMS.md"}
 SHA = re.compile(r"[0-9a-f]{40}\Z")
@@ -109,15 +110,42 @@ def replace_paper(source, destination, source_manifest):
         target.chmod(0o644)
 
 
-def commit(repo, message, allowed_paths):
+def commit(repo, message, allowed_paths, author=None):
     # The source snapshot may legitimately track files matched by .gitignore.
     git(repo, "add", "-A", "-f")
     staged = set(git(repo, "diff", "--cached", "--name-only", "-z").stdout.decode("utf-8").split("\0")) - {""}
     require(staged <= allowed_paths, "Unexpected files were staged; refusing to commit.")
     if not staged:
         return False
-    git(repo, "-c", "user.name=paper-sync-bot", "-c", "user.email=paper-sync-bot@users.noreply.github.com", "commit", "-m", message)
+    name, email = author or sync_actor()
+    git(repo, "-c", f"user.name={name}", "-c", f"user.email={email}", "commit", "-m", message)
     return True
+
+
+def sync_actor():
+    """Use GitHub's event identity for human-triggered synchronization."""
+    actor = os.environ.get("GITHUB_ACTOR", "")
+    actor_id = os.environ.get("SYNC_GITHUB_ACTOR_ID", "")
+    event = os.environ.get("GITHUB_EVENT_NAME", "")
+    if (event in {"push", "workflow_dispatch"} and
+            re.fullmatch(r"[A-Za-z0-9-]+", actor) and
+            re.fullmatch(r"[0-9]+", actor_id)):
+        return actor, f"{actor_id}+{actor}@users.noreply.github.com"
+    return "paper-sync-bot", "paper-sync-bot@users.noreply.github.com"
+
+
+def overleaf_author(repo):
+    """Trust the recorded Overleaf Git author when an ordinary email exists."""
+    parts = git(repo, "show", "-s", "--format=%an%n%ae", "HEAD").stdout.decode("utf-8").strip().splitlines()
+    if len(parts) != 2:
+        return None
+    name, email = parts
+    if (not name or not re.fullmatch(r"[^\s@<>]+@[^\s@<>]+", email)
+            or any(x in (name + " " + email).lower()
+                   for x in ("overleaf", "paper-sync-bot", "github-actions"))
+            or "\n" in name or "\r" in name):
+        return None
+    return name, email
 
 
 class Bridge:
@@ -158,8 +186,10 @@ class Bridge:
                 self.refresh(overleaf, revision, ol_files, gh_files, state)
             elif mode == "sync":
                 self.sync(overleaf, revision, ol_files, gh_files, state, force_dry_run)
+            elif mode == "auto":
+                self.auto(overleaf, revision, ol_files, gh_files, state)
             else:
-                raise Refused("Expected refresh or sync.")
+                raise Refused("Expected refresh, sync, or auto.")
 
     def refresh(self, overleaf, revision, ol_files, gh_files, state):
         if state is None:
@@ -172,7 +202,8 @@ class Bridge:
         self.check_github()
         replace_paper(overleaf, self.repo, ol_files)
         self.save_state(revision, ol_files)
-        changed = commit(self.repo, "[overleaf-sync] Refresh paper and record Overleaf baseline", set(gh_files) | set(ol_files) | {STATE})
+        changed = commit(self.repo, "[overleaf-sync] Refresh paper and record Overleaf baseline",
+                         set(gh_files) | set(ol_files) | {STATE}, author=overleaf_author(overleaf))
         require(manifest(self.repo) == ol_files, "Git staging altered the imported paper snapshot; no GitHub push.")
         if changed:
             self.check_github()
@@ -181,6 +212,106 @@ class Bridge:
         require(remote_head(self.repo) == output(self.repo, "rev-parse", "HEAD"), "GitHub changed after refresh; check the latest state again.")
         require(remote_head(overleaf) == revision, "Overleaf changed after refresh; run refresh again before substantive work.")
         print(f"Refresh confirmed Overleaf {revision}; {len(ol_files)} paper files.")
+
+    def auto(self, overleaf, revision, ol_files, gh_files, state):
+        """Push one-sided changes only; reject concurrent independent edits."""
+        require(state is not None, "Missing confirmed Overleaf baseline.")
+        baseline = state["paper_manifest"]
+        gh_changed = gh_files != baseline
+        ol_changed = ol_files != baseline
+        if gh_changed and ol_changed:
+            request = read_json(self.repo, self.start, RECONCILE_REQUEST)
+            if request is not None:
+                self.reconcile(overleaf, revision, ol_files, gh_files, state, request)
+                return
+            raise Refused("Both GitHub and Overleaf changed: conflict, no overwrites.")
+        if ol_changed or (not gh_changed and revision != state["overleaf_revision"]):
+            self.refresh(overleaf, revision, ol_files, gh_files, state)
+            return
+        if not gh_changed:
+            print("No paper changes; snapshots already synchronized.")
+            return
+        require(revision == state["overleaf_revision"] and ol_files == baseline,
+                "Overleaf revision moved; cannot overwrite.")
+        self.check_github()
+        require(remote_head(overleaf) == revision, "Overleaf moved during check.")
+        replace_paper(self.repo, overleaf, gh_files)
+        require(commit(overleaf, "[overleaf-sync] Apply GitHub paper revision " + self.start,
+                       set(ol_files) | set(gh_files)), "No changes to synchronize.")
+        require(manifest(overleaf) == gh_files, "Git staging modified the paper snapshot.")
+        new_revision = output(overleaf, "rev-parse", "HEAD")
+        self.check_github()
+        require(remote_head(overleaf) == revision, "Overleaf changed before push.")
+        git(overleaf, "push", "origin", "HEAD:refs/heads/main")
+        print(f"Overleaf accepted GitHub paper revision: {new_revision}.")
+        try:
+            require(remote_head(overleaf) == new_revision, "Overleaf moved after push.")
+            self.check_github()
+            self.save_state(new_revision, gh_files)
+            commit(self.repo, "[overleaf-sync] Record automatic GitHub sync", {STATE})
+            git(self.repo, "push", "origin", "HEAD:refs/heads/main")
+            require(remote_head(self.repo) == output(self.repo, "rev-parse", "HEAD"),
+                    "GitHub changed after baseline update.")
+            require(remote_head(overleaf) == new_revision,
+                    "Overleaf changed after baseline update.")
+        except Refused as error:
+            raise Refused(f"PARTIAL SUCCESS: Overleaf accepted {new_revision}, "
+                          f"but baseline update failed: {error}") from error
+        print(f"Automatic sync confirmed: {new_revision}.")
+
+    def reconcile(self, overleaf, revision, ol_files, gh_files, state, request):
+        """One-shot, exact-blob reconciliation of a reviewed Overleaf manuscript."""
+        require(state is not None, "A confirmed baseline is required for reconciliation.")
+        require(request.get("project_id") == PROJECT, "Reconciliation project ID mismatch.")
+        expected_baseline = request.get("expected_baseline_revision")
+        expected_overleaf_oid = request.get("expected_overleaf_samplepaper_oid")
+        expected_github_oid = request.get("expected_github_samplepaper_oid")
+        require(expected_baseline == state["overleaf_revision"], "Recorded baseline changed since review.")
+        require(isinstance(expected_overleaf_oid, str) and SHA.fullmatch(expected_overleaf_oid),
+                "Reconciliation requires an exact, reviewed Overleaf manuscript blob SHA.")
+        require(isinstance(expected_github_oid, str) and SHA.fullmatch(expected_github_oid),
+                "Reconciliation requires an exact, approved GitHub manuscript blob SHA.")
+        require(ancestor(overleaf, expected_baseline, revision),
+                "Overleaf history was rewritten since the recorded baseline.")
+        require(manifest(overleaf, expected_baseline) == state["paper_manifest"],
+                "Overleaf history does not match the recorded baseline.")
+        require(gh_files.get("samplepaper.tex", {}).get("oid") == expected_github_oid,
+                "GitHub manuscript changed since the approved reconciliation request.")
+        require(ol_files.get("samplepaper.tex", {}).get("oid") == expected_overleaf_oid,
+                "Overleaf manuscript differs from the user-reviewed 3:35 pm snapshot; no writes.")
+        baseline = state["paper_manifest"]
+        require(set(gh_files) == set(ol_files) == set(baseline),
+                "Paper file inventory differs on one side; no writes.")
+        require(all(ol_files[path] == gh_files[path] == baseline[path]
+                    for path in baseline if path != "samplepaper.tex"),
+                "Another paper file changed; no writes.")
+        self.check_github()
+        require(remote_head(overleaf) == revision, "Overleaf moved before reconciliation.")
+        replace_paper(self.repo, overleaf, gh_files)
+        require(commit(overleaf, "[overleaf-sync] Reconcile reviewed manuscript from GitHub",
+                       {"samplepaper.tex"}), "No Overleaf manuscript change to reconcile.")
+        require(manifest(overleaf) == gh_files, "Overleaf staged manuscript differs from GitHub.")
+        new_revision = output(overleaf, "rev-parse", "HEAD")
+        self.check_github()
+        require(remote_head(overleaf) == revision, "Overleaf moved before push.")
+        git(overleaf, "push", "origin", "HEAD:refs/heads/main")
+        print(f"Overleaf accepted reviewed GitHub manuscript at {new_revision}.")
+        try:
+            require(remote_head(overleaf) == new_revision, "Overleaf moved after push.")
+            self.check_github()
+            self.save_state(new_revision, gh_files)
+            (self.repo / RECONCILE_REQUEST).unlink()
+            commit(self.repo, "[overleaf-sync] Record reconciliation and clear one-shot request",
+                   {STATE, RECONCILE_REQUEST})
+            git(self.repo, "push", "origin", "HEAD:refs/heads/main")
+            require(remote_head(self.repo) == output(self.repo, "rev-parse", "HEAD"),
+                    "GitHub baseline commit was not confirmed.")
+            require(remote_head(overleaf) == new_revision,
+                    "Overleaf moved after GitHub baseline was recorded.")
+        except Refused as error:
+            raise Refused(f"PARTIAL SUCCESS: Overleaf accepted {new_revision}; "
+                          f"GitHub baseline needs reconciliation: {error}") from error
+        print(f"Reviewed manuscript reconciliation confirmed at Overleaf {new_revision}.")
 
     def sync(self, overleaf, revision, ol_files, gh_files, state, force_dry_run):
         request = read_json(self.repo, self.start, REQUEST)
@@ -232,7 +363,7 @@ class Bridge:
 
 
 def main():
-    require(len(sys.argv) == 2 and sys.argv[1] in {"refresh", "sync"}, "Usage: overleaf_bridge.py refresh|sync")
+    require(len(sys.argv) == 2 and sys.argv[1] in {"refresh", "sync", "auto"}, "Usage: overleaf_bridge.py refresh|sync|auto")
     if os.environ.get("GITHUB_ACTIONS") == "true":
         require(os.environ.get("GITHUB_REPOSITORY") == REPOSITORY, "Wrong GitHub repository.")
         require(os.environ.get("GITHUB_REF") == "refs/heads/main", "Bridge runs only on main.")
