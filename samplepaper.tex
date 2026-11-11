@@ -1099,69 +1099,35 @@ that $\mathcal E_m$ is correctable for every reachable measurement
 record $m$, i.e., every record with $\mathcal E_m\neq\varnothing$.
 
 \begin{proof}[Proof sketch]
-The full proof is given in Appendix~\ref{app:proof}.
-All Pauli products are considered up to global phase.
+The full proof appears in Appendix~\ref{app:proof}; Pauli products are
+considered up to global phase.
 
 \textbf{($\Rightarrow$)}
-Suppose that two errors $E_1,E_2\in\mathcal E_m$ satisfy
-$E_1\cdot E_2\in N(\cS)\setminus\cS$.
-A decoder assigns the same correction $C$ to their common record $m$.
-If FTEC holds, the two corrected errors have minimum weight at most
-their respective numbers of circuit faults, and hence at most $t$.
-By subadditivity,
+If $E_1,E_2\in\mathcal E_m$ differ by a nontrivial logical
+operator, the common correction $C=D(m)$ would, by FTEC, satisfy
+$\mathrm{wt}_{\min}(E_iC)\le t$ for $i=1,2$. Hence
 \[
-d\le\mathrm{wt}_{\min}(E_1\cdot E_2)
-=\mathrm{wt}_{\min}\bigl((E_1\cdot C)(E_2\cdot C)\bigr)
+d\le\mathrm{wt}_{\min}(E_1E_2)
+\le\mathrm{wt}_{\min}(E_1C)+\mathrm{wt}_{\min}(E_2C)
 \le 2t,
 \]
-contradicting $d>2t$.
+a contradiction.
 
 \textbf{($\Leftarrow$)}
-Assume the pairwise condition in the theorem. For each reachable
-record $m$, choose a correction according to a termination condition
-satisfied by its path:
-\begin{itemize}
-    \item \textbf{Condition (1):}
-    All errors in $\mathcal E_m$ have the same ideal syndrome.
-    Choose $C\in\mathcal E_m$. For every $E\in\mathcal E_m$,
-    $E\cdot C\in N(\cS)$, and the pairwise condition implies
-    $E\cdot C\in\cS$. Thus the corrected error is trivial up to
-    stabilizers, satisfying both FTEC requirements.
-
-    \item \textbf{Condition (2):}
-    Suppose $w$ faults have been detected before $t-w+1$
-    consecutive full syndrome extraction rounds with identical
-    syndromes and no raised flags. For an execution with $s\le t$
-    circuit faults, at most $s-w$ faults occur in these rounds, so
-    at least one round $R$ is fault-free. Let $E^-$ be the data error
-    before $R$. The fault-free round reports its ideal syndrome.
-    If faults after $R$ are removed, the remaining rounds are
-    fault-free, report the same syndrome, and raise no flags;
-    hence this modified execution has the same record $m$ and
-    residual error $E^-\in\mathcal E_m$.
-    These errors $E^-$ have the same ideal syndrome for a fixed $m$,
-    so the pairwise condition makes them stabilizer-equivalent.
-    Choose $C$ from this equivalence class, giving
-    $C\cdot E^-\in\cS$ for every compatible execution.
-    The actual corrected error is therefore equivalent to the
-    error induced by faults after $R$. Since these rounds raise no
-    flags, the required $(t-w)$-flag condition bounds the minimum
-    weight of their combined fault-induced error by at most
-    $s-w\le s$. Ideal decoding then removes this remaining
-    correctable error, satisfying both FTEC requirements.
-
-    \item \textbf{Condition (3):}
-    Choose the identity correction. For an input error of weight
-    $r$ and $s$ circuit faults with $r+s\le t$,
-    Condition (3) of protocol validity bounds the final data error by
-    $\mathrm{wt}_{\min}(E_{\mathrm{out}})\le s$.
-    This establishes FTEC (2), and ideal decoding of the
-    correctable residual error preserves the original logical
-    state, establishing FTEC (1).
-\end{itemize}
-If a path satisfies more than one termination condition, any
-applicable construction above may be used; in each case the
-correction depends only on $m$. This completes the sketch.
+Assume the pairwise condition. For each reachable record $m$,
+construct $D(m)$ using a termination condition of its path.
+Under Condition~(1), equal ideal syndromes and the pairwise
+condition make all errors in $\mathcal E_m$ stabilizer-equivalent;
+any representative gives a correction. Under Condition~(2), the
+$t-w+1$ identical unflagged rounds contain a fault-free round.
+Removing subsequent faults preserves the record, yielding
+stabilizer-equivalent reference errors by the pairwise condition.
+A correction for this class leaves only the subsequent fault-induced
+error, whose minimum weight is at most $s-w\le s$ by the
+$(t-w)$-flag condition. Under Condition~(3), the identity
+correction suffices because the residual minimum weight is at most
+$s$. In every case the correction depends only on $m$, satisfies
+FTEC~(2), and permits ideal decoding for FTEC~(1).
 \end{proof}
 
 
