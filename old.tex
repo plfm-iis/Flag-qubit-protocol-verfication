@@ -126,7 +126,7 @@ To address the challenge of fault-tolerant error correction (FTEC), schemes such
 
 Flagged syndrome extraction protocols offer a resource-efficient alternative. Instead of using encoded states, these protocols instrument the circuit with unencoded \emph{flag qubits}. These flags act as runtime monitors: they signal when a dangerous internal fault has occurred. The control logic then uses this signal to adapt the recovery strategy.
 
-Flagged syndrome extraction protocols were pioneered by Chao and Reichardt~\cite{Chao18} for a family of distance-3 codes. This approach was subsequently generalized to codes of arbitrary distance by Chamberland and Beverland~\cite{Chamberland18}. More recent research has focused on optimizing these protocols to reduce resource overhead: Reichardt~\cite{reichardt2021fault}, Liou and Lai~\cite{LL23,Liou25}, and Du et al.~\cite{Du24} introduced parallelization and flag-sharing techniques to minimize circuit depth and qubit count. Other approaches, such as low-depth adaptive protocols~\cite{low-depth}, further optimize execution by dynamically selecting specific stabilizers to measure based on intermediate outcomes.
+Flagged syndrome extraction protocols were pioneered by Chao and Reichardt~\cite{CR18a} for a family of distance-3 codes. This approach was subsequently generalized to codes of arbitrary distance by Chamberland and Beverland~\cite{CB18}. More recent research has focused on optimizing these protocols to reduce resource overhead: Reichardt~\cite{reichardt2021fault}, Liou and Lai~\cite{LL23,Liou25}, and Du et al.~\cite{Du24} introduced parallelization and flag-sharing techniques to minimize circuit depth and qubit count. Other approaches, such as low-depth adaptive protocols~\cite{low-depth}, further optimize execution by dynamically selecting specific stabilizers to measure based on intermediate outcomes.
 
 However, designing these protocols is essentially a complex synthesis problem. The correctness depends on the precise interplay of gate ordering, qubit reuse, and measurement scheduling. A subtle design error can create a specific fault path where distinct, non-degenerate errors produce identical measurement outcomes. This causes the error correction to apply an incorrect recovery operation.
 
@@ -606,7 +606,7 @@ Because the state is perfectly returned to the codespace ($E_2 \cdot C \in \math
 
     \end{tikzpicture}
     \end{adjustbox}
-    \caption{Flagged syndrome extraction protocol of $[[5,1,3]]$ adapted from \cite{Chao18}.}
+    \caption{Flagged syndrome extraction protocol of $[[5,1,3]]$ adapted from \cite{CR18a}.}
     \label{fig:flowchart}
 \end{figure}
 
@@ -1293,7 +1293,7 @@ $[[5,1,3]]$  & Low-depth                 & [Bha23]      & Pass & Fail & Fail \\
 $[[7,1,3]]$  & Low-depth                 & [Bha23]      & Pass & Pass & Pass \\
 \bottomrule
 \end{tabular}
-\caption{Verification results of flagged syndrome extraction protocols. Protocols are sourced from \cite{Liou25} [LL25], \cite{Chamberland18} [CB18], \cite{Du24} [Du24], and \cite{low-depth} [Bha23]. Columns 1--3 describe the QECC, circuit optimization, and protocol strategy, respectively. Columns 4--6 report the verification results for Steps 1 through 3 of our framework.}\label{tab:experiment-results}
+\caption{Verification results of flagged syndrome extraction protocols. Protocols are sourced from \cite{Liou25} [LL25], \cite{CB18} [CB18], \cite{Du24} [Du24], and \cite{low-depth} [Bha23]. Columns 1--3 describe the QECC, circuit optimization, and protocol strategy, respectively. Columns 4--6 report the verification results for Steps 1 through 3 of our framework.}\label{tab:experiment-results}
 \end{table}
 
 Our experiments were conducted on a MacBook Pro with an M4 Pro chip and 48GB of RAM. We implemented our verification framework using Z3py to encode the constraints, which were subsequently transformed into DIMACS format for the CryptoMiniSat solver. CryptoMiniSat was chosen for its highly optimized performance on formulas containing massive XOR clauses; all tasks were run without a timeout. 
