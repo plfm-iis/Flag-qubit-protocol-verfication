@@ -853,11 +853,13 @@ A flagged syndrome extraction circuit is required to satisfy the validity condit
 
 
 
-A single circuit fault can propagate to several data qubits,
-producing an error whose weight exceeds the number of faults.
-Flag qubits signal such error amplification, providing additional
-information for recovery. The following condition formalizes when
-this signal is required.
+A circuit fault may propagate to multiple data qubits, producing
+an error whose weight exceeds the number of faults. Flag qubits
+provide additional measurement outcomes to detect such error
+amplification. To characterize this property under a general fault
+bound $k$, we introduce the following $k$-flag condition.
+This condition will later be used to verify the flagged syndrome
+extraction circuits required by protocol validity.
 \begin{definition}[$k$-Flag Condition] \label{def:flag}
 For a given fault bound $k$, a syndrome extraction circuit satisfies
 the $k$-flag condition if the following hold:
