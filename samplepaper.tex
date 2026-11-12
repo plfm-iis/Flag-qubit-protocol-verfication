@@ -597,7 +597,6 @@ Pauli signs.
 \end{theorem}
 
 The proof is given in Appendix~\ref{app:proof-syndrome-extraction}.
-
 Figure~\ref{fig:three-part-syndrome-bad} illustrates
 an invalid parallel syndrome extraction circuit
 from~\cite{KL24}. Although the individual circuits
@@ -813,7 +812,7 @@ Condition~(1) of Definition~\ref{def:weak-FTEC} guarantees that the output state
 \label{subsec:flagged-protocols}
 
 
-\begin{wrapfigure}[12]{r}{0.35\textwidth}
+\begin{wrapfigure}[13]{r}{0.35\textwidth}
 \centering
 \vspace{-4mm}
 \begin{adjustbox}{max width=\textwidth,valign=t}
@@ -880,7 +879,7 @@ the $k$-flag condition if the following hold:
 
 A \textit{flagged fault-tolerant error correction protocol} consists of flagged syndrome extraction circuits and syndrome extraction circuits together with an adaptive control flow. 
 
-The control flow is represented by a finite decision tree. It determines which syndrome extraction circuit is executed next based on the syndrome and flag outcomes obtained so far and determines when the protocol terminates.
+The control flow is represented by a finite decision tree (c.f. \ref{fig:five-qubit-flagged-protocol}). It determines which syndrome extraction circuit is executed next based on the syndrome and flag outcomes obtained so far and determines when the protocol terminates.
 Its paths enumerate all terminating executions.
 
 
@@ -1073,12 +1072,12 @@ if the same path also satisfies Condition (1) or Condition (3).
 
 
 % Each internal node represents a syndrome extraction circuit, and each outgoing edge is labeled by a branch condition on the syndrome and flag outcomes. A terminating path determines the corresponding measurement record. In this example,
-% The paths ending at Decoder 1--4 satisfy termination condition (2). The branch condition $m_i=1 \vee f_i=1$ indicates that at least one fault has been detected, so $w=1$. Since $t-w+1=1$, condition (2) requires only one full syndrome extraction circuit in the terminating suffix; this is the blue node immediately before the decoder. The path ending at the End node satisfies
-% termination condition (3).
+% The paths ending at Decoder 1--4 satisfy path condition (2). The branch condition $m_i=1 \vee f_i=1$ indicates that at least one fault has been detected, so $w=1$. Since $t-w+1=1$, condition (2) requires only one full syndrome extraction circuit in the terminating suffix; this is the blue node immediately before the decoder. The path ending at the End node satisfies
+% path condition (3).
 Circuit validity, protocol validity, and error-set correctability
 must all hold for the verifier to accept a protocol as FTEC.
 For protocol validity, every terminating path must satisfy at least
-one of the following termination conditions.
+one of the following path conditions.
 Condition (1) requires the measurement record to determine the
 ideal syndrome. Condition (2) requires repeated identical syndromes
 without flags. Condition (3) requires the residual error weight
@@ -1426,8 +1425,8 @@ satisfies both FTEC requirements.
 % \begin{proof}
 %     \begin{itemize}
 %         \item Ter1 : If a path is distinguishable $\Rightarrow$ For any tow fault event consist of fault basis have same measurement record the nthe residual errr have same ideal syndrome $\Rightarrow $  For any tow fault event consist of detectable fault basis have same measurement record the the residual errr have same ideal syndrome $\Rightarrow$  For any tow fault event consist of detectable fault basis have same measurement record there exist a correction $C$ that have the same ideal syndrome with the two resisidual errors $\Rightarrow $  For any tow fault event consist of detectable fault basis have same measurement record after the corection $C$ the residual error will have zero ideal syndrome 
-%         \item Ter2: Claim : For all  fault event satisfies the path condition and  consist of detectable fault basis there is a recovery operation such that the residual errro aafter correction has ideal syndrome all zero.
-%         Let $f$ be a fault  event  that satisfies the path condition and is consist of a set of detectable fault basis $\{v_{det}\}$, that is $f = \sum_{v_j \in \{v_{det}\}}  v_j$
+%         \item Ter2: Claim : For all  fault event satisfies the path constraint and  consist of detectable fault basis there is a recovery operation such that the residual errro aafter correction has ideal syndrome all zero.
+%         Let $f$ be a fault  event  that satisfies the path constraint and is consist of a set of detectable fault basis $\{v_{det}\}$, that is $f = \sum_{v_j \in \{v_{det}\}}  v_j$
 %         If every basis in $\{v_{det} \}$ happens before the $t-w+1$ full snydroem extraction circuit then the $t-w+1 $ consectutive syndorme  is fault free so the consecutive will equal the ideal syndrome of the error entering the consecutive syndrome extraction circuit.
 %         If there are  basis in $\{v_{det} \}$ that happens in the consecutive synforme extraction, and one of the flagged raised $\rightarrow \leftarrow $
 %         If there are  basis in $\{v_{det} \}$ that happens in the consecutive synforme extraction, no of the flagged raised  but the $t-w+1 $consecutive syndroem are different $\rightarrow \leftarrow $
@@ -1505,7 +1504,7 @@ Accept iff both checks pass
 \draw[arrow] (prot.south) -- ([xshift= 0.065\textwidth]result.north);
 
 \end{tikzpicture}
-\caption{SAT-based verification pipeline. After circuit validity passes, correctability and protocol validity are checked independently.}
+\caption{Flagged FTEC protocol verification pipeline. After circuit validity passes, correctability and protocol validity are checked independently.}
 \label{fig:verification-pipeline}
 \vspace{-1.0em}
 \end{wrapfigure}
@@ -1579,7 +1578,7 @@ $\pi$. This propagation determines three objects:
 E_\pi(\mathcal{F}),\qquad
 m_\pi(\mathcal{F}).
 \]
-Here, $\Phi_\pi(\mathcal{F})$ is the path condition specifying that the
+Here, $\Phi_\pi(\mathcal{F})$ is the path constraint specifying that the
 syndrome and flag outcomes produced under $\mathcal{F}$ cause the protocol to
 follow the terminating path $\pi$; $E_\pi(\mathcal{F})$ is the residual Pauli
 error on the data block at the end of $\pi$; and
@@ -1613,7 +1612,7 @@ Q_{d_n,x}(\mathcal{F}),Q_{d_n,z}(\mathcal{F})
 \bigr).
 \]
 The same symbolic propagation determines the syndrome and flag outcomes and
-hence the measurement record $m_\pi(\mathcal{F})$ and the path condition
+hence the measurement record $m_\pi(\mathcal{F})$ and the path constraint
 $\Phi_\pi(\mathcal{F})$. Thus, for a fixed terminating path, a fault
 assignment is mapped to the symbolic quantities used throughout the SAT
 formulation:
@@ -1663,7 +1662,7 @@ outcomes, a complete measurement record determines its terminating path.
 % \[
 % \Phi_\pi(\mathcal{F}), \qquad E_\pi(\mathcal{F}), \qquad m_\pi(\mathcal{F}).
 % \]
-% The path condition $\Phi_\pi(\mathcal{F})$ is the Boolean formula stating that the
+% The path constraint $\Phi_\pi(\mathcal{F})$ is the Boolean formula stating that the
 % recorded syndrome and flag outcomes produced under $\mathcal{F}$ make the protocol follow
 % the terminating path $\pi$. The residual data error $E_\pi(\mathcal{F})$ is the binary
 % Pauli vector on the data block at the end of $\pi$. The measurement record
@@ -1900,11 +1899,11 @@ m_\pi(\mathcal{F}_1) = m_\pi(\mathcal{F}_2) \quad\equiv\quad \bigwedge_{j=1}^r \
 \]
 
 Finally, the same recorded syndrome and flag outcomes are substituted into the
-branch guards of the control flow to form the path condition. For example,
+branch guards of the control flow to form the path constraint. For example,
 suppose the terminating path $\pi$ first takes a branch guarded by
 $m_1=0\land f_1=0$ and then a branch guarded by $m_2=1\lor f_2=1$. If symbolic
 execution produces the recorded syndrome and flag outcomes
-$m_1(\mathcal{F}),f_1(\mathcal{F}),m_2(\mathcal{F}),f_2(\mathcal{F})$, then the corresponding path condition is
+$m_1(\mathcal{F}),f_1(\mathcal{F}),m_2(\mathcal{F}),f_2(\mathcal{F})$, then the corresponding path constraint is
 \[
 \Phi_\pi(\mathcal{F})
 =
@@ -1922,7 +1921,7 @@ formulas.
 
 At this point, for every terminating path $\pi$ and fault assignment $\mathcal{F}$, we
 have Boolean encodings of the three quantities used by the verification
-queries: the path condition $\Phi_\pi(\mathcal{F})$, the residual data error
+queries: the path constraint $\Phi_\pi(\mathcal{F})$, the residual data error
 $E_\pi(\mathcal{F})$, and the measurement record $m_\pi(\mathcal{F})$.
 
 \subsubsection{Correctability Check}
@@ -2028,8 +2027,8 @@ Q_{i,z} \land L_{h,i,x}
 
 
 
-Together, these constraints encode $Q\in N(\cS)\setminus\cS$,
-completing the SAT counterexample query.
+Together $\mathrm{Norm}(Q,\mathcal{S}) \wedge \neg\mathrm{Stab_{\mathrm{non}}}(Q, \mathcal{L})$ encode $Q\in N(\cS)\setminus\cS$,
+completing the SAT query.
 
 
 
@@ -2118,7 +2117,7 @@ requirement:
 \end{aligned}
 \end{equation}
 The constraints require the input error weight $r$ and the circuit fault
-count $w$ to satisfy $r+w\le t$, while the path condition requires the
+count $w$ to satisfy $r+w\le t$, while the path constraint requires the
 execution to follow $\pi$. The final conjunct searches for a residual
 data error whose minimum weight exceeds $w$, even after multiplying by
 stabilizers.
@@ -2470,7 +2469,7 @@ $v_{\mathrm{prot}}\gets\mathrm{true}$\;
 
 \ForEach{terminating path $\pi\in\Pi$}{
     \lIf{\textsc{ControlFlowValidity}$(\pi,t)$ fails}{$v_{\mathrm{prot}}\gets\mathrm{false}$}
-    \If{$\pi$ satisfies the termination condition (2) with detected-fault lower bound $w$}{
+    \If{$\pi$ satisfies the path condition (2) with detected-fault lower bound $w$}{
         Let $C$ be the full syndrome extraction circuit used in $\pi$'s repeated-syndrome suffix\;
         \lIf{\textsc{FlagCondition}$(C,t-w)$ fails}{$v_{\mathrm{prot}}\gets\mathrm{false}$}
     }
@@ -2496,7 +2495,7 @@ For Condition (3), it checks that all required
 $\Psi^{\mathrm{CF3}}_{\pi,w}$ queries are unsatisfiable.
 The required $(t-w)$-flag condition is checked separately by
 \textsc{FlagCondition} in Algorithm~\ref{alg:ftec-verification} for every
-path satisfying Condition (2), even if another termination condition also holds.
+path satisfying Condition (2), even if another path condition also holds.
 
 \begin{theorem}[Verification correctness]
 \label{thm:verification-correctness}
@@ -3203,9 +3202,9 @@ Assume that, for every measurement record $m$,
  E_1\cdot E_2\notin N(\cS)\setminus\cS.
 \]
 We choose a correction for each reachable record according to the
-termination condition of its path and prove the two FTEC requirements.
+path condition of its path and prove the two FTEC requirements.
 
-\paragraph{Termination Condition (1).}
+\paragraph{Path condition (1).}
 By protocol validity, all errors in $\mathcal E_m$ have the same
 ideal syndrome. Choose any representative $C\in\mathcal E_m$ as the
 decoder output. For every $E\in\mathcal E_m$, equal syndromes imply
@@ -3214,7 +3213,7 @@ $E\cdot C\in\cS$. Thus recovery preserves the original logical state
 and leaves minimum residual weight $0\le s$, satisfying both FTEC
 requirements.
 
-\paragraph{Termination Condition (2).}
+\paragraph{Path condition (2).}
 Let $w$ be the certified lower bound on the number of circuit faults
 before the repeated suffix. The suffix consists of $t-w+1$ full syndrome
 extraction rounds with identical syndrome outcomes and no flags.
@@ -3268,7 +3267,7 @@ This proves FTEC~(2). Since the remaining error is relative to the
 original logical state and has minimum weight at most $s\le t$,
 ideal decoding removes it, proving FTEC~(1).
 
-\paragraph{Termination Condition (3).}
+\paragraph{Path condition (3).}
 Choose the identity correction, $D(m)=I$.
 By Condition~(3) of protocol validity, every execution with
 $r+s\le t$ producing $m$ has residual error $E\in\mathcal E_m$ satisfying
