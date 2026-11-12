@@ -134,9 +134,10 @@
 
 
 Fault-tolerant syndrome extraction with flag qubits provides a resource-efficient approach to quantum error correction by using measurement outcomes to adapt the subsequent error-correction procedure. This adaptive control flow, however, makes correctness difficult to verify: to guarantee correction of a specified set of faults, any two non-equivalent faults must be distinguishable by the resulting execution paths and measurement records, since they may require incompatible recoveries. 
-In this work, we establish a criterion for verifying a fault-tolerant lookup-table decoder without explicitly constructing the table: when the syndrome extraction circuits and the protocol are valid, such a decoder exists if and only if the residual error set for every reachable measurement record is correctable.
+In this work, we establish a decoder-independent criterion for verifying flagged error-correction protocols: when the syndrome extraction circuits and the protocol are valid, there exists a lookup-table decoder that makes the protocol satisfy weak fault tolerance if and only if the residual error set for every reachable measurement record is correctable.
+%In this work, we establish a criterion for verifying a fault-tolerant lookup-table decoder without explicitly constructing the table: when the syndrome extraction circuits and the protocol are valid, such a decoder exists if and only if the residual error set for every reachable measurement record is correctable.
 We develop a formal verification framework that first checks circuit validity, then uses symbolic Pauli fault propagation and SAT solving to verify error-set correctability and protocol validity, including control-flow and flag requirements. 
-We evaluate the framework on representative flagged protocols from the literature, successfully validating known constructions and exposing errors in previously published protocols.
+We evaluate the framework on representative flagged protocols from the literature, successfully validating known constructions and identifying previously unknown errors in published protocols.
 
 
 \end{abstract}
@@ -233,17 +234,21 @@ can correctly handle all such residual errors.
 % % Themeasurement record consists of the \emph{syndrome and flag outcomes} collected along an adaptive execution path. 
 
 
+Existing formal verification methods reason about recovery using
+assertions on decoder outputs~\cite{chen2025verifying} or conditions
+derived for the decoder~\cite{10.1145/3729293}.
+These methods can avoid executing a concrete decoder implementation.
+However, failure to verify a protocol under a particular decoder
+or decoder specification does not establish that the protocol
+cannot support fault-tolerant recovery: another decoder may succeed.
+We therefore formulate the verification condition directly in terms
+of the residual-error sets associated with measurement records,
+allowing us to check whether the protocol admits a suitable decoder
+without selecting one in advance.
 
 
-A decoder-dependent verification approach would first construct a lookup-table
-decoder and then check whether the resulting correction satisfies the
-fault-tolerant error-correction conditions for every fault event within the
-fault bound. This is not the most informative verification target. If such a
-check fails, the failure may arise either from the choice of decoder or from the
-protocol itself: the syndrome and flag outcomes may simply fail to distinguish
-fault events that require different recoveries. We therefore formulate the
-verification condition directly in terms of the residual-error sets associated
-with measurement records, rather than a preselected decoder.
+
+%A decoder-dependent verification approach would first construct a lookup-table decoder and then check whether the resulting correction satisfies the fault-tolerant error-correction conditions for every fault event within the fault bound. This is not the most informative verification target. If such a check fails, the failure may arise either from the choice of decoder or from the protocol itself: the syndrome and flag outcomes may simply fail to distinguish fault events that require different recoveries. We therefore formulate the verification condition directly in terms of the residual-error sets associated with measurement records, rather than a preselected decoder.
 
 
 Our main characterization shows that, when the syndrome extraction circuits
@@ -258,27 +263,35 @@ depending only on that record can correctly handle both cases.
 
 
 Based on this characterization, we develop a verification framework.
-We first verify the correctness and determinism of the syndrome extraction
-circuits. Only if circuit validity passes do we check error-set correctability
-and protocol validity, which includes control-flow termination and flag
-requirements. We symbolically execute protocol paths, tracking Pauli errors
-and measurement outcomes as Boolean formulas over fault variables, and use
-SAT queries to search for incompatible residual errors with the same
-measurement record. A satisfying assignment gives a correctability
-counterexample; when all such queries are unsatisfiable and protocol
-validity holds, our characterization establishes the existence of
-an FTEC lookup-table decoder.
+We first verify circuit validity, i.e., the \emph{correctness} and \emph{determinism} of the syndrome extraction
+circuits. Only if circuit validity passes do we check \emph{error-set correctability}
+and \emph{protocol validity}, which includes \emph{path conditions} %control-flow termination \yfc{we did not check termination}
+and \emph{flag requirements}. If all checks pass, the protocol admits a decoder satisfying \emph{weak FTEC}.
+Our verification combines symbolic execution, SAT solving, and
+stabilizer simulation. We symbolically execute protocol paths,
+tracking Pauli errors and measurement outcomes as Boolean formulas
+over fault variables, and encode violations of correctability,
+path conditions, and flag requirements as SAT queries.
+Circuit validity is checked using symbolic Pauli propagation
+and signed stabilizer simulation.
+
+%We symbolically execute protocol paths, tracking Pauli errors and measurement outcomes as Boolean formulas over fault variables, and use SAT queries to search for incompatible residual errors with the same measurement record. A satisfying assignment gives a correctability counterexample; when all such queries are unsatisfiable and protocol validity holds, our characterization establishes the existence of an FTEC lookup-table decoder.
 
 
 
-We implement the method and evaluate it on representative flagged protocols from the literature. The evaluation demonstrates two uses of the verifier. First, it validates known
-constructions by proving that their concrete formal instantiations satisfy the
-required validity and FTEC conditions. Second, it exposes errors that are
-difficult to detect by manual inspection. During benchmark construction, the
-verifier repeatedly caught concrete instantiation mistakes while translating
-protocol descriptions into executable formal models. More substantively, it
-identified previously unnoticed flaws in optimized protocols from the
-literature, including counterexamples in low-depth protocols for the
+We implement the method and evaluate it on representative flagged protocols from the literature. 
+\rmark{The evaluation validates known constructions
+by proving that their concrete formal instantiations satisfy the required
+validity and FTEC conditions, and exposes errors that are difficult
+to detect by manual inspection.
+Translating published protocol descriptions into formal models or
+implementations is itself error-prone, as correctness depends on subtle
+details of gate ordering, measurement conventions, and control flow.
+Our verifier supports this process by producing counterexamples that
+guide model refinement and help distinguish modeling errors from flaws
+in the underlying protocol.}
+%The evaluation demonstrates two uses of the verifier. First, it validates known constructions by proving that their concrete formal instantiations satisfy the required validity and FTEC conditions. Second, it exposes errors that are difficult to detect by manual inspection. During benchmark construction, the verifier repeatedly caught concrete instantiation mistakes while translating protocol descriptions into executable formal models. More substantively, it
+It also identified previously unknown design flaws in published protocols, including counterexamples in low-depth protocols for the
 $[[5,1,3]]$ and $[[7,1,3]]$ codes and flag-condition violations in
 higher-distance protocols. These issues were reported to the corresponding
 authors and confirmed. Together, these results show that automated verification
@@ -525,7 +538,7 @@ where $A_i$ is the designated ancilla measurement
 observable and $\omega$ is a global Pauli phase.
 \end{definition}
 
-Correctness ensures the intended syndrome parities and preserves
+Correctness \rmark{of a syndrome-extraction circuit} ensures the intended syndrome parities and preserves
 data errors up to stabilizer equivalence, but does not ensure
 measurement determinism.
 
