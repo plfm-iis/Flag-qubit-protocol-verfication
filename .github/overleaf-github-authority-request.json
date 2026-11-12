@@ -1,0 +1,8 @@
+{
+  "schema": 1,
+  "project_id": "6adb7e8c4019793a7dcea09f",
+  "approved_github_commit": "e7f3049a2cc03bb58c278bbef02c520aef139c42",
+  "approved_github_samplepaper_oid": "6dfa9d2657b112495e66ef6c3aa43777140080ef",
+  "expected_overleaf_samplepaper_oid": "608dad17668848107301f7ca4307718efbfea514",
+  "reason": "Reconcile latest user-provided Results table data, prose, and formatting after inspecting exact paper diff; refuse any further Overleaf changes."
+}
