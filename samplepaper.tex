@@ -2972,37 +2972,57 @@ The complete evolution of these generators is detailed in Table~\ref{tab:stabili
 
 
 \textbf{Example 2 (Correctability counterexample).}
-\rmark{Consider path 2 of the parallel-flag $[[17,1,5]]$ protocol
-from~\cite{Du24}, with fault bound $t=2$. The protocol executes
-four flagged syndrome extraction rounds and terminates without
-a basic syndrome extraction round. The same measurement record
-in Table~\ref{tab:example2-record} is produced by two distinct
-two-fault assignments. Here each syndrome consists of eight
-$X$-ancilla bits followed by eight $Z$-ancilla bits. In round 1,
-the flag group $\{\mathrm{flagX}[0],\mathrm{flagX}[1],
-\mathrm{flagX}[2]\}$ is raised.}
+\rmark{Consider a terminating path of the parallel-flag
+$[[17,1,5]]$ protocol from~\cite{Du24}, with $t=2$.
+The protocol executes four flagged syndrome extraction rounds
+without a basic syndrome extraction round.
+Figure~\ref{fig:example2-path-pipeline} shows the common
+measurement record of two distinct two-fault assignments.
+Each syndrome lists eight $X$-ancilla bits followed by eight
+$Z$-ancilla bits; in round 1, only the flag group
+$\{\mathrm{flagX}[0],\mathrm{flagX}[1],\mathrm{flagX}[2]\}$
+is raised.}
 
-\begin{table}[!htbp]
+\begin{figure}[!htbp]
 \centering
-\scriptsize
-\setlength{\tabcolsep}{5pt}
-\begin{tabular}{c c l}
-\toprule
-Round & Flag & Measured syndrome \\
-\midrule
-0 & 0 & \texttt{0000000000000000} \\
-1 & 1 & \texttt{0000000000000000} \\
-2 & 0 & \texttt{0000000100000000} \\
-3 & 0 & \texttt{0000000100000000} \\
-\bottomrule
-\end{tabular}
-\caption{The common measurement record of the two fault assignments
-on path 2. The flag value counts the raised flag groups.}
-\label{tab:example2-record}
-\end{table}
+\begin{adjustbox}{max width=\linewidth}
+\begin{tikzpicture}[
+    font=\scriptsize,
+    box/.style={draw, rounded corners, fill=orange!20,
+        align=center, minimum width=2.1cm, minimum height=0.8cm},
+    endpoint/.style={draw, rounded corners, fill=green!15,
+        align=center, minimum width=1.1cm, minimum height=0.8cm},
+    arr/.style={->, thick, >=stealth},
+    node distance=0.65cm
+]
+\node[endpoint] (start) {Start};
+\node[box, right=of start] (r0) {Flagged SE\\Round 0};
+\node[box, right=of r0] (r1) {Flagged SE\\Round 1};
+\node[box, right=of r1] (r2) {Flagged SE\\Round 2};
+\node[box, right=of r2] (r3) {Flagged SE\\Round 3};
+\node[endpoint, right=of r3] (lut) {LUT};
+\draw[arr] (start) -- (r0);
+\draw[arr] (r0) -- (r1);
+\draw[arr] (r1) -- (r2);
+\draw[arr] (r2) -- (r3);
+\draw[arr] (r3) -- (lut);
+\node[below=0.18cm of r0, align=center]
+    {$f=0$\\\texttt{0000000000000000}};
+\node[below=0.18cm of r1, align=center]
+    {$f=1$\\\texttt{0000000000000000}};
+\node[below=0.18cm of r2, align=center]
+    {$f=0$\\\texttt{0000000100000000}};
+\node[below=0.18cm of r3, align=center]
+    {$f=0$\\\texttt{0000000100000000}};
+\end{tikzpicture}
+\end{adjustbox}
+\caption{Control-flow pipeline for a terminating path in Example 2.
+The annotations give the flag outcome and syndrome of each round.}
+\label{fig:example2-path-pipeline}
+\end{figure}
 
-\rmark{The two assignments differ in their fault locations and
-resulting residual data errors (qubit indices start at zero):}
+\rmark{The two fault assignments in Table~\ref{tab:example2-faults}
+produce this same record (qubit indices are zero-based).}
 
 \begin{table}[!htbp]
 \centering
@@ -3023,27 +3043,23 @@ $B$ & $(1,65)$: $CX(\mathrm{flagX}[1],\mathrm{ancZ}[0])$
     & $Z$ on $\mathrm{ancZ}[0]$ \\
 \bottomrule
 \end{tabular}
-\caption{Two fault assignments producing the same record in
-Table~\ref{tab:example2-record}.}
+\caption{Two fault assignments producing the common measurement record.}
 \label{tab:example2-faults}
 \end{table}
 
-\rmark{The resulting residual errors are
-$E_A=Z_{12}$ and $E_B=Z_6Z_{10}Z_{13}Z_{14}$.
-Both have the ideal syndrome $\texttt{0000000100000000}$,
-but}
+\rmark{The residual errors are $E_A=Z_{12}$ and
+$E_B=Z_6Z_{10}Z_{13}Z_{14}$. Although they share the same
+measurement record,}
 \[
 E_A^\dagger E_B
 =Z_6Z_{10}Z_{12}Z_{13}Z_{14}
 \in N(\mathcal S)\setminus\mathcal S.
 \]
-\rmark{Indeed, their product has trivial stabilizer syndrome and
-anticommutes with logical $X$, so it is a nontrivial logical $Z$.
-By Eq.~\ref{eq:QECC_condition}, the residual error set for this
-measurement record is not correctable: a common lookup-table
-correction cannot correct both cases. This is one of the three
-correctability-failing paths reported for this protocol in
-Table~\ref{tab:combined-results}.}
+\rmark{Their product has trivial stabilizer syndrome but
+anticommutes with logical $X$. Thus, by
+Eq.~\ref{eq:QECC_condition}, no common lookup-table correction
+can correct both errors, and the residual error set is not
+correctable.}
 
 \section{Related Work}
 
