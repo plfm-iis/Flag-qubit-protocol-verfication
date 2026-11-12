@@ -2778,7 +2778,7 @@ Flag bugs (circuit) & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
 \multicolumn{10}{l}{\textit{SAT Solver}} \\
 Peak Memory (MB) & 90.4 & 98.5 & 91.6 & 100.0 & 99.7 & 99.9 & 92.1 & 90.7 & 101.4 \\
 Total SAT Calls & 17 & 3 & 3 & 3 & 3 & 10 & 7 & 25 & 4 \\
-Total Time (s) & 11.5 & 4.3 & 4.1 & 4.2 & 4.5 & 6.2 & 7.6 & 16.4 & 60.5 \\
+\rmark{Total Time (s)} & 11.5 & 4.3 & 4.1 & 4.2 & 4.5 & 6.2 & 7.6 & 16.4 & 60.5 \\
 \#Vars & 113--615 & 192--615 & 193--625 & 194--627 & 186--623 & 58--615 & 158--759 & 51--793 & 1104--8973 \\
 \#Clauses & 638--4551 & 1369--4563 & 1385--4623 & 1385--4623 & 1345--4623 & 312--4553 & 1014--5717 & 272--5999 & 8806--66744 \\
 \midrule
@@ -2787,7 +2787,7 @@ Total Time (s) & 11.5 & 4.3 & 4.1 & 4.2 & 4.5 & 6.2 & 7.6 & 16.4 & 60.5 \\
 Corr. failures (paths) & 0 & 0 & 1 & 1 & 1 & 0 & 0 & 0 & 0 \\
 Peak Mem (MB) & 55.6 & 81.5 & 80.4 & 88.0 & 85.4 & 84.0 & 87.7 & 79.7 & 200.8 \\
 SAT Calls & 13 & 2 & 2 & 2 & 2 & 5 & 4 & 19 & 4 \\
-Total Time (s) & 10.7 & 4.2 & 3.9 & 4.2 & 4.2 & 5.2 & 6.2 & 16.3 & 1434.4 \\
+\rmark{Total Time (s)} & 10.7 & 4.2 & 3.9 & 4.2 & 4.2 & 5.2 & 6.2 & 16.3 & 1434.4 \\
 \#Vars & 279--626 & 366--626 & 374--624 & 376--624 & 369--634 & 348--626 & 397--770 & 274--803 & 2373--8973 \\
 \#Clauses & 2020--4576 & 2670--4588 & 2714--4620 & 2724--4620 & 2712--4648 & 2458--4578 & 2836--5742 & 1974--6033 & 20085--66716 \\
 \midrule
@@ -2833,7 +2833,7 @@ Flag bugs (circuit) & 0 & 0 & 0 & 1 & 0 & 1 & 0 \\
 \multicolumn{8}{l}{\textit{SAT Solver}} \\
 Peak Memory (MB) & 103.6 & 101.8 & 99.2 & 275.8 & 120.9 & 209.4 & 116.9 \\
 Total SAT Calls & 4 & 4 & 4 & 16 & 16 & 16 & 16 \\
-Total Time (s) & 52.3 & 70.0 & 60.4 & 2194.0 & 1204.8 & 2623.5 & 638.3 \\
+\rmark{Total Time (s)} & 52.3 & 70.0 & 60.4 & 2194.0 & 1204.8 & 2623.5 & 638.3 \\
 \#Vars & 1102--8875 & 930--7743 & 945--7660 & 1744--11570 & 1660--11760 & 2118--14170 & 1070--11297 \\
 \#Clauses & 8770--66244 & 7481--53071 & 7517--52736 & 13124--122318 & 12806--120077 & 17465--114426 & 9769--123213 \\
 \midrule
@@ -2842,7 +2842,7 @@ Total Time (s) & 52.3 & 70.0 & 60.4 & 2194.0 & 1204.8 & 2623.5 & 638.3 \\
 Corr. failures (paths) & 0 & 0 & 0 & 3 & 0 & 0 & 0 \\
 Peak Mem (MB) & 179.7 & 145.6 & 226.9 & 862.7 & 537.9 & 870.1 & 387.0 \\
 SAT Calls & 4 & 4 & 4 & 21 & 21 & 21 & 21 \\
-Total Time (s) & 1451.0 & 803.1 & 1183.0 & 39177.5 & 37422.7 & 60069.4 & 21352.3 \\
+\rmark{Total Time (s)} & 1451.0 & 803.1 & 1183.0 & 39177.5 & 37422.7 & 60069.4 & 21352.3 \\
 \#Vars & 2362--8868 & 2045--7737 & 2041--7648 & 5466--11582 & 5494--11755 & 6586--14266 & 5372--11398 \\
 \#Clauses & 19960--66195 & 14394--57063 & 14304--56636 & 48370--122417 & 50906--120417 & 45341--119101 & 49264--123632 \\
 \midrule
@@ -2868,7 +2868,7 @@ Correctable & Yes & Yes & Yes & No & Yes & Yes & Yes \\
     \item \textbf{Protocol Validity Diagnostics:} \emph{Control-flow bugs} counts paths that fail the termination requirements of Def.~\ref{def:protocol-validity}; \emph{flag bugs} counts circuits that fail the applicable flag condition (Def.~\ref{def:flag}). These independently collected diagnostic counts do not imply that Algorithm~\ref{alg:ftec-verification} proceeded past an invalid circuit.
     \item \textbf{Stim:} These rows report the wall-clock runtime and peak memory required to run the complete Stim simulation for each setup.
     \item \textbf{SAT Solver:} 
-    \emph{Total time}, reported in both SAT-based verification blocks, combines encoding/export time with summed solver wall times; the protocol-validity total also includes flag-check and Stim runtimes. It is neither OS CPU time nor elapsed wall time for the parallel execution. This section also reports peak memory, total SAT calls, and the range (min--max) of variables (\#\textsc{vars}) and clauses (\#\textsc{clauses}) across the evaluated paths.
+    \rmark{\emph{Total time}, reported in both SAT-based verification blocks, combines encoding/export time with summed solver wall times; the protocol-validity total also includes flag-check and Stim runtimes. It is neither OS CPU time nor elapsed wall time for the parallel execution.} This section also reports peak memory, total SAT calls, and the range (min--max) of variables (\#\textsc{vars}) and clauses (\#\textsc{clauses}) across the evaluated paths.
     \item \textbf{Correctability Verification:} This block reports the number of paths with correctability counterexamples in the symbolic fault model, together with runtime, memory, SAT calls, and formula-size ranges. These diagnostic checks were also run on circuit-invalid protocols for the reported experiments; their results do not establish physical correctability in that case.
     \item \textbf{Overall Verification Result:} \emph{Circuit valid}, \emph{Protocol valid}, and \emph{Correctable} correspond to $(v_{\mathrm{circ}},v_{\mathrm{prot}},v_{\mathrm{corr}})$ in Algorithm~\ref{alg:ftec-verification}. If circuit validity fails, the latter two entries are $\bot$ (not evaluated), even though separate diagnostic measurements are reported above. \emph{FTEC accepted} is Yes exactly when all three checks pass.
 \end{itemize}
