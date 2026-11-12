@@ -885,7 +885,7 @@ The control flow is represented by a finite decision tree (c.f. \ref{fig:five-qu
 Its paths enumerate all terminating executions.
 
 
-\begin{definition}
+\begin{definition}[Measurement Record and Residual Error Set]
 \label{def:measurement-record-and-residual-error}
 For a given execution path, a \emph{measurement record} $m$ is the bit string consisting of all syndrome and flag outcomes observed along that path.
 The corresponding residual error set $\mathcal E_m$ consists of all data
@@ -894,6 +894,10 @@ with input data error of weight $r$ and $s$ circuit faults satisfying
 $r+s\le t$.
 \end{definition}
 
+\rmark{The correctability criterion in Eq.~\ref{eq:QECC_condition}
+applies to each residual error set $\mathcal E_m$: all errors
+consistent with the same measurement record must be jointly
+correctable by a common recovery.}
 
 Each execution follows a control-flow path, executing syndrome extraction circuits conditioned on intermediate outcomes. Upon termination, a lookup-table decoder maps the observed measurement record $m$ to a Pauli correction applied to the data qubits.
 
