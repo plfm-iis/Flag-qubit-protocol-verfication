@@ -1,0 +1,8 @@
+{
+  "schema": 1,
+  "project_id": "6adb7e8c4019793a7dcea09f",
+  "approved_github_commit": "009b052abeb270558156f8be77c95e868bb74806",
+  "approved_github_samplepaper_oid": "f0ea6f37f34e0c17e53d53779bdeb42f101218aa",
+  "expected_overleaf_samplepaper_oid": "0772949e28c2aadf24c59e5d84b2edc9c1ad19ef",
+  "reason": "One-sentence motivation revision only; old Overleaf paper content checked identical to prior baseline; refuse if changed."
+}
