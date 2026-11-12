@@ -1,8 +1,0 @@
-{
-  "schema": 1,
-  "project_id": "6adb7e8c4019793a7dcea09f",
-  "approved_github_commit": "7f26f2d8db11a1de39ff65d7be71d1ad7321f474",
-  "approved_github_samplepaper_oid": "4e3da24c4a301bed0a488da421bd6f75b4606e8d",
-  "expected_overleaf_samplepaper_oid": "4cc94a55a4565058fa2f20468f8e318161f3d154",
-  "reason": "Merge the five reviewed Overleaf edits and update the Path Condition/path constraint terminology; refuse if either side changed."
-}
