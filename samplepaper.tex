@@ -293,8 +293,7 @@ in the underlying protocol.}
 %The evaluation demonstrates two uses of the verifier. First, it validates known constructions by proving that their concrete formal instantiations satisfy the required validity and FTEC conditions. Second, it exposes errors that are difficult to detect by manual inspection. During benchmark construction, the verifier repeatedly caught concrete instantiation mistakes while translating protocol descriptions into executable formal models. More substantively, it
 It also identified previously unknown design flaws in published protocols, including counterexamples in low-depth protocols for the
 $[[5,1,3]]$ and $[[7,1,3]]$ codes and flag-condition violations in
-higher-distance protocols. These issues were reported to the corresponding
-authors and confirmed. Together, these results show that automated verification
+higher-distance protocols. \rmark{Some findings were confirmed through communication with the original authors.} Together, these results show that automated verification
 is useful not only for checking new protocol designs, but also for ensuring that
 published protocols are faithfully instantiated and for detecting subtle
 correctness bugs in the protocols themselves.
@@ -2037,7 +2036,7 @@ Q_{i,z} \land L_{h,i,x}
 
 
 
-Together $\mathrm{Norm}(Q,\mathcal{S}) \wedge \neg\mathrm{Stab_{\mathrm{non}}}(Q, \mathcal{L})$ encode $Q\in N(\cS)\setminus\cS$,
+Together $\mathrm{Norm}(Q,\mathcal{S}) \wedge \mathrm{Stab_{\mathrm{non}}}(Q, \mathcal{L})$ encode $Q\in N(\cS)\setminus\cS$,
 completing the SAT query.
 
 
@@ -2873,6 +2872,7 @@ Correctable & Yes & Yes & Yes & No & Yes & Yes & Yes \\
     \item \textbf{Protocol Validity Diagnostics:} \emph{Control-flow bugs} counts paths that fail the termination requirements of Def.~\ref{def:protocol-validity}; \emph{flag bugs} counts circuits that fail the applicable flag condition (Def.~\ref{def:flag}). These independently collected diagnostic counts do not imply that Algorithm~\ref{alg:ftec-verification} proceeded past an invalid circuit.
     \item \textbf{Stim:} These rows report the wall-clock runtime and peak memory required to run the complete Stim simulation for each setup.
     \item \textbf{SAT Solver:} 
+    \yfc{The table says CPU time??}
     \emph{Total runtime} reflects the end-to-end wall time, encompassing Z3 constraint export and parallel SAT solving. \emph{Total SAT time} aggregates the per-path solver durations; because paths are solved concurrently, this sum can exceed the total wall time (conversely, on smaller instances, Z3 export overhead may dominate). This section also reports peak memory, total SAT calls, and the range (min--max) of variables (\#\textsc{vars}) and clauses (\#\textsc{clauses}) across the evaluated paths.
     \item \textbf{Correctability Verification:} This block reports the number of paths with correctability counterexamples in the symbolic fault model, together with runtime, memory, SAT calls, and formula-size ranges. These diagnostic checks were also run on circuit-invalid protocols for the reported experiments; their results do not establish physical correctability in that case.
     \item \textbf{Overall Verification Result:} \emph{Circuit valid}, \emph{Protocol valid}, and \emph{Correctable} correspond to $(v_{\mathrm{circ}},v_{\mathrm{prot}},v_{\mathrm{corr}})$ in Algorithm~\ref{alg:ftec-verification}. If circuit validity fails, the latter two entries are $\bot$ (not evaluated), even though separate diagnostic measurements are reported above. \emph{FTEC accepted} is Yes exactly when all three checks pass.
