@@ -2971,91 +2971,79 @@ The complete evolution of these generators is detailed in Table~\ref{tab:stabili
 
 
 
-\textbf{Example 2}: A terminating path of the low-depth optimized protocol for the $[[7,1,3]]$ code from~\cite{low-depth} is shown in Figure~\ref{fig:protocol-step-1}. Suppose there is no fault in the $(IZZXXYY)_f$ circuit, and the measurement outcomes $m_1$ and $f_1$ are both zero. During the last two syndrome extraction circuits, $(IZZIIZZ)_b$ and $(ZIZIZIZ)_b$, two different fault events can occur, as illustrated in Figures~\ref{fig:example_2_case_1} and \ref{fig:example_2_case_2}. In both scenarios, the measurement records are identical, but the resulting data qubit errors are $IIIIIZZ$ and $ZIIIIII$. Their product, $ZIIIIZZ = ZZZZZZZ \cdot (IIIZZZZ) \cdot (IZZIIZZ)$, forms a logical operator.
+\textbf{Example 2 (Correctability counterexample).}
+\rmark{Consider path 2 of the parallel-flag $[[17,1,5]]$ protocol
+from~\cite{Du24}, with fault bound $t=2$. The protocol executes
+four flagged syndrome extraction rounds and terminates without
+a basic syndrome extraction round. The same measurement record
+in Table~\ref{tab:example2-record} is produced by two distinct
+two-fault assignments. Here each syndrome consists of eight
+$X$-ancilla bits followed by eight $Z$-ancilla bits. In round 1,
+the flag group $\{\mathrm{flagX}[0],\mathrm{flagX}[1],
+\mathrm{flagX}[2]\}$ is raised.}
 
-\begin{figure}[!htbp]
-    \centering
-    \begin{adjustbox}{max width=\textwidth,valign=t}
-    \begin{tikzpicture}[node distance=1.5cm, font=\small] 
-        
-        % --- 1. Define Styles ---
-        \tikzstyle{startstop} = [rectangle, rounded corners, minimum width=2.5cm, minimum height=1.2cm, text centered, draw=black, fill=red!30, font=\small]
-        \tikzstyle{raw_syn} = [rectangle, minimum width=2cm, minimum height=1.2cm, inner sep=8pt, text centered, align=center, draw=black, fill=blue!10, font=\small]
-        \tikzstyle{flag_syn} = [rectangle, minimum width=2.5cm, minimum height=1.2cm, text centered, align=center, draw=black, fill=orange!30, font=\small]
-        \tikzstyle{decode} = [circle, minimum width=2cm, minimum height=1cm, text centered, align=center, draw=black, fill=green!30, font=\large]
-        \tikzstyle{arrow} = [thick,->,>=stealth, font=\small]
+\begin{table}[!htbp]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{c c l}
+\toprule
+Round & Flag & Measured syndrome \\
+\midrule
+0 & 0 & \texttt{0000000000000000} \\
+1 & 1 & \texttt{0000000000000000} \\
+2 & 0 & \texttt{0000000100000000} \\
+3 & 0 & \texttt{0000000100000000} \\
+\bottomrule
+\end{tabular}
+\caption{The common measurement record of the two fault assignments
+on path 2. The flag value counts the raised flag groups.}
+\label{tab:example2-record}
+\end{table}
 
-        % --- 2. Place Nodes ---
-        \node (start) [startstop] {Start};
-        
-        % --- Step 1 ---
-        % Increased xshift to space out the nodes and avoid overlap
-        \node (pro1) [flag_syn, right of=start, xshift=2.5cm] {$(IZZXXYY)_{f}$};
-        
-        % Added more xshift here because the stabilizer text is very wide
-        \node (pro2b) [raw_syn, right of=pro1, xshift=5.5cm] {$(IIIXXXX)_b, (IXXIIXX)_b, (XIXIXIX)_b$\\$(IIIZZZZ)_b, (IZZIIZZ)_b, (ZIZIZIZ)_b$};
-        
-        \node (decode1) [decode, right of=pro2b, xshift=3.5cm] {Decoder 1};
+\rmark{The two assignments differ in their fault locations and
+resulting residual data errors (qubit indices start at zero):}
 
-        % --- 3. Draw Arrows ---
-        \draw [arrow] (start) -- (pro1);
-        \draw [arrow] (pro1) -- node[above, align=center] {$ (f_1=1)\vee$\\$(m_1=0 \wedge f_1=0)$} (pro2b);
-        \draw [arrow] (pro2b) -- (decode1);
-        
-    \end{tikzpicture}
-    \end{adjustbox}
-    \caption{Control flow diagram for the first step of the protocol.} 
-    \label{fig:protocol-step-1}
-\end{figure}
+\begin{table}[!htbp]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{c l l}
+\toprule
+Case & Fault location (round, gate) & Inserted Pauli fault \\
+\midrule
+$A$ & $(1,79)$: $CX(\mathrm{flagX}[2],\mathrm{ancZ}[0])$
+    & $Z$ on $\mathrm{flagX}[2]$ \\
+    & $(2,35)$: $CX(\mathrm{ancX}[7],q[12])$
+    & $Z$ on $\mathrm{ancX}[7]$, $q[12]$ \\
+\midrule
+$B$ & $(1,65)$: $CX(\mathrm{flagX}[1],\mathrm{ancZ}[0])$
+    & $Z$ on $\mathrm{ancZ}[0]$ \\
+    & $(1,82)$: $CX(q[6],\mathrm{ancZ}[0])$
+    & $Z$ on $\mathrm{ancZ}[0]$ \\
+\bottomrule
+\end{tabular}
+\caption{Two fault assignments producing the same record in
+Table~\ref{tab:example2-record}.}
+\label{tab:example2-faults}
+\end{table}
 
-\begin{figure}[!htbp]
-    \centering
-    % --- First Circuit ---
-    \begin{minipage}{0.48\textwidth}
-        \centering
-        \begin{adjustbox}{max width=\linewidth}
-        \begin{quantikz}[row sep=0.25cm, column sep=0.25cm]
-            % Data Qubits
-            \lstick{$d_1$} & \qw      & \qw      & \qw      & \qw                           & \qw      & \qw                            & \ctrl{8} & \qw      & \qw      & \qw      & \qw      & \qw \\
-            \lstick{$d_2$} & \ctrl{6} & \qw      & \qw      & \qw                           & \qw      & \qw                            & \qw      & \qw      & \qw      & \qw      & \qw      & \qw \\
-            \lstick{$d_3$} & \qw      & \ctrl{5} & \qw      & \qw                           & \qw      & \qw                            & \qw      & \ctrl{6} & \qw      & \qw      & \qw      & \qw \\
-            \lstick{$d_4$} & \qw      & \qw      & \qw      & \qw                           & \qw      & \qw                            & \qw      & \qw      & \qw      & \qw      & \qw      & \qw \\
-            \lstick{$d_5$} & \qw      & \qw      & \qw      & \qw                           & \qw      & \qw                            & \qw      & \qw      & \ctrl{4} & \qw      & \qw      & \qw \\
-            \lstick{$d_6$} & \qw      & \qw      & \ctrl{2} & \gate[style={fill=red!30}]{Z} & \qw      & \qw                            & \qw      & \qw      & \qw      & \qw      & \qw      & \gate[style={fill=blue!30}]{Z}\\
-            \lstick{$d_7$} & \qw      & \qw      & \qw      & \qw                           & \ctrl{1} & \qw                            & \qw      & \qw      & \qw      & \ctrl{2} & \qw      & \gate[style={fill=blue!30}]{Z} \\
-            % Ancilla for (IZZIIZZ)
-            \lstick{$a_1 \ket{0}$} & \targ{}  & \targ{}  & \targ{}  & \gate[style={fill=red!30}]{Z} & \targ{}  & \qw                            & \qw      & \qw      & \qw      & \qw   &\gate[style={fill=blue!30}]{Z}   & \meter{}  \\
-            % Ancilla for (ZIZIZIZ)
-            \lstick{$a_2 \ket{0}$} & \qw      & \qw      & \qw      & \qw                           & \qw      & \qw                            & \targ{}  & \targ{}  & \targ{}  & \targ{}  & \qw & \meter{}  
-        \end{quantikz}
-        \end{adjustbox}
-        \caption{First case: A $ZZ$ error (red) caused by a fault on the third CNOT. It induces $ZZ$ on $d_6,d_7$ and $Z$ on ancilla $a_1$ (blue), without changing the measurement outcome.}
-        \label{fig:example_2_case_1}
-    \end{minipage}\hfill
-    % --- Second Circuit ---
-    \begin{minipage}{0.48\textwidth}
-        \centering
-        \begin{adjustbox}{max width=\linewidth}
-        \begin{quantikz}[row sep=0.25cm, column sep=0.25cm]
-            % Data Qubits
-            \lstick{$d_1$} & \qw      & \qw      & \qw      & \qw      & \ctrl{8} &  \gate[style={fill=red!30}]{Z} & \qw      & \qw      & \qw      & \qw      & \gate[style={fill=blue!30}]{Z} \\
-            \lstick{$d_2$} & \ctrl{6} & \qw      & \qw      & \qw      & \qw      & \qw      & \qw      & \qw      & \qw      & \qw      & \qw \\
-            \lstick{$d_3$} & \qw      & \ctrl{5} & \qw      & \qw      & \qw      & \qw      & \ctrl{6} & \qw      & \qw      & \qw      & \qw \\
-            \lstick{$d_4$} & \qw      & \qw      & \qw      & \qw      & \qw      & \qw      & \qw      & \qw      & \qw      & \qw      & \qw \\
-            \lstick{$d_5$} & \qw      & \qw      & \qw      & \qw      & \qw      & \qw      & \qw      & \ctrl{4} & \qw      & \qw      & \qw \\
-            \lstick{$d_6$} & \qw      & \qw      & \ctrl{2} & \qw      & \qw      & \qw      & \qw      & \qw      & \qw      & \qw      & \qw \\
-            \lstick{$d_7$} & \qw      & \qw      & \qw      & \ctrl{1} & \qw      & \qw      & \qw      & \qw      & \ctrl{2} & \qw      & \qw \\
-            % Ancilla for (IZZIIZZ)
-            \lstick{$a_1 \ket{0}$} & \targ{}  & \targ{}  & \targ{}  & \targ{}  & \qw      & \qw      & \qw      & \qw      & \qw      & \meter{} & \qw \\
-            % Ancilla for (ZIZIZIZ)
-            \lstick{$a_2 \ket{0}$} & \qw      & \qw      & \qw      & \qw      & \targ{}  & \qw      & \targ{}  & \targ{}  & \targ{}  & \meter{} & \qw 
-        \end{quantikz}
-        \end{adjustbox}
-        \caption{Second case: A $Z$ error (red) caused by a fault on the fifth CNOT. The resulting $Z$ error (blue) propagates to the data qubit.}
-        \label{fig:example_2_case_2}
-    \end{minipage}
-\end{figure}
-
+\rmark{The resulting residual errors are
+$E_A=Z_{12}$ and $E_B=Z_6Z_{10}Z_{13}Z_{14}$.
+Both have the ideal syndrome $\texttt{0000000100000000}$,
+but}
+\[
+E_A^\dagger E_B
+=Z_6Z_{10}Z_{12}Z_{13}Z_{14}
+\in N(\mathcal S)\setminus\mathcal S.
+\]
+\rmark{Indeed, their product has trivial stabilizer syndrome and
+anticommutes with logical $X$, so it is a nontrivial logical $Z$.
+By Eq.~\ref{eq:QECC_condition}, the residual error set for this
+measurement record is not correctable: a common lookup-table
+correction cannot correct both cases. This is one of the three
+correctability-failing paths reported for this protocol in
+Table~\ref{tab:combined-results}.}
 
 \section{Related Work}
 
