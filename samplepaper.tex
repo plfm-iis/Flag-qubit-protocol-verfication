@@ -1823,7 +1823,8 @@ outcomes, a complete measurement record determines its terminating path.
 % \]
 
 
-Figure~\ref{fig:fault-propagation-circuit} illustrates symbolic syndrome and flag outcomes for the flagged $XZZXI$ extraction circuit, with initial Pauli error $(False,False)$ on every qubit. We propagate symbolic states gate-by-gate using Figure~\ref{fig:two-qubit-pauli-rules}.
+\paragraph{Example (Symbolic fault propagation).}
+Consider the flagged $XZZXI$ extraction circuit in Figure~\ref{fig:fault-propagation-circuit}, with initial Pauli error $(False,False)$ on every qubit. We illustrate symbolic fault propagation at the three indicated slices, using the gate rules in Figure~\ref{fig:two-qubit-pauli-rules}.
 
 \begin{figure}[!htbp]
 \centering
@@ -1857,12 +1858,12 @@ $S_3$: immediately before measurement.}
 
 
 
-At $S_1$, a fault at location $\ell_1$ (the first $CX$ gate) inserts Boolean fault variables $(x_{\ell_1,a}, z_{\ell_1,a}, x_{\ell_1,d_1}, z_{\ell_1,d_1})$ into the affected qubits:
+First, at $S_1$, a fault at location $\ell_1$ (the first $CX$ gate) inserts Boolean fault variables $(x_{\ell_1,a}, z_{\ell_1,a}, x_{\ell_1,d_1}, z_{\ell_1,d_1})$ into the affected qubits:
 \[
 Q_a(\mathcal{F})=(x_{\ell_1,a},z_{\ell_1,a}), \qquad Q_{d_1}(\mathcal{F})=(x_{\ell_1,d_1},z_{\ell_1,d_1}).
 \]
 
-Next, passing through $CX(a,f)$ propagates $x_{\ell_1,a}$ to qubit $f$. If a second fault occurs at location $\ell_2$, its variables accumulate by XOR. As shown at slice $S_2$:
+At $S_2$, passing through $CX(a,f)$ propagates $x_{\ell_1,a}$ to qubit $f$. If a second fault occurs at location $\ell_2$, its variables accumulate by XOR. As shown at slice $S_2$:
 \[
 Q_a(\mathcal{F}) = (x_{\ell_1,a}\oplus x_{\ell_2,a},\, z_{\ell_1,a}\oplus z_{\ell_2,a}), \qquad Q_f(\mathcal{F}) = (x_{\ell_1,a}\oplus x_{\ell_2,f},\, z_{\ell_2,f}).
 \]
@@ -1879,7 +1880,7 @@ This illustrates the two operations used throughout symbolic Pauli execution: ga
 % m_\pi(F_1) = m_\pi(F_2) \quad\equiv\quad \bigwedge_{j=1}^r \bigl(R_j(F_1)\leftrightarrow R_j(F_2)\bigr).
 % \]
 
-Propagation yields the pre-measurement state at $S_3$. Measuring qubit $q$ extracts the Pauli component that anti-commutes with the measurement basis: $Q_{q,z}(\mathcal{F})$ for the $X$ basis and $Q_{q,x}(\mathcal{F})$ for the $Z$ basis.
+Finally, propagation yields the pre-measurement state at $S_3$. Measuring qubit $q$ extracts the Pauli component that anti-commutes with the measurement basis: $Q_{q,z}(\mathcal{F})$ for the $X$ basis and $Q_{q,x}(\mathcal{F})$ for the $Z$ basis.
 
 Thus, the recorded outcomes for syndrome qubit $a$ ($X$-basis) and flag qubit $f$ ($Z$-basis) are:
 \[
@@ -1892,6 +1893,8 @@ deterministic and have those reference values, as ensured by circuit
 validity. If a circuit has intrinsically nondeterministic fault-free
 outcomes, Pauli fault labels alone need not represent every possible
 physical measurement record.
+
+\noindent From this circuit-level example, we now construct the protocol-level measurement record and path constraint.
 
 The full measurement record $m_\pi(\mathcal{F}) = \bigl(R_1(\mathcal{F}), \ldots, R_r(\mathcal{F})\bigr)$ collects all $r$ syndrome and flag outcomes along path $\pi$ (where $R_j$ denotes the $j$-th recorded bit, e.g., $R_1 = m_1, R_2 = f_1$). Bitwise equality between two records is encoded as:
 \[
