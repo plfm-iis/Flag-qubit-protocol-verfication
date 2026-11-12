@@ -2454,16 +2454,16 @@ by Thm.~\ref{thm:mains}.
 \caption{Verification of a flagged error correction protocol}
 \label{alg:ftec-verification}
 \KwIn{Stabilizer code $\mathcal Q$, flagged protocol $\Pi$, fault bound $t$}
-\KwOut{$(v_{\mathrm{circ}},v_{\mathrm{prot}},c)$; $\bot$ means not evaluated}
+\KwOut{$(v_{\mathrm{circ}},v_{\mathrm{prot}},v_{\mathrm{corr}})$; $\bot$ means not evaluated}
 
 \ForEach{syndrome extraction circuit $C$ used in $\Pi$}{
     \lIf{\textsc{CircuitValidity}$(C)$ fails}{\Return $(\mathrm{false},\bot,\bot)$}
 }
 $v_{\mathrm{circ}}\gets\mathrm{true}$; 
-$c\gets\mathrm{true}$;
+$v_{\mathrm{corr}}\gets\mathrm{true}$;
 $v_{\mathrm{prot}}\gets\mathrm{true}$\;
 \ForEach{terminating path $\pi\in\Pi$}{
-    \lIf{$\Psi^{\mathrm{Corr}}_\pi$ is SAT}{$c\gets\mathrm{false}$}
+    \lIf{$\Psi^{\mathrm{Corr}}_\pi$ is SAT}{$v_{\mathrm{corr}}\gets\mathrm{false}$}
 }
 
 
@@ -2475,7 +2475,7 @@ $v_{\mathrm{prot}}\gets\mathrm{true}$\;
     }
 }
 
-\Return $(v_{\mathrm{circ}},v_{\mathrm{prot}},c)$
+\Return $(v_{\mathrm{circ}},v_{\mathrm{prot}},v_{\mathrm{corr}})$
 \end{algorithm}
 
 The subroutines in Algorithm~\ref{alg:ftec-verification} refer to the checks
@@ -2506,7 +2506,7 @@ of the residual error sets.
 
 If circuit validity fails, the remaining checks are
 not performed. Otherwise, the algorithm returns
-$(v_{\mathrm{circ}},v_{\mathrm{prot}},c)$,
+$(v_{\mathrm{circ}},v_{\mathrm{prot}},v_{\mathrm{corr}})$,
 where each Boolean result indicates whether the
 corresponding property holds.
 
