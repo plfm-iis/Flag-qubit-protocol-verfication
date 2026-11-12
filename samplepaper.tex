@@ -2979,9 +2979,7 @@ without a basic syndrome extraction round.
 Figure~\ref{fig:example2-path-pipeline} shows the common
 measurement record of two distinct two-fault assignments.
 Each syndrome lists eight $X$-ancilla bits followed by eight
-$Z$-ancilla bits; in round 1, only the flag group
-$\{\mathrm{flagX}[0],\mathrm{flagX}[1],\mathrm{flagX}[2]\}$
-is raised.}
+$Z$-ancilla bits; a flag is raised in round 1.}
 
 \begin{figure}[!htbp]
 \centering
@@ -3021,31 +3019,15 @@ The annotations give the flag outcome and syndrome of each round.}
 \label{fig:example2-path-pipeline}
 \end{figure}
 
-\rmark{The two fault assignments in Table~\ref{tab:example2-faults}
-produce this same record (qubit indices are zero-based).}
-
-\begin{table}[!htbp]
-\centering
-\scriptsize
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{c l l}
-\toprule
-Case & Fault location (round, gate) & Inserted Pauli fault \\
-\midrule
-$A$ & $(1,79)$: $CX(\mathrm{flagX}[2],\mathrm{ancZ}[0])$
-    & $Z$ on $\mathrm{flagX}[2]$ \\
-    & $(2,35)$: $CX(\mathrm{ancX}[7],q[12])$
-    & $Z$ on $\mathrm{ancX}[7]$, $q[12]$ \\
-\midrule
-$B$ & $(1,65)$: $CX(\mathrm{flagX}[1],\mathrm{ancZ}[0])$
-    & $Z$ on $\mathrm{ancZ}[0]$ \\
-    & $(1,82)$: $CX(q[6],\mathrm{ancZ}[0])$
-    & $Z$ on $\mathrm{ancZ}[0]$ \\
-\bottomrule
-\end{tabular}
-\caption{Two fault assignments producing the common measurement record.}
-\label{tab:example2-faults}
-\end{table}
+\rmark{Two fault assignments yield the same measurement record
+(qubit indices are zero-based). In case $A$, a $Z$ fault occurs
+on $\mathrm{flagX}[2]$ at the CNOT from $\mathrm{flagX}[2]$ to
+$\mathrm{ancZ}[0]$ (round 1, gate 79). A second fault inserts
+$Z$ on both $\mathrm{ancX}[7]$ and $q[12]$ at their CNOT
+(round 2, gate 35). In case $B$, two faults in round 1 insert
+$Z$ on $\mathrm{ancZ}[0]$: one at the CNOT from
+$\mathrm{flagX}[1]$ to $\mathrm{ancZ}[0]$ (gate 65), and another
+at the CNOT from $q[6]$ to $\mathrm{ancZ}[0]$ (gate 82).}
 
 \rmark{The residual errors are $E_A=Z_{12}$ and
 $E_B=Z_6Z_{10}Z_{13}Z_{14}$. Although they share the same
