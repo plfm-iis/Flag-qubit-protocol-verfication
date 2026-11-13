@@ -2874,15 +2874,12 @@ Correctable & Yes & Yes & Yes & No & Yes & Yes & Yes \\
 
 
 
-The table entries are interpreted as follows.
+The table entries follow four blocks.
 \begin{itemize}
-
-    \item \textbf{Circuit Validity:} \emph{Syndrome extraction bugs} counts the evaluated QASM circuits that fail circuit validity (Def.~\ref{def:syndrome-extraction-valid}). The Stim and SAT Solver rows report their respective runtimes and peak memory.
-    \item \textbf{Protocol Validity:} \emph{Control-flow bugs} counts paths that fail the termination requirements of Def.~\ref{def:protocol-validity}; \emph{flag bugs} counts circuits that fail the applicable flag condition (Def.~\ref{def:flag}). These independently collected diagnostic counts do not imply that Algorithm~\ref{alg:ftec-verification} proceeded past an invalid circuit.
-    \item \textbf{SAT Solver:}
-    Resource costs are grouped by verification property. Protocol-validity total time is left blank pending a separate measurement that excludes circuit-validity costs; the previously reported combined timing included Stim runtime. Correctability total time combines encoding/export time with summed solver wall times. The SAT-based blocks also report peak memory, total SAT calls, and the range (min--max) of variables (\#\textsc{vars}) and clauses (\#\textsc{clauses}) across the evaluated paths.
-    \item \textbf{Correctability:} This block reports the number of paths with correctability counterexamples in the symbolic fault model, together with runtime, memory, SAT calls, and formula-size ranges. These diagnostic checks were also run on circuit-invalid protocols for the reported experiments; their results do not establish physical correctability in that case.
-    \item \textbf{Overall Verification Result:} \emph{Circuit valid}, \emph{Protocol valid}, and \emph{Correctable} correspond to $(v_{\mathrm{circ}},v_{\mathrm{prot}},v_{\mathrm{corr}})$ in Algorithm~\ref{alg:ftec-verification}. If circuit validity fails, the latter two entries are $\bot$ (not evaluated), even though separate diagnostic measurements are reported above. \emph{FTEC accepted} is Yes exactly when all three checks pass.
+    \item \textbf{Circuit Validity:} \emph{Syndrome extraction bugs} counts QASM circuits that fail circuit validity (Def.~\ref{def:syndrome-extraction-valid}). The Stim and SAT Solver rows report their respective runtimes and peak memory.
+    \item \textbf{Protocol Validity:} \emph{Control-flow bugs} counts paths that fail the termination requirements of Def.~\ref{def:protocol-validity}; \emph{flag bugs} counts circuits that fail the applicable flag condition (Def.~\ref{def:flag}). The SAT Solver rows report resource costs; total time is left blank pending a measurement that excludes circuit-validity costs.
+    \item \textbf{Correctability:} \emph{Correctability failures} counts paths with counterexamples in the symbolic fault model. The SAT Solver rows report resource costs; total time combines encoding/export time with summed solver wall times. In both this block and Protocol Validity, \#\textsc{vars} and \#\textsc{clauses} give the min--max formula sizes across SAT instances.
+    \item \textbf{Overall Verification Result:} \emph{Circuit valid}, \emph{Protocol valid}, and \emph{Correctable} correspond to $(v_{\mathrm{circ}},v_{\mathrm{prot}},v_{\mathrm{corr}})$ in Algorithm~\ref{alg:ftec-verification}. If circuit validity fails, the latter two entries are $\bot$. Separate diagnostics were nevertheless collected for such protocols; they do not establish physical correctability or imply that the algorithm proceeded past an invalid circuit. \emph{FTEC accepted} is Yes exactly when all three checks pass.
 \end{itemize}
 
 
