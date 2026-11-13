@@ -53,7 +53,6 @@
 \newcommand{\yfc}[1]{\showcomment{\textcolor{blue}{\textbf{YFC:} #1}}}
 \newcommand{\bw}[1]{\showcomment{\textcolor{green}{\textbf{BW:} #1}}}
 \newcommand{\cy}[1]{\showcomment{\textcolor{blue}{\textbf{CY:} #1}}}
-\newcommand{\rmark}[1]{\textcolor{red}{#1}}
 \newcommand{\bmark}[1]{\textcolor{blue}{#1}}
 
 
@@ -536,7 +535,7 @@ where $A_i$ is the designated ancilla measurement
 observable and $\omega$ is a global Pauli phase.
 \end{definition}
 
-Correctness \rmark{of a syndrome-extraction circuit} ensures the intended syndrome parities and preserves
+Correctness of a syndrome-extraction circuit ensures the intended syndrome parities and preserves
 data errors up to stabilizer equivalence, but does not ensure
 measurement determinism.
 
@@ -797,9 +796,9 @@ Condition~(1) of Definition~\ref{def:weak-FTEC} guarantees that the output state
 % A \emph{lookup-table decoder} maps each possible measurement record to a Pauli correction on the data qubits. Suppose the residual data error after the protocol is a Pauli string $E$ and the decoder applies a Pauli correction $C$. The correction succeeds when $CE\in\mathcal{S}$. Thus, from the perspective of decoder existence, what matters is not which decoder is constructed, but whether the measurement record partitions possible residual errors into stabilizer-equivalent classes.
 
 
-% \rmark{
+% 
 % After establishing ideal correctness, we analyze faulty circuits by checking whether all fault patterns within a given fault bound produce distinguishable measurement outcomes and residual errors that allow the decoder to to identify a recovery operation that corrects the resulting data error.
-% }
+% 
 
 %\newpage
 
@@ -851,13 +850,13 @@ A flagged syndrome extraction circuit is required to satisfy the validity condit
 
 
 
-\rmark{A circuit fault may propagate to multiple data qubits, producing
+A circuit fault may propagate to multiple data qubits, producing
 an error whose weight exceeds the number of faults. Flag qubits
 provide additional measurement outcomes to detect such error
 amplification. To characterize this property under a general fault
 bound $k$, we introduce the following $k$-flag condition.
 This condition will later be used to verify the flagged syndrome
-extraction circuits required by protocol validity.}
+extraction circuits required by protocol validity.
 \begin{definition}[$k$-Flag Condition] \label{def:flag}
 For a given fault bound $k$, a syndrome extraction circuit satisfies
 the $k$-flag condition if the following hold:
@@ -892,22 +891,22 @@ with input data error of weight $r$ and $s$ circuit faults satisfying
 $r+s\le t$.
 \end{definition}
 
-\rmark{We will verify \emph{error-set correctability} by checking
+We will verify \emph{error-set correctability} by checking
 Eq.~\ref{eq:QECC_condition} for each residual error set
 $\mathcal E_m$, ensuring that all errors consistent with the
-same measurement record are jointly correctable.}
+same measurement record are jointly correctable.
 
 Each execution follows a control-flow path, executing syndrome extraction circuits conditioned on intermediate outcomes. Upon termination, a lookup-table decoder maps the observed measurement record $m$ to a Pauli correction applied to the data qubits.
 
-% \rmark{
+% 
 % For example, a terminating path may have already accounted for $t$ faults, so that a final full syndrome extraction round can be regarded as fault-free under the assumed fault bound. Alternatively, if $w$ faults have already been accounted for, then observing $t-w+1$ consecutive identical full syndrome outcomes guarantees that the repeated syndrome is reliable~\cite{CB18}. Other adaptive protocols may employ different termination criteria to ensure that sufficient information has been accumulated before applying the recovery operation~\cite{Liou25,TPB23,BSE+23}.
-% }
+% 
 
-% \rmark{
+% 
 % In this work, the adaptive control flow of a protocol is assumed to be
 % given and correctly specified, meaning that the decision tree enumerates all
 % possible terminating executions of the protocol. Specifically, we assume that every terminating path has accumulated sufficient information to perform a reliable error correction that projects the data block back into the code space, possibly leaving only undetected residual data errors.
-% }
+% 
 % \bw{add fault <t?}
 
 
@@ -1001,9 +1000,9 @@ This example illustrates how measurement outcomes determine different terminatin
 
 
 
-% \rmark{
+% 
 % We emphasize that satisfying Def.~\ref{def:flag} is not a necessary condition for a flagged fault-tolerant error correction protocol. In some cases, the measurement record may contain sufficient information to distinguish and correct the resulting errors even when the flag condition is violated~\cite{Liou25}. An example is the $[[19,1,5]]$ protocol presented in Section~4, which is fault-tolerant but does not satisfy the flag condition.
-% }
+% 
 
 
 % Therefore, in this subsection, we verify that a flagged error correction protocol satisfies FTEC using a two-step approach. First, we define the validity of a protocol. Second, we determine if there is any possibility of a logical error occurring under this protocol. If both conditions are satisfied, we can formally guarantee via a theorem that the flagged error correction protocol satisfies Def~\ref{def:weak-FTEC}.
@@ -1160,15 +1159,15 @@ satisfies both FTEC requirements.
 % protocol and determines a measurement record available to the decoder.
 
 
-% % \rmark{
+% % 
 % % In this work, the adaptive control flow of a protocol is assumed to be
 % % given and correctly specified, meaning that the decision tree enumerates all
 % % possible terminating executions of the protocol. Specifically, we assume that every terminating path has accumulated sufficient information to perform a reliable error correction that projects the data block back into the code space, possibly leaving only undetected residual data errors.
-% % }
+% % 
 
-% % \rmark{
+% % 
 % % For example, a terminating path may have already accounted for $t$ faults, so that a final full syndrome extraction round can be regarded as fault-free under the assumed fault bound. Alternatively, if $w$ faults have already been accounted for, then observing $t-w+1$ consecutive identical full syndrome outcomes guarantees that the repeated syndrome is reliable~\cite{CB18}. Other adaptive protocols may employ different termination criteria to ensure that sufficient information has been accumulated before applying the recovery operation~\cite{Liou25,TPB23}.
-% % }
+% % 
 
 % % For protocols with small code distance, the completeness of such a decision tree can be verified by
 % % exhaustive enumeration of all possible measurement outcomes and fault
@@ -1349,13 +1348,13 @@ satisfies both FTEC requirements.
 % is called a fault basis vector, such as $XI$, $IX$, $ZI$, $IZ$ at a location on the path.
 % A fault basis vector has with measurement record zero is called an undetected basis. 
 
-% \rmark{
+% 
 % In this work, the adaptive control flow of a protocol is assumed to be
 % given and correctly specified, meaning that the decision tree enumerates all
 % possible terminating executions of the protocol. Specifically, we assume that every terminating path has accumulated sufficient information to perform a reliable error correction that projects the data block back into the code space, possibly leaving only undetected residual data errors due to undetected basis vectors.
 % Equivalently, we assume that a fault vector consisting of solely detectable fault basis vectors 
 % will leave a residue error with ideal syndrome zero after correction based on its measurement record.
-% }
+% 
 
 % \begin{definition} \label{def:legitimate}
 % A control flow is called \emph{syndrome-complete} if, for every terminating path,
@@ -2542,7 +2541,7 @@ of an FTEC lookup-table decoder.
 Our experiments were conducted on a server running Ubuntu 22.04.3 LTS with an
 AMD EPYC 7742 64-core processor (1.5\,GHz), 2\,TiB of RAM, and a 1\,TB SSD. We implemented our verification framework using Z3py to encode the constraints, which were subsequently transformed into DIMACS format for the CryptoMiniSat solver. CryptoMiniSat was chosen for its highly optimized performance on formulas containing massive XOR clauses. No time limit was imposed. 
 
-\rmark{We evaluated the framework on flagged error-correction protocols for the $[[5,1,3]]$, $[[7,1,3]]$, $[[17,1,5]]$, $[[19,1,5]]$, and $[[25,1,5]]$ codes. Table~\ref{tab:combined-results} summarizes the verification outcomes and resource costs, with each column representing one protocol setup. The results are grouped by circuit validity, protocol validity, and correctability, followed by the overall FTEC acceptance result.}
+We evaluated the framework on flagged error-correction protocols for the $[[5,1,3]]$, $[[7,1,3]]$, $[[17,1,5]]$, $[[19,1,5]]$, and $[[25,1,5]]$ codes. Table~\ref{tab:combined-results} summarizes the verification outcomes and resource costs, with each column representing one protocol setup. The results are grouped by circuit validity, protocol validity, and correctability, followed by the overall FTEC acceptance result.
 
 % \begin{table}[!htbp]
 % \centering
@@ -2762,18 +2761,18 @@ Protocol & [Bha23] & [LL25] & [LL25]  & [LL25]  & [LL25] & [RC18]  & [Bha23] & [
 Total circuits & 14 & 2 & 2 & 2 & 2 & 6 & 4 & 14 & 2 \\
 Total paths & 13 & 2 & 2 & 2 & 2 & 5 & 4 & 19 & 4 \\
 \midrule
-\multicolumn{10}{c}{\rmark{\textbf{Circuit Validity}}} \\
+\multicolumn{10}{c}{\textbf{Circuit Validity}} \\
 \midrule
 Syndrome extraction bugs (circuit) & 0 & 0 & 2 & 2 & 0 & 0 & 0 & 0 & 0 \\
 \midrule
 \multicolumn{10}{l}{\textit{Stim}} \\
 Stim Runtime (s) & 0.677 & 0.086 & 0.085 & 0.083 & 0.088 & 0.203 & 0.230 & 0.382 & 0.152 \\
 Stim Peak Mem (MB) & 216.8 & 223.8 & 197.4 & 215.0 & 203.3 & 199.3 & 225.9 & 204.4 & 198.8 \\
-\multicolumn{10}{l}{\rmark{\textit{SAT Solver}}} \\
-\rmark{Total Time (s)} & 0.351 & 0.091 & 0.088 & 0.085 & 0.092 & 0.192 & 0.241 & 0.155 & 0.262 \\
-\rmark{Peak Memory (MB)} & 100.3 & 100.1 & 100.2 & 100.1 & 100.1 & 100.2 & 88.1 & 97.1 & 89.2 \\
+\multicolumn{10}{l}{\textit{SAT Solver}} \\
+Total Time (s) & 0.351 & 0.091 & 0.088 & 0.085 & 0.092 & 0.192 & 0.241 & 0.155 & 0.262 \\
+Peak Memory (MB) & 100.3 & 100.1 & 100.2 & 100.1 & 100.1 & 100.2 & 88.1 & 97.1 & 89.2 \\
 \midrule
-\multicolumn{10}{c}{\rmark{\textbf{Protocol Validity}}} \\
+\multicolumn{10}{c}{\textbf{Protocol Validity}} \\
 \midrule
 Control flow bugs (path) & 4 & 0 & 0 & 0 & 0 & 0 & 0 & 6 & 1 \\
 Flag bugs (circuit) & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
@@ -2782,19 +2781,19 @@ Flag bugs (circuit) & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
 Peak Memory (MB) & 90.4 & 98.5 & 91.6 & 100.0 & 99.7 & 99.9 & 92.1 & 90.7 & 101.4 \\
 Total SAT Calls & 17 & 3 & 3 & 3 & 3 & 10 & 7 & 25 & 4 \\
 % Previous combined timing (includes Stim; awaiting separate measurement):
-% \rmark{Total Time (s)} & 11.5 & 4.3 & 4.1 & 4.2 & 4.5 & 6.2 & 7.6 & 16.4 & 60.5 \\
-\rmark{Total Time (s)} & & & & & & & & & \\
+% Total Time (s) & 11.5 & 4.3 & 4.1 & 4.2 & 4.5 & 6.2 & 7.6 & 16.4 & 60.5 \\
+Total Time (s) & & & & & & & & & \\
 \#Vars & 113--615 & 192--615 & 193--625 & 194--627 & 186--623 & 58--615 & 158--759 & 51--793 & 1104--8973 \\
 \#Clauses & 638--4551 & 1369--4563 & 1385--4623 & 1385--4623 & 1345--4623 & 312--4553 & 1014--5717 & 272--5999 & 8806--66744 \\
 \midrule
-\multicolumn{10}{c}{\rmark{\textbf{Correctability}}} \\
+\multicolumn{10}{c}{\textbf{Correctability}} \\
 \midrule
-\rmark{Correctability failures (paths)} & 0 & 0 & 1 & 1 & 1 & 0 & 0 & 0 & 0 \\
+Correctability failures (paths) & 0 & 0 & 1 & 1 & 1 & 0 & 0 & 0 & 0 \\
 \midrule
-\multicolumn{10}{l}{\rmark{\textit{SAT Solver}}} \\
-\rmark{Peak Memory (MB)} & 55.6 & 81.5 & 80.4 & 88.0 & 85.4 & 84.0 & 87.7 & 79.7 & 200.8 \\
-\rmark{Total SAT Calls} & 13 & 2 & 2 & 2 & 2 & 5 & 4 & 19 & 4 \\
-\rmark{Total Time (s)} & 10.7 & 4.2 & 3.9 & 4.2 & 4.2 & 5.2 & 6.2 & 16.3 & 1434.4 \\
+\multicolumn{10}{l}{\textit{SAT Solver}} \\
+Peak Memory (MB) & 55.6 & 81.5 & 80.4 & 88.0 & 85.4 & 84.0 & 87.7 & 79.7 & 200.8 \\
+Total SAT Calls & 13 & 2 & 2 & 2 & 2 & 5 & 4 & 19 & 4 \\
+Total Time (s) & 10.7 & 4.2 & 3.9 & 4.2 & 4.2 & 5.2 & 6.2 & 16.3 & 1434.4 \\
 \#Vars & 279--626 & 366--626 & 374--624 & 376--624 & 369--634 & 348--626 & 397--770 & 274--803 & 2373--8973 \\
 \#Clauses & 2020--4576 & 2670--4588 & 2714--4620 & 2724--4620 & 2712--4648 & 2458--4578 & 2836--5742 & 1974--6033 & 20085--66716 \\
 \midrule
@@ -2824,18 +2823,18 @@ Protocol & [LL25]  & [LL25]  & [LL25]  & [Du24]  & [CB18]  & [Du24]  & [CB18]  \
 Total circuits & 2 & 2 & 2 & 2 & 2 & 2 & 2 \\
 Total paths & 4 & 4 & 4 & 21 & 21 & 21 & 21 \\
 \midrule
-\multicolumn{8}{c}{\rmark{\textbf{Circuit Validity}}} \\
+\multicolumn{8}{c}{\textbf{Circuit Validity}} \\
 \midrule
 Syndrome extraction bugs (circuit) & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
 \midrule
 \multicolumn{8}{l}{\textit{Stim}} \\
 Stim Runtime (s) & 0.156 & 0.146 & 0.140 & 0.135 & 0.143 & 0.154 & 0.150 \\
 Stim Peak Mem (MB) & 201.7 & 235.8 & 199.1 & 215.9 & 199.4 & 221.6 & 199.6 \\
-\multicolumn{8}{l}{\rmark{\textit{SAT Solver}}} \\
-\rmark{Total Time (s)} & 0.307 & 0.262 & 0.258 & 0.211 & 0.222 & 0.263 & 0.348 \\
-\rmark{Peak Memory (MB)} & 91.9 & 100.6 & 100.3 & 89.1 & 97.1 & 88.4 & 88.3 \\
+\multicolumn{8}{l}{\textit{SAT Solver}} \\
+Total Time (s) & 0.307 & 0.262 & 0.258 & 0.211 & 0.222 & 0.263 & 0.348 \\
+Peak Memory (MB) & 91.9 & 100.6 & 100.3 & 89.1 & 97.1 & 88.4 & 88.3 \\
 \midrule
-\multicolumn{8}{c}{\rmark{\textbf{Protocol Validity}}} \\
+\multicolumn{8}{c}{\textbf{Protocol Validity}} \\
 \midrule
 Control flow bugs (path) & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
 Flag bugs (circuit) & 0 & 0 & 0 & 1 & 0 & 1 & 0 \\
@@ -2844,19 +2843,19 @@ Flag bugs (circuit) & 0 & 0 & 0 & 1 & 0 & 1 & 0 \\
 Peak Memory (MB) & 103.6 & 101.8 & 99.2 & 275.8 & 120.9 & 209.4 & 116.9 \\
 Total SAT Calls & 4 & 4 & 4 & 16 & 16 & 16 & 16 \\
 % Previous combined timing (includes Stim; awaiting separate measurement):
-% \rmark{Total Time (s)} & 52.3 & 70.0 & 60.4 & 2194.0 & 1204.8 & 2623.5 & 638.3 \\
-\rmark{Total Time (s)} & & & & & & & \\
+% Total Time (s) & 52.3 & 70.0 & 60.4 & 2194.0 & 1204.8 & 2623.5 & 638.3 \\
+Total Time (s) & & & & & & & \\
 \#Vars & 1102--8875 & 930--7743 & 945--7660 & 1744--11570 & 1660--11760 & 2118--14170 & 1070--11297 \\
 \#Clauses & 8770--66244 & 7481--53071 & 7517--52736 & 13124--122318 & 12806--120077 & 17465--114426 & 9769--123213 \\
 \midrule
-\multicolumn{8}{c}{\rmark{\textbf{Correctability}}} \\
+\multicolumn{8}{c}{\textbf{Correctability}} \\
 \midrule
-\rmark{Correctability failures (paths)} & 0 & 0 & 0 & 3 & 0 & 0 & 0 \\
+Correctability failures (paths) & 0 & 0 & 0 & 3 & 0 & 0 & 0 \\
 \midrule
-\multicolumn{8}{l}{\rmark{\textit{SAT Solver}}} \\
-\rmark{Peak Memory (MB)} & 179.7 & 145.6 & 226.9 & 862.7 & 537.9 & 870.1 & 387.0 \\
-\rmark{Total SAT Calls} & 4 & 4 & 4 & 21 & 21 & 21 & 21 \\
-\rmark{Total Time (s)} & 1451.0 & 803.1 & 1183.0 & 39177.5 & 37422.7 & 60069.4 & 21352.3 \\
+\multicolumn{8}{l}{\textit{SAT Solver}} \\
+Peak Memory (MB) & 179.7 & 145.6 & 226.9 & 862.7 & 537.9 & 870.1 & 387.0 \\
+Total SAT Calls & 4 & 4 & 4 & 21 & 21 & 21 & 21 \\
+Total Time (s) & 1451.0 & 803.1 & 1183.0 & 39177.5 & 37422.7 & 60069.4 & 21352.3 \\
 \#Vars & 2362--8868 & 2045--7737 & 2041--7648 & 5466--11582 & 5494--11755 & 6586--14266 & 5372--11398 \\
 \#Clauses & 19960--66195 & 14394--57063 & 14304--56636 & 48370--122417 & 50906--120417 & 45341--119101 & 49264--123632 \\
 \midrule
@@ -2869,22 +2868,22 @@ Correctable & Yes & Yes & Yes & No & Yes & Yes & Yes \\
 \bottomrule
 \end{tabular}%
 }
-\caption{Verification results and performance for the evaluated protocols (top: Part 1; bottom: Part 2). \rmark{Blank cells indicate unavailable measurements.} Diagnostic checks were performed independently; $\bot$ denotes a check skipped when circuit validity fails. Circuit valid is Yes only when both the Stim check and the syndrome-extraction SAT check pass.}
+\caption{Verification results and performance for the evaluated protocols (top: Part 1; bottom: Part 2). Blank cells indicate unavailable measurements. Diagnostic checks were performed independently; $\bot$ denotes a check skipped when circuit validity fails. Circuit valid is Yes only when both the Stim check and the syndrome-extraction SAT check pass.}
 \label{tab:combined-results}
 \endgroup
 \end{table}
 
 
 
-\rmark{The diagnostic counts and performance measurements in the table are interpreted as follows.}
+The diagnostic counts and performance measurements in the table are interpreted as follows.
 \begin{itemize}
 
-    \item \rmark{\textbf{Circuit Validity:}} \emph{Syndrome extraction bugs} counts the evaluated QASM circuits that fail circuit validity (Def.~\ref{def:syndrome-extraction-valid}). The Stim rows report simulation costs for these diagnostic runs. \rmark{The SAT Solver rows report the runtime and peak memory of the syndrome-extraction SAT check.}
-    \item \rmark{\textbf{Protocol Validity:}} \emph{Control-flow bugs} counts paths that fail the termination requirements of Def.~\ref{def:protocol-validity}; \emph{flag bugs} counts circuits that fail the applicable flag condition (Def.~\ref{def:flag}). These independently collected diagnostic counts do not imply that Algorithm~\ref{alg:ftec-verification} proceeded past an invalid circuit.
+    \item \textbf{Circuit Validity:} \emph{Syndrome extraction bugs} counts the evaluated QASM circuits that fail circuit validity (Def.~\ref{def:syndrome-extraction-valid}). The Stim rows report simulation costs for these diagnostic runs. The SAT Solver rows report the runtime and peak memory of the syndrome-extraction SAT check.
+    \item \textbf{Protocol Validity:} \emph{Control-flow bugs} counts paths that fail the termination requirements of Def.~\ref{def:protocol-validity}; \emph{flag bugs} counts circuits that fail the applicable flag condition (Def.~\ref{def:flag}). These independently collected diagnostic counts do not imply that Algorithm~\ref{alg:ftec-verification} proceeded past an invalid circuit.
     \item \textbf{Stim:} These rows report the wall-clock runtime and peak memory required to run the complete Stim simulation for each setup.
     \item \textbf{SAT Solver:}
-    \rmark{Resource costs are grouped by verification property. Protocol-validity total time is left blank pending a separate measurement that excludes circuit-validity costs; the previously reported combined timing included Stim runtime. Correctability total time combines encoding/export time with summed solver wall times.} The SAT-based blocks also report peak memory, total SAT calls, and the range (min--max) of variables (\#\textsc{vars}) and clauses (\#\textsc{clauses}) across the evaluated paths.
-    \item \rmark{\textbf{Correctability:}} This block reports the number of paths with correctability counterexamples in the symbolic fault model, together with runtime, memory, SAT calls, and formula-size ranges. These diagnostic checks were also run on circuit-invalid protocols for the reported experiments; their results do not establish physical correctability in that case.
+    Resource costs are grouped by verification property. Protocol-validity total time is left blank pending a separate measurement that excludes circuit-validity costs; the previously reported combined timing included Stim runtime. Correctability total time combines encoding/export time with summed solver wall times. The SAT-based blocks also report peak memory, total SAT calls, and the range (min--max) of variables (\#\textsc{vars}) and clauses (\#\textsc{clauses}) across the evaluated paths.
+    \item \textbf{Correctability:} This block reports the number of paths with correctability counterexamples in the symbolic fault model, together with runtime, memory, SAT calls, and formula-size ranges. These diagnostic checks were also run on circuit-invalid protocols for the reported experiments; their results do not establish physical correctability in that case.
     \item \textbf{Overall Verification Result:} \emph{Circuit valid}, \emph{Protocol valid}, and \emph{Correctable} correspond to $(v_{\mathrm{circ}},v_{\mathrm{prot}},v_{\mathrm{corr}})$ in Algorithm~\ref{alg:ftec-verification}. If circuit validity fails, the latter two entries are $\bot$ (not evaluated), even though separate diagnostic measurements are reported above. \emph{FTEC accepted} is Yes exactly when all three checks pass.
 \end{itemize}
 
@@ -2982,14 +2981,14 @@ The complete evolution of these generators is detailed in Table~\ref{tab:stabili
 
 
 \textbf{Example 2 (Correctability counterexample).}
-\rmark{Consider a terminating path of the parallel-flag
+Consider a terminating path of the parallel-flag
 $[[17,1,5]]$ protocol from~\cite{Du24}, with $t=2$.
 The protocol executes four flagged syndrome extraction rounds
 without a basic syndrome extraction round.
 Figure~\ref{fig:example2-path-pipeline} shows the common
 measurement record of two distinct two-fault assignments.
 Each syndrome lists eight $X$-ancilla bits followed by eight
-$Z$-ancilla bits; a flag is raised in round 1.}
+$Z$-ancilla bits; a flag is raised in round 1.
 
 \begin{figure}[!htbp]
 \centering
@@ -3029,21 +3028,21 @@ The annotations give the flag outcome and syndrome of each round.}
 \label{fig:example2-path-pipeline}
 \end{figure}
 
-\rmark{Consider two distinct fault assignments, each involving
+Consider two distinct fault assignments, each involving
 two circuit faults. Both follow the terminating path in
 Figure~\ref{fig:example2-path-pipeline} and produce the same
-measurement record, but leave different residual data errors.}
-\rmark{The residual errors are $E_A=Z_{12}$ and
+measurement record, but leave different residual data errors.
+The residual errors are $E_A=Z_{12}$ and
 $E_B=Z_6Z_{10}Z_{13}Z_{14}$. Although they share the same
-measurement record,}
+measurement record,
 $E_A E_B
 =Z_6Z_{10}Z_{12}Z_{13}Z_{14}
 \in N(\mathcal S)\setminus\mathcal S,$
-\rmark{their product has trivial stabilizer syndrome but
+their product has trivial stabilizer syndrome but
 anticommutes with logical $X$. Thus, by
 Eq.~\ref{eq:QECC_condition}, no common lookup-table correction
 can correct both errors, and the residual error set is not
-correctable.}
+correctable.
 
 \section{Related Work}
 
