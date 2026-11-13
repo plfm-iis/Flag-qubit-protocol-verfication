@@ -2538,10 +2538,9 @@ of an FTEC lookup-table decoder.
 
 
 \section{Results}
-Our experiments were conducted on a server running Ubuntu 22.04.3 LTS with an
-AMD EPYC 7742 64-core processor (1.5\,GHz), 2\,TiB of RAM, and a 1\,TB SSD. We implemented our verification framework using Z3py to encode the constraints, which were subsequently transformed into DIMACS format for the CryptoMiniSat solver. CryptoMiniSat was chosen for its highly optimized performance on formulas containing massive XOR clauses. No time limit was imposed. 
+Experiments ran on Ubuntu 22.04.3 LTS with an AMD EPYC 7742 64-core processor (1.5\,GHz), 2\,TiB RAM, and a 1\,TB SSD. We used Z3py to encode constraints and export DIMACS formulas for CryptoMiniSat, chosen for its efficient handling of XOR clauses. No time limit was imposed.
 
-We evaluated the framework on flagged error-correction protocols for the $[[5,1,3]]$, $[[7,1,3]]$, $[[17,1,5]]$, $[[19,1,5]]$, and $[[25,1,5]]$ codes. Table~\ref{tab:combined-results} summarizes the verification outcomes and resource costs, with each column representing one protocol setup. The results are grouped by circuit validity, protocol validity, and correctability, followed by the overall FTEC acceptance result.
+Table~\ref{tab:combined-results} reports outcomes and resource costs for protocols on the $[[5,1,3]]$, $[[7,1,3]]$, $[[17,1,5]]$, $[[19,1,5]]$, and $[[25,1,5]]$ codes. Each column represents one setup, with results grouped by circuit validity, protocol validity, and correctability, followed by overall FTEC acceptance.
 
 % \begin{table}[!htbp]
 % \centering
@@ -2875,12 +2874,11 @@ Correctable & Yes & Yes & Yes & No & Yes & Yes & Yes \\
 
 
 
-The diagnostic counts and performance measurements in the table are interpreted as follows.
+The table entries are interpreted as follows.
 \begin{itemize}
 
-    \item \textbf{Circuit Validity:} \emph{Syndrome extraction bugs} counts the evaluated QASM circuits that fail circuit validity (Def.~\ref{def:syndrome-extraction-valid}). The Stim rows report simulation costs for these diagnostic runs. The SAT Solver rows report the runtime and peak memory of the syndrome-extraction SAT check.
+    \item \textbf{Circuit Validity:} \emph{Syndrome extraction bugs} counts the evaluated QASM circuits that fail circuit validity (Def.~\ref{def:syndrome-extraction-valid}). The Stim and SAT Solver rows report their respective runtimes and peak memory.
     \item \textbf{Protocol Validity:} \emph{Control-flow bugs} counts paths that fail the termination requirements of Def.~\ref{def:protocol-validity}; \emph{flag bugs} counts circuits that fail the applicable flag condition (Def.~\ref{def:flag}). These independently collected diagnostic counts do not imply that Algorithm~\ref{alg:ftec-verification} proceeded past an invalid circuit.
-    \item \textbf{Stim:} These rows report the wall-clock runtime and peak memory required to run the complete Stim simulation for each setup.
     \item \textbf{SAT Solver:}
     Resource costs are grouped by verification property. Protocol-validity total time is left blank pending a separate measurement that excludes circuit-validity costs; the previously reported combined timing included Stim runtime. Correctability total time combines encoding/export time with summed solver wall times. The SAT-based blocks also report peak memory, total SAT calls, and the range (min--max) of variables (\#\textsc{vars}) and clauses (\#\textsc{clauses}) across the evaluated paths.
     \item \textbf{Correctability:} This block reports the number of paths with correctability counterexamples in the symbolic fault model, together with runtime, memory, SAT calls, and formula-size ranges. These diagnostic checks were also run on circuit-invalid protocols for the reported experiments; their results do not establish physical correctability in that case.
