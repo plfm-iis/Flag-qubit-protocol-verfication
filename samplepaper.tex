@@ -1989,13 +1989,11 @@ then this is encoded by
        \mathrm{Norm}(Q,\mathcal{S}) =  \bigwedge_j
 \left(
 \bigoplus_{i=1}^n
-\left(
-Q_{i,x} \land G_{j,i,z}
-\right)
+\Bigl(
+(Q_{i,x} \land G_{j,i,z})
 \oplus
-\left(
-Q_{i,z} \land G_{j,i,x}
-\right)
+(Q_{i,z} \land G_{j,i,x})
+\Bigr)
 =0
 \right).
     \end{aligned}
@@ -2018,13 +2016,11 @@ Pauli generator. Thus the verifier encodes stabilizer nonmembership by
        \mathrm{Stab}_{\mathrm{non}}(Q, \mathcal{L}) = \bigvee_{h=1}^{2k}
 \left(
 \bigoplus_{i=1}^n
-\left(
-Q_{i,x} \land L_{h,i,z}
-\right)
+\Bigl(
+(Q_{i,x} \land L_{h,i,z})
 \oplus
-\left(
-Q_{i,z} \land L_{h,i,x}
-\right)
+(Q_{i,z} \land L_{h,i,x})
+\Bigr)
 =1
 \right).
     \end{aligned}
@@ -2134,7 +2130,7 @@ To encode the condition $\mathrm{wt}_{\min}(E_\pi(\mathcal{F})) > w$, we must as
 
 \begin{equation} \label{eq:minimum-weight}
     \begin{aligned}
-      \mathrm{wt}_{\min}(E_\pi(\mathcal{F}))>w \ = \bigwedge_{P : \mathrm{wt}(P) \leq w} \left(\neg\mathrm{Norm}(P \cdot E_\pi(\mathcal{F}), \mathcal{S}) \lor \mathrm{Stab}_{\mathrm{non}}(P \cdot E_\pi(\mathcal{F}), \mathcal{L})\right)
+      \mathrm{wt}_{\min}(E_\pi(\mathcal{F}))>w \ \Longleftrightarrow \bigwedge_{P : \mathrm{wt}(P) \leq w} \left(\neg\mathrm{Norm}(P \cdot E_\pi(\mathcal{F}), \mathcal{S}) \lor \mathrm{Stab}_{\mathrm{non}}(P \cdot E_\pi(\mathcal{F}), \mathcal{L})\right)
     \end{aligned}
 \end{equation}
 
