@@ -1,5 +1,5 @@
 {
-  "overleaf_revision": "360966a220943002caca13ee501bc0c4c08505f1",
+  "overleaf_revision": "d3cdfc87af7129188c28e3c73172f723eb57baea",
   "paper_manifest": {
     "appendix.tex": {
       "mode": "100644",
@@ -43,7 +43,7 @@
     },
     "samplepaper.tex": {
       "mode": "100644",
-      "oid": "00b807966b40672e4ec9fb21e9b9c382fa4bbaec"
+      "oid": "f2a517ceba90cee9ffc92c0920cca35d53bf2708"
     },
     "splncs04.bst": {
       "mode": "100644",
