@@ -893,10 +893,10 @@ with input data error of weight $r$ and $s$ circuit faults satisfying
 $r+s\le t$.
 \end{definition}
 
-\rmark{The correctability criterion in Eq.~\ref{eq:QECC_condition}
-applies to each residual error set $\mathcal E_m$: all errors
-consistent with the same measurement record must be jointly
-correctable by a common recovery.}
+\rmark{We will verify \emph{error-set correctability} by checking
+Eq.~\ref{eq:QECC_condition} for each residual error set
+$\mathcal E_m$, ensuring that all errors consistent with the
+same measurement record are jointly correctable.}
 
 Each execution follows a control-flow path, executing syndrome extraction circuits conditioned on intermediate outcomes. Upon termination, a lookup-table decoder maps the observed measurement record $m$ to a Pauli correction applied to the data qubits.
 
@@ -3021,12 +3021,10 @@ measurement record, but leave different residual data errors.}
 \rmark{The residual errors are $E_A=Z_{12}$ and
 $E_B=Z_6Z_{10}Z_{13}Z_{14}$. Although they share the same
 measurement record,}
-\[
-E_A E_B
+$E_A E_B
 =Z_6Z_{10}Z_{12}Z_{13}Z_{14}
-\in N(\mathcal S)\setminus\mathcal S.
-\]
-\rmark{Their product has trivial stabilizer syndrome but
+\in N(\mathcal S)\setminus\mathcal S,$
+\rmark{their product has trivial stabilizer syndrome but
 anticommutes with logical $X$. Thus, by
 Eq.~\ref{eq:QECC_condition}, no common lookup-table correction
 can correct both errors, and the residual error set is not
