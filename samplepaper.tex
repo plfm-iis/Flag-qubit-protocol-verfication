@@ -2543,6 +2543,8 @@ of an FTEC lookup-table decoder.
 Our experiments were conducted on a server running Ubuntu 22.04.3 LTS with an
 AMD EPYC 7742 64-core processor (1.5\,GHz), 2\,TiB of RAM, and a 1\,TB SSD. We implemented our verification framework using Z3py to encode the constraints, which were subsequently transformed into DIMACS format for the CryptoMiniSat solver. CryptoMiniSat was chosen for its highly optimized performance on formulas containing massive XOR clauses. No time limit was imposed. 
 
+\rmark{We evaluated the framework on flagged error-correction protocols for the $[[5,1,3]]$, $[[7,1,3]]$, $[[17,1,5]]$, $[[19,1,5]]$, and $[[25,1,5]]$ codes. Table~\ref{tab:combined-results} summarizes the verification outcomes and resource costs, with each column representing one protocol setup. The results are grouped by circuit validity, protocol validity, and correctability, followed by the overall FTEC acceptance result.}
+
 % \begin{table}[!htbp]
 % \centering
 
@@ -2875,6 +2877,7 @@ Correctable & Yes & Yes & Yes & No & Yes & Yes & Yes \\
 
 
 
+\rmark{The diagnostic counts and performance measurements in the table are interpreted as follows.}
 \begin{itemize}
 
     \item \rmark{\textbf{Circuit Validity:}} \emph{Syndrome extraction bugs} counts the evaluated QASM circuits that fail circuit validity (Def.~\ref{def:syndrome-extraction-valid}). The Stim rows report simulation costs for these diagnostic runs. \rmark{The SAT Solver rows report the runtime and peak memory of the syndrome-extraction SAT check.}
