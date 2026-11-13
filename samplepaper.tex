@@ -2396,7 +2396,7 @@ the stabilizer propagation underlying this
 check by tracking the evolution of the joint
 data-ancilla stabilizer generators through
 the Clifford gates. The verifier performs
-the same computation using stabilizer-tableau
+the same computation using Stim's stabilizer-tableau
 simulation.
 
 Joint stabilizer preservation ensures that
@@ -2533,7 +2533,7 @@ of an FTEC lookup-table decoder.
 
 
 \section{Results}
-Experiments ran on Ubuntu 22.04.3 LTS with an AMD EPYC 7742 64-core processor (1.5\,GHz), 2\,TiB RAM, and a 1\,TB SSD. We used Z3py to encode constraints and export DIMACS formulas for CryptoMiniSat (CMS), chosen for its efficient handling of XOR clauses. No time limit was imposed.
+Experiments ran on Ubuntu 22.04.3 LTS with an AMD EPYC 7742 64-core processor (1.5\,GHz), 2\,TiB RAM, and a 1\,TB SSD. We used Z3Py to encode constraints and export DIMACS formulas for CryptoMiniSat (CMS), chosen for its efficient handling of XOR clauses. No time limit was imposed.
 
 Table~\ref{tab:combined-results} reports outcomes and resource costs for protocols on the $[[5,1,3]]$, $[[7,1,3]]$, $[[17,1,5]]$, $[[19,1,5]]$, and $[[25,1,5]]$ codes. Each column represents one setup, with results grouped by circuit validity, protocol validity, and correctability, followed by overall FTEC acceptance.
 
