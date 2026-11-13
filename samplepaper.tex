@@ -32,7 +32,6 @@
 \usepackage{subcaption}
 \usepackage[ruled,vlined,linesnumbered]{algorithm2e}
 \usepackage{algpseudocode}
-\usepackage{subcaption}
 \usepackage{rotating}
 \usepackage{xcolor}
 % TikZ and Quantikz
@@ -76,7 +75,7 @@
 
 \begin{document}
 
-\title{Formal Verification of  Flagged Fault-Tolerant Error Correction Protocols}
+\title{Formal Verification of Flagged Fault-Tolerant Error Correction Protocols}
 
 \author{Bo-Ruei Wu}
 \affiliation{%
@@ -353,7 +352,7 @@ P\odot Q=
 \end{equation}
 Here, $\oplus$ and $\land$ denote Boolean XOR and AND.
 The operators commute if $P\odot Q=0$ and
-anti-commute otherwise; equivalently,
+anticommute otherwise; equivalently,
 $P\cdot Q=(-1)^{P\odot Q}Q\cdot P$.
 
 
@@ -878,7 +877,7 @@ the $k$-flag condition if the following hold:
 
 A \textit{flagged fault-tolerant error correction protocol} consists of flagged syndrome extraction circuits and syndrome extraction circuits together with an adaptive control flow. 
 
-The control flow is represented by a finite decision tree (c.f. \ref{fig:five-qubit-flagged-protocol}). It determines which syndrome extraction circuit is executed next based on the syndrome and flag outcomes obtained so far and determines when the protocol terminates.
+The control flow is represented by a finite decision tree (see Fig.~\ref{fig:five-qubit-flagged-protocol}). It determines which syndrome extraction circuit is executed next based on the syndrome and flag outcomes obtained so far and determines when the protocol terminates.
 Its paths enumerate all terminating executions.
 
 
@@ -915,7 +914,7 @@ are stated as Conditions (1)--(3) in
 Def.~\ref{def:protocol-validity}. Condition (3) covers the case where
 no additional syndrome information is required because the residual
 error is already bounded by the number of circuit faults.
-Fig.~\ref{fig:five-qubit-flagged-protocol} illustrates a control flow  of  flagged protocol on the $[[5,1,3]]$ code where $d=3$, $t= \lfloor \frac{3-1}{2 } \rfloor$. 
+Fig.~\ref{fig:five-qubit-flagged-protocol} illustrates the control flow of a flagged protocol on the $[[5,1,3]]$ code where $d=3$, $t= \lfloor \frac{3-1}{2 } \rfloor$. 
 
 % For protocols with small code distance, the completeness of such a decision tree can be verified by
 % exhaustive enumeration of all possible measurement outcomes and fault
@@ -1883,7 +1882,7 @@ This illustrates the two operations used throughout symbolic Pauli execution: ga
 % m_\pi(F_1) = m_\pi(F_2) \quad\equiv\quad \bigwedge_{j=1}^r \bigl(R_j(F_1)\leftrightarrow R_j(F_2)\bigr).
 % \]
 
-Finally, propagation yields the pre-measurement state at $S_3$. Measuring qubit $q$ extracts the Pauli component that anti-commutes with the measurement basis: $Q_{q,z}(\mathcal{F})$ for the $X$ basis and $Q_{q,x}(\mathcal{F})$ for the $Z$ basis.
+Finally, propagation yields the pre-measurement state at $S_3$. Measuring qubit $q$ extracts the Pauli component that anticommutes with the measurement basis: $Q_{q,z}(\mathcal{F})$ for the $X$ basis and $Q_{q,x}(\mathcal{F})$ for the $Z$ basis.
 
 Thus, the recorded outcomes for syndrome qubit $a$ ($X$-basis) and flag qubit $f$ ($Z$-basis) are:
 \[
@@ -2058,9 +2057,9 @@ checks satisfiability of the formula
 \end{aligned}
 \end{equation}
 
-The first two lines require both executions to follow the same terminating
-path and satisfy the fault bound. The third equates their measurement records;
-the last requires their residual data errors to have different ideal syndromes.
+The conjuncts require both executions to follow the same terminating
+path and satisfy the fault bound, equate their measurement records,
+and require their residual data errors to have different ideal syndromes.
 
 The ideal syndrome is computed from the binary Pauli representation by the
 usual symplectic inner product with the stabilizer generators. For a data error
@@ -2331,7 +2330,7 @@ differs from the ideal syndrome:
 \begin{aligned}
 \Psi^{\mathrm{corr}}_{\cC}
 :=
-\exists \mathcal{F}. \quad wt (\mathcal{F}_{\mathrm{circ}}) = 0 
+\exists \mathcal{F}. \quad \mathrm{wt}(\mathcal{F}_{\mathrm{circ}}) = 0 
 \quad & 
  \land \Bigl(
 E_{\mathrm{out}}(\mathcal{F})\not\sim E_{\mathrm{in}}(\mathcal{F})
@@ -2486,7 +2485,7 @@ $v_{\mathrm{prot}}\gets\mathrm{true}$\;
 
 The subroutines in Algorithm~\ref{alg:ftec-verification} refer to the checks
 defined above. \textsc{CircuitValidity} checks
-Def.~\ref{def:syndrome-extraction-valid} by stabilizer-tableau simulation and SAT-based check.
+Def.~\ref{def:syndrome-extraction-valid} using stabilizer-tableau simulation and a SAT-based check.
 
 
 \textsc{ControlFlowValidity} checks whether at least one of the three
@@ -2913,7 +2912,7 @@ $\mathcal{S}_{\mathrm{joint}} = \langle g_0, \dots, g_9 \rangle$ be the initial 
 group of the joint data-ancilla system, and $\mathcal{S}'_{\mathrm{joint}} = \langle g'_0, \dots, g'_9 \rangle$ be the stabilizer
 group after $U$ is applied.
 
-The complete evolution of these generators is detailed in Table~\ref{tab:stabilizer-evolution-exmple}. As shown in the table, the transformed generator $g'_4 = +X_{D_1} Z_{D_2} Z_{D_3} X_{D_4}X_{A_{x,1}} Z_{A_{x,2}} Z_{A_{x,3}} Z_{A_{x,4}}$ anticommutes with the initial generator $g_7= +X_{A_{x,4}}$. Because all elements within a stabilizer group must mutually commute, $g'_4$ cannot belong to $\mathcal{S}_{\mathrm{joint}}$, establishing that $\mathcal{S}_{\mathrm{joint}} \neq \mathcal{S}'_{\mathrm{joint}}$. Consequently, the measurement outcome of the ancilla qubit $A_{x,4}$ becomes non-deterministic. This directly violates Definition~\ref{def:syndrome-extraction-deterministic}, demonstrating that this protocol is not a valid syndrome extraction circuit.
+The complete evolution of these generators is detailed in Table~\ref{tab:stabilizer-evolution-exmple}. As shown in the table, the transformed generator $g'_4 = +X_{D_1} Z_{D_2} Z_{D_3} X_{D_4}X_{A_{x,1}} Z_{A_{x,2}} Z_{A_{x,3}} Z_{A_{x,4}}$ anticommutes with the initial generator $g_7= +X_{A_{x,4}}$. Because all elements within a stabilizer group must mutually commute, $g'_4$ cannot belong to $\mathcal{S}_{\mathrm{joint}}$, establishing that $\mathcal{S}_{\mathrm{joint}} \neq \mathcal{S}'_{\mathrm{joint}}$. Consequently, the measurement outcome of the ancilla qubit $A_{x,4}$ becomes nondeterministic. This directly violates Definition~\ref{def:syndrome-extraction-deterministic}, demonstrating that this protocol is not a valid syndrome extraction circuit.
 
 % Ensure you have these in your preamble:
 % \usepackage{caption}
@@ -2940,7 +2939,7 @@ The complete evolution of these generators is detailed in Table~\ref{tab:stabili
 \lstick{$F_{z,2}$} & \qw        & \qw        & \qw        & \qw        & \qw      & \targ{}  & \qw        & \targ{}  & \qw        & \qw      & \qw        & \qw                                                                                                                                                                                                                                                                                                                                                                                                      & \qw                        & \qw        & \qw        & \qw        & \qw        & \qw      & \targ{}  & \qw        & \qw      & \targ{}  & \qw        & \qw        & \qw      & \qw&\meter{Z}
         \end{quantikz}
         }
-        \caption{Flagged syndrome extraction circuit of $[[5,1,3]]$ code with [LL25]'s $[2,2]^T$ optimization.}
+        \caption{Flagged syndrome extraction circuit of the $[[5,1,3]]$ code with [LL25]'s $[2,2]^T$ optimization.}
         \label{fig:[[5,1,3]]_[2,2]^T}
     \end{minipage}%
     \hfill%
@@ -3076,7 +3075,7 @@ and originality of the paper.
 
 
 \section*{Data-Availability Statement}
-The artifact consists of a python prototype used to support the results in the paper. The current version is complete but with restricted documentation. We intend to submit this artifact for Artifact Evaluation.
+The artifact consists of a Python prototype used to support the results in the paper. The current version is complete but has limited documentation. We intend to submit this artifact for Artifact Evaluation.
 
 
 
