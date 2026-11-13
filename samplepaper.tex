@@ -376,7 +376,7 @@ if $E_1\cdot E_2\in\mathcal{S}$ up to global phase.
 Such errors act identically on encoded states.
 The minimum weight of an error up to stabilizers is
 \begin{equation}
-\mathrm{wt}_{\mathrm{min}}(P)
+\mathrm{wt}_{\min}(P)
 =\min_{S\in\mathcal{S}}\mathrm{wt}(P\cdot S).
 \label{eq:wt_min}
 \end{equation}
@@ -415,7 +415,7 @@ are stabilizer-equivalent.
 An \emph{ideal decoder} performs fault-free syndrome
 extraction and applies a corresponding correction,
 thereby correcting any error with
-$\mathrm{wt}_{\mathrm{min}}(E)\le t$.
+$\mathrm{wt}_{\min}(E)\le t$.
 
 
 
@@ -447,10 +447,10 @@ $Q_{i,z}$.
 \begin{subfigure}{0.48\linewidth}
 \centering
 \begin{quantikz}[row sep={1.2cm,between origins}, column sep=0.6cm]
-\lstick{$(Q_{cx}, Q_{cz})$} & \ctrl{1} & \qw
-  \rstick{$(Q_{cx}, Q_{cz} \oplus Q_{tz})$} \\
-\lstick{$(Q_{tx}, Q_{tz})$} & \targ{} & \qw
-  \rstick{$(Q_{tx} \oplus Q_{cx}, Q_{tz})$}
+\lstick{$(Q_{c,x}, Q_{c,z})$} & \ctrl{1} & \qw
+  \rstick{$(Q_{c,x}, Q_{c,z} \oplus Q_{t,z})$} \\
+\lstick{$(Q_{t,x}, Q_{t,z})$} & \targ{} & \qw
+  \rstick{$(Q_{t,x} \oplus Q_{c,x}, Q_{t,z})$}
 \end{quantikz}
 \caption{CX gate}
 \end{subfigure}
@@ -458,10 +458,10 @@ $Q_{i,z}$.
 \begin{subfigure}{0.48\linewidth}
 \centering
 \begin{quantikz}[row sep={1.2cm,between origins}, column sep=0.6cm]
-\lstick{$(Q_{cx}, Q_{cz})$} & \ctrl{1} & \qw
-  \rstick{$(Q_{cx}, Q_{cz} \oplus Q_{tx})$} \\
-\lstick{$(Q_{tx}, Q_{tz})$} & \control{} & \qw
-  \rstick{$(Q_{tx},  Q_{tz} \oplus Q_{cx})$}
+\lstick{$(Q_{c,x}, Q_{c,z})$} & \ctrl{1} & \qw
+  \rstick{$(Q_{c,x}, Q_{c,z} \oplus Q_{t,x})$} \\
+\lstick{$(Q_{t,x}, Q_{t,z})$} & \control{} & \qw
+  \rstick{$(Q_{t,x},  Q_{t,z} \oplus Q_{c,x})$}
 \end{quantikz}
 \caption{CZ gate}
 \end{subfigure}
@@ -1531,7 +1531,7 @@ below, followed by their execution order in the overall algorithm.
 We first define the symbolic objects used by the SAT-based checks.
 The verifier analyzes each terminating path of the protocol separately.
 Let $\pi$ be a terminating path, and let $\mathcal{L}_\pi$ denote the set of
-fault locations along $\pi$. A \emph{fault assignment} is defined as a tuple $\mathcal{F} = (\mathcal{F}_{\text{in}}, \mathcal{F}_{\text{circ}})$, where $\mathcal{F}_{\text{in}}$ denotes the input data error and $\mathcal{F}_{\text{circ}}$ assigns a Pauli fault to each location in $\mathcal{L}_\pi$.
+fault locations along $\pi$. A \emph{fault assignment} is defined as a tuple $\mathcal{F} = (\mathcal{F}_{\mathrm{in}}, \mathcal{F}_{\mathrm{circ}})$, where $\mathcal{F}_{\mathrm{in}}$ denotes the input data error and $\mathcal{F}_{\mathrm{circ}}$ assigns a Pauli fault to each location in $\mathcal{L}_\pi$.
 
 For a data qubit $q_i$, the input is represented by two variables $(q_{i,x}, q_{i,z})$. We introduce an activity variable $a_{i} \in \{0,1\}$ to indicate whether the qubit has an input error:
 \begin{equation}
@@ -1556,10 +1556,10 @@ x_{\ell,q_2}\vee z_{\ell,q_2}.
 Thus, $a_\ell=1$ exactly when the fault assigned to $\ell$ is not the
 identity. The input error weight of $\mathcal{F}_{\mathrm{in}}$ and the circuit fault count of $\mathcal{F}_{\mathrm{circ}}$ are then
 \[
-\mathrm{wt}(\mathcal{F}_{in})
+\mathrm{wt}(\mathcal{F}_{\mathrm{in}})
 =
 \sum_{i} a_{i},\  
-\mathrm{wt}(\mathcal{F}_{circ})
+\mathrm{wt}(\mathcal{F}_{\mathrm{circ}})
 =
 \sum_{\ell\in\mathcal{L}_\pi} a_\ell.
 \]
@@ -1568,7 +1568,7 @@ $\mathrm{wt}(\mathcal F)=\mathrm{wt}(\mathcal F_{\mathrm{in}})
 +\mathrm{wt}(\mathcal F_{\mathrm{circ}})$,
 accounting for both input data errors and circuit faults.
 We encode $\mathrm{wt}(\mathcal{F})\le t$ and
-$\mathrm{wt}(\mathcal{F}_{circ})=w$ with cardinality
+$\mathrm{wt}(\mathcal{F}_{\mathrm{circ}})=w$ with cardinality
 constraints~\cite{sinz2005towards}.
 
 
@@ -1826,7 +1826,7 @@ outcomes, a complete measurement record determines its terminating path.
 % \]
 
 \paragraph{Example (Symbolic fault propagation).}
-Consider the flagged $XZZXI$ extraction circuit in Figure~\ref{fig:fault-propagation-circuit}, with initial Pauli error $(False,False)$ on every qubit. We illustrate symbolic fault propagation at the three indicated slices, using the gate rules in Figure~\ref{fig:two-qubit-pauli-rules}.
+Consider the flagged $XZZXI$ extraction circuit in Figure~\ref{fig:fault-propagation-circuit}, with initial Pauli error $(0,0)$ on every qubit. We illustrate symbolic fault propagation at the three indicated slices, using the gate rules in Figure~\ref{fig:two-qubit-pauli-rules}.
 
 \begin{figure}[!htbp]
 \centering
@@ -1846,7 +1846,7 @@ wire types={q,q,q,q,q,q,q}
 \lstick{$Q_{f}$}   & \qw              & \qw                   & \targ{} & \qw & \qw & \targ{} & \qw & \meter{$Z$}
 \end{quantikz}
 \end{adjustbox}
-\caption{Symbolic fault propagation in the flagged $XZZXI$ circuit (initially $Q_q=(False,False)$).
+\caption{Symbolic fault propagation in the flagged $XZZXI$ circuit (initially $Q_q=(0,0)$).
 $S_1$: after the fault at $\ell_1$ on $CX(a,d_1)$;
 $S_2$: after $CX(a,f)$ and a possible fault at $\ell_2$;
 $S_3$: immediately before measurement.}
@@ -2005,7 +2005,7 @@ Q_{i,z} \land G_{j,i,x}
 
 Stabilizer nonmembership is encoded using a fixed set of logical Pauli operators
 $
-\mathcal{L} = L_1,\ldots,L_{2k},
+\mathcal{L} = \{L_1,\ldots,L_{2k}\},
 $
 precomputed from the stabilizer generators of the code.
 Since the previous constraint already enforces $Q\in N(\mathcal S)$, the
@@ -2015,7 +2015,7 @@ Pauli generator. Thus the verifier encodes stabilizer nonmembership by
 
 \begin{equation} \label{eq:stabiizer-nonmembership}
     \begin{aligned}
-       \mathrm{Stab_{\mathrm{non}}}(Q, \mathcal{L}) = \bigvee_{h=1}^{2k}
+       \mathrm{Stab}_{\mathrm{non}}(Q, \mathcal{L}) = \bigvee_{h=1}^{2k}
 \left(
 \bigoplus_{i=1}^n
 \left(
@@ -2032,7 +2032,7 @@ Q_{i,z} \land L_{h,i,x}
 
 
 
-Together $\mathrm{Norm}(Q,\mathcal{S}) \wedge \mathrm{Stab_{\mathrm{non}}}(Q, \mathcal{L})$ encode $Q\in N(\cS)\setminus\cS$,
+Together $\mathrm{Norm}(Q,\mathcal{S}) \wedge \mathrm{Stab}_{\mathrm{non}}(Q, \mathcal{L})$ encode $Q\in N(\cS)\setminus\cS$,
 completing the SAT query.
 
 
@@ -2116,8 +2116,8 @@ requirement:
 \Psi^{\mathrm{CF3}}_{\pi,w}
 :=\exists\mathcal F.\quad
 &\Phi_\pi(\mathcal F)\land r+w\le t\\
-&\land\mathrm{wt}(\mathcal F_{in})=r
-\land\mathrm{wt}(\mathcal F_{circ})=w\\
+&\land\mathrm{wt}(\mathcal F_{\mathrm{in}})=r
+\land\mathrm{wt}(\mathcal F_{\mathrm{circ}})=w\\
 &\land\mathrm{wt}_{\min}(E_\pi(\mathcal F))>w.
 \end{aligned}
 \end{equation}
@@ -2967,7 +2967,7 @@ The complete evolution of these generators is detailed in Table~\ref{tab:stabili
          & $g_9 = +Z_{F_{z,2}}$  & $g'_9 = g_9$ \\
         \bottomrule
         \end{tabular}
-        \captionof{table}{Evolution of stabilizer generators before ($G_{\text{before}}$) and after ($G_{\text{after}}$) applying the circuit $U$.}
+        \captionof{table}{Evolution of stabilizer generators from $\mathcal{S}_{\mathrm{joint}}$ to $\mathcal{S}'_{\mathrm{joint}}$ under $U$.}
         \label{tab:stabilizer-evolution-exmple}
     \end{minipage}
 \end{figure}
