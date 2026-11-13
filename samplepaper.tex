@@ -2769,8 +2769,8 @@ Syndrome extraction bugs (circuit) & 0 & 0 & 2 & 2 & 0 & 0 & 0 & 0 & 0 \\
 Stim Runtime (s) & 0.677 & 0.086 & 0.085 & 0.083 & 0.088 & 0.203 & 0.230 & 0.382 & 0.152 \\
 Stim Peak Mem (MB) & 216.8 & 223.8 & 197.4 & 215.0 & 203.3 & 199.3 & 225.9 & 204.4 & 198.8 \\
 \multicolumn{10}{l}{\rmark{\textit{SAT Solver}}} \\
-\rmark{Total Time (s)} & & & & & & & & & \\
-\rmark{Peak Memory (MB)} & & & & & & & & & \\
+\rmark{Total Time (s)} & 0.351 & 0.091 & 0.088 & 0.085 & 0.092 & 0.192 & 0.241 & 0.155 & 0.262 \\
+\rmark{Peak Memory (MB)} & 100.3 & 100.1 & 100.2 & 100.1 & 100.1 & 100.2 & 88.1 & 97.1 & 89.2 \\
 \midrule
 \multicolumn{10}{c}{\rmark{\textbf{Protocol Validity}}} \\
 \midrule
@@ -2831,8 +2831,8 @@ Syndrome extraction bugs (circuit) & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
 Stim Runtime (s) & 0.156 & 0.146 & 0.140 & 0.135 & 0.143 & 0.154 & 0.150 \\
 Stim Peak Mem (MB) & 201.7 & 235.8 & 199.1 & 215.9 & 199.4 & 221.6 & 199.6 \\
 \multicolumn{8}{l}{\rmark{\textit{SAT Solver}}} \\
-\rmark{Total Time (s)} & & & & & & & \\
-\rmark{Peak Memory (MB)} & & & & & & & \\
+\rmark{Total Time (s)} & 0.307 & 0.262 & 0.258 & 0.211 & 0.222 & 0.263 & 0.348 \\
+\rmark{Peak Memory (MB)} & 91.9 & 100.6 & 100.3 & 89.1 & 97.1 & 88.4 & 88.3 \\
 \midrule
 \multicolumn{8}{c}{\rmark{\textbf{Protocol Validity}}} \\
 \midrule
@@ -2868,7 +2868,7 @@ Correctable & Yes & Yes & Yes & No & Yes & Yes & Yes \\
 \bottomrule
 \end{tabular}%
 }
-\caption{Verification results and performance for the evaluated protocols (top: Part 1; bottom: Part 2). \rmark{Blank cells indicate unavailable measurements.} Diagnostic checks were performed independently; $\bot$ denotes a check skipped when circuit validity fails.}
+\caption{Verification results and performance for the evaluated protocols (top: Part 1; bottom: Part 2). \rmark{Blank cells indicate unavailable measurements.} Diagnostic checks were performed independently; $\bot$ denotes a check skipped when circuit validity fails. Circuit valid is Yes only when both the Stim check and the syndrome-extraction SAT check pass.}
 \label{tab:combined-results}
 \endgroup
 \end{table}
@@ -2877,7 +2877,7 @@ Correctable & Yes & Yes & Yes & No & Yes & Yes & Yes \\
 
 \begin{itemize}
 
-    \item \rmark{\textbf{Circuit Validity:}} \emph{Syndrome extraction bugs} counts the evaluated QASM circuits that fail circuit validity (Def.~\ref{def:syndrome-extraction-valid}). The Stim rows report simulation costs for these diagnostic runs. \rmark{The SAT Solver rows reserve space for circuit-validity runtime and peak memory; these measurements are not yet available.}
+    \item \rmark{\textbf{Circuit Validity:}} \emph{Syndrome extraction bugs} counts the evaluated QASM circuits that fail circuit validity (Def.~\ref{def:syndrome-extraction-valid}). The Stim rows report simulation costs for these diagnostic runs. \rmark{The SAT Solver rows report the runtime and peak memory of the syndrome-extraction SAT check.}
     \item \rmark{\textbf{Protocol Validity:}} \emph{Control-flow bugs} counts paths that fail the termination requirements of Def.~\ref{def:protocol-validity}; \emph{flag bugs} counts circuits that fail the applicable flag condition (Def.~\ref{def:flag}). These independently collected diagnostic counts do not imply that Algorithm~\ref{alg:ftec-verification} proceeded past an invalid circuit.
     \item \textbf{Stim:} These rows report the wall-clock runtime and peak memory required to run the complete Stim simulation for each setup.
     \item \textbf{SAT Solver:}
